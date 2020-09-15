@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="twebchannel.js"></script>
+    <script src="jquery.min.js"></script>
+    <script type="text/javascript">
+
+        var lastKey = ""
+        var lastUpdateIsProcessed = true;
+
+        document.addEventListener("DOMContentLoaded", function() {
+
+				//documento foi carregado, conectar no twebchannel:
+				twebchannel.connect(function() {
+					// Signal que recebe o codigo vindo do AdvPL para injecao
+                    twebchannel.advplToJs = advplToJs;
+					// Envia sinal ao ADVPL informando sucesso na criacao do formulario
+					twebchannel.jsToAdvpl("start", "Pagina Inicializada");
+				});
+
+		}, false);
+       
+
+        function advplToJs(codeType, codeContent) {
+            if (codeType === "started") {
+                start();
+            } else if (codeType === "processed") {
+                lastUpdateIsProcessed = true;
+            }
+        }
+
+        function start(){
+            setInterval(update, 33);
+        }
+
+        function update(){
+            if (lastUpdateIsProcessed) {
+                twebchannel.jsToAdvpl("update", lastKey || "");
+                lastUpdateIsProcessed = false;
+                setLastKey("")
+            }
+        }
+
+        $(document).keydown(function (evt) {
+            setLastKey(evt.key);
+        });
+
+        function setLastKey(key){
+            lastKey = key;
+            console.log(key);
+        }
+
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>
