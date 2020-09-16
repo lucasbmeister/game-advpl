@@ -1,14 +1,13 @@
 #include "totvs.ch"
 
 #DEFINE SPAWN_INTERVAL 7000
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 CLass Clouds From BaseGameObject
 
     Data aClouds
@@ -22,14 +21,13 @@ CLass Clouds From BaseGameObject
 
 EndClass
 
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method New(oWindow, nTop, nLeft, nBottom, nRight) Class Clouds
     _Super:New(oWindow)
     ::aClouds := {}
@@ -39,14 +37,13 @@ Method New(oWindow, nTop, nLeft, nBottom, nRight) Class Clouds
 
 
 Return
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method Update(oGameManager) Class Clouds
 
     Local nX as numeric
@@ -69,14 +66,13 @@ Method Update(oGameManager) Class Clouds
     Next nX
 
 Return
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method CreateCloud() Class Clouds
     Local oCloud as object
 

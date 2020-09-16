@@ -14,14 +14,13 @@ Class BaseGameObject
 
 EndClass
 
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method New(oWindow) Class BaseGameObject
     Local cTempPath as char
 
@@ -34,37 +33,34 @@ Method New(oWindow) Class BaseGameObject
     
 Return Self
 
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method SetWindow(oWindow) Class BaseGameObject
     ::oWindow := oWindow
 Return 
 
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method GetAssetsPath(cAsset) Class BaseGameObject
 Return ::cAssetsPath + cAsset
 
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method LoadFrames(cEntity) Class BaseGameObject
     Local cPath as char
     Local nX as numeric

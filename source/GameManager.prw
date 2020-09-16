@@ -1,13 +1,12 @@
 #include "totvs.ch"
 
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Class GameManager
 
     Data cLastKey
@@ -36,14 +35,13 @@ Class GameManager
 
 EndClass
 
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method New(cGameName, nTop, nLeft, nBottom, nRight) Class GameManager
 
     Static oInstance as object
@@ -70,35 +68,32 @@ Method New(cGameName, nTop, nLeft, nBottom, nRight) Class GameManager
 
 Return Self
 
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method AddObject(oObject) Class GameManager
     Aadd(::aObjects, oObject)
 Return
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method GetMainWindow() Class GameManager
 Return ::oWindow
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method Start() Class GameManager
 
     Static oInstance as object
@@ -107,14 +102,13 @@ Method Start() Class GameManager
     ::oWindow:Activate( ,,,.T.,,,{|| oInstance:StartEngine() })
 Return
 
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method StartEngine() Class GameManager
 
     Static oInstance as object
@@ -140,14 +134,13 @@ Method StartEngine() Class GameManager
     ConOut(::oWebChannel:nPort)
     
 Return
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method HandleEvent(oWebChannel, codeType, codeContent) Class GameManager
 
     If codeType == "start"
@@ -157,35 +150,32 @@ Method HandleEvent(oWebChannel, codeType, codeContent) Class GameManager
     EndIf 
 
 Return
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method SetLastKey(cKey) Class GameManager
     ::cLastKey := cKey
 REturn
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method GetLastKey() Class GameManager
 Return Upper(::cLastKey)
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method Update(oWebChannel, codeType, codeContent) Class GameManager
     
     Local nX as numeric
@@ -199,37 +189,34 @@ Method Update(oWebChannel, codeType, codeContent) Class GameManager
     ::Processed()
 
 Return
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method Processed()  Class GameManager
     ::oWebChannel:advplToJs("processed", "true")
 Return
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method GetDimensions() Class GameManager
     Local aDimensions as array
     aDimensions := {::nTop, ::nLeft, ::nBottom, ::nRight}
 Return aDimensions
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method ExportAssets() Class GameManager
 
     Local cTempPath as char

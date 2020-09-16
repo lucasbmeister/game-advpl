@@ -5,14 +5,13 @@
 #DEFINE LEFT 2
 #DEFINE BOTTOM 3
 #DEFINE RIGHT 4
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Main Function Game2D()
 
     Local oPlayer as object

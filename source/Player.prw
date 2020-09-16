@@ -4,14 +4,15 @@
 #DEFINE MAX_JUMP 60
 #DEFINE JUMP_SPEED 4
 #DEFINE ANIMATION_DELAY 100 //ms
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
+
 Class Player From BaseGameObject
 
     Data oPlayerObject
@@ -39,14 +40,13 @@ Class Player From BaseGameObject
     Method GetNextFrame()
 
 EndClass
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method New(oWindow, cName) Class Player
 
     Local cStyle as char 
@@ -77,14 +77,13 @@ Method New(oWindow, cName) Class Player
     ::oPlayerObject:SetCss(cStyle)
 
 Return Self
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method Update(oGameManager) Class Player
 
     Local cKey as char
@@ -120,14 +119,13 @@ Method Update(oGameManager) Class Player
 
 Return
 
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method Jump() Class Player
 
     ::lIsJumping := .T.
@@ -154,58 +152,53 @@ Method Jump() Class Player
     EndIf
 
 Return
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method IsJumping() Class Player
 Return ::lIsJumping
 
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method ApplyGravity() Class Player
 
 Return
 
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method IsGrounded() Class Player
 Return ::lIsGrounded
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method IsFalling() Class Player
 Return ::lIsFalling
 
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method Animate() Class Player
 
     Local cState as char
@@ -237,35 +230,32 @@ Method Animate() Class Player
     EndIf
 
 Return
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method SetState(cState) Class Player
     ::cCurrentState := cState
 Return
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method GetCurrentState() Class Player
 Return ::cCurrentState
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method GetNextFrame() Class Player
 
     Local lChangedDirection as logical

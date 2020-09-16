@@ -1,12 +1,11 @@
 #include "totvs.ch"
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Class Sky From BaseGameObject
 
     Data oPanel
@@ -15,14 +14,13 @@ Class Sky From BaseGameObject
     Method Update()
 
 EndClass
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method New(oWindow, nTop, nLeft, nBottom, nRight ) Class Sky
     Local cStyle as char 
     Static oInstance as object
@@ -36,13 +34,12 @@ Method New(oWindow, nTop, nLeft, nBottom, nRight ) Class Sky
     ::oPanel:SetCss(cStyle)
 Return Self
 
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method Update() Class Sky
 Return

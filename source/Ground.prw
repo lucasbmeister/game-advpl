@@ -1,12 +1,11 @@
 #include "totvs.ch"
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Class Ground From BaseGameObject
 
     Data oPanel
@@ -15,14 +14,13 @@ Class Ground From BaseGameObject
     Method Update()
 
 EndClass
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method New(oWindow, nTop, nLeft, nBottom, nRight ) Class Ground
     
     Local cStyle as char 
@@ -38,13 +36,12 @@ Method New(oWindow, nTop, nLeft, nBottom, nRight ) Class Ground
     ::oPanel:SetCss(cStyle)
 
 Return
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method Update() Class Ground
 Return

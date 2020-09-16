@@ -1,13 +1,12 @@
 #include "totvs.ch"
 
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------  
+*/  
 Class SidePanel From BaseGameObject
 
     Data oPanel
@@ -17,14 +16,13 @@ Class SidePanel From BaseGameObject
     Method Update()
 
 EndClass
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method New(oWindow, nTop, nLeft, nWidth, nHeight) Class SidePanel
 
     ::SetWindow(oWindow)
@@ -34,13 +32,12 @@ Method New(oWindow, nTop, nLeft, nWidth, nHeight) Class SidePanel
 
 Return
 
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Method Update() Class SidePanel
 Return
