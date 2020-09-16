@@ -31,6 +31,7 @@ Class GameManager
     Method StartEngine()
     Method Update()
     Method HandleEvent()
+    Method ExportAssets()
     Method Processed()
 
 EndClass
@@ -64,6 +65,8 @@ Method New(cGameName, nTop, nLeft, nBottom, nRight) Class GameManager
     oInstance := Self
 
     ::oWindow := TDialog():New(::nTop,::nLeft,::nBottom,::nRight,::cGameName ,,,,,CLR_BLACK,CLR_HCYAN,,,.T.)
+
+    ::ExportAssets()
 
 Return Self
 
@@ -115,29 +118,11 @@ description
 Method StartEngine() Class GameManager
 
     Static oInstance as object
-
     Local cLink as char
-    Local cTempPath as char
-    Local cFile as char
+
     oInstance := Self
-
-    cTempPath := GetTempPath()
-    cFile := "gameadvpl.app"
-    cLink := cTempPath + "gameadvpl\gameadvpl.html"
-
-    If !Resource2File(cFile,  cTempPath + cFile)
-    	UserException("Nao foi possivel copiar o arquivo "+cFile+" para o diretorio temporario")
-		Return
-    EndIf
-
-    If !ExistDir(cTempPath + "gameadvpl\" )
-		If MakeDir(cTempPath + "gameadvpl\" ) != 0
-			UserException("Nao foi criar o diretorio" + cTempPath + "gameadvpl\")
-			Return
-		EndIf
-	EndIf
-
-    FUnzip(cTempPath + cFile, cTempPath + "gameadvpl\")
+    
+    cLink := GetTempPath() + "gameadvpl\gameadvpl.html"
 
     ::oWebChannel := TWebChannel():New()
     ::oWebChannel:Connect()
@@ -237,3 +222,34 @@ Method GetDimensions() Class GameManager
     Local aDimensions as array
     aDimensions := {::nTop, ::nLeft, ::nBottom, ::nRight}
 Return aDimensions
+//-------------------------------------------------------------------
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+//-------------------------------------------------------------------
+Method ExportAssets() Class GameManager
+
+    Local cTempPath as char
+    Local cFile as char
+
+    cTempPath := GetTempPath()
+    cFile := "gameadvpl.app"
+
+    If !Resource2File(cFile,  cTempPath + cFile)
+    	UserException("Nao foi possivel copiar o arquivo "+cFile+" para o diretorio temporario")
+		Return
+    EndIf
+
+    If !ExistDir(cTempPath + "gameadvpl\" )
+		If MakeDir(cTempPath + "gameadvpl\" ) != 0
+			UserException("Nao foi criar o diretorio" + cTempPath + "gameadvpl\")
+			Return
+		EndIf
+	EndIf
+
+    FUnzip(cTempPath + cFile, cTempPath + "gameadvpl\")
+
+REturn

@@ -3,6 +3,7 @@
 #DEFINE SPEED 4
 #DEFINE MAX_JUMP 60
 #DEFINE JUMP_SPEED 4
+#DEFINE ANIMATION_DELAY 100 //ms
 //-------------------------------------------------------------------
 /*/{Protheus.doc} function
 description
@@ -15,10 +16,14 @@ Class Player From BaseGameObject
 
     Data oPlayerObject
     Data cDirection
+    Data cLastDirection
     Data lIsJumping
     Data lIsGrounded
     Data lIsFalling
+    Data cCurrentState
     Data nCurrentHeight
+    Data nCurrentFrame
+    Data nLastFrameTime
 
     Method New() Constructor
     Method Update()
@@ -28,6 +33,10 @@ Class Player From BaseGameObject
     Method ApplyGravity()
     Method IsGrounded()
     Method IsFalling()
+    Method Animate()
+    Method SetState()
+    Method GetCurrentState()
+    Method GetNextFrame()
 
 EndClass
 //-------------------------------------------------------------------
@@ -49,17 +58,24 @@ Method New(oWindow, cName) Class Player
     ::lIsGrounded := .T.
     ::lIsFalling := .F.
     ::nCurrentHeight := 0
+    ::cCurrentState := "idle"
+
+    ::nCurrentFrame := 1
+    ::nLastFrameTime := 0
+
+    ::LoadFrames("player")
 
    // cStyle := "QFrame{ border-style:solid; border-width:3px; border-color:#FF0000; background-color:#00FF00 }"
-    cStyle := "QFrame{ image: url("+StrTran(::GetAssetsPath("player.gif"),"\","/")+"); border-style: none }"
+    cStyle := "QFrame{ image: url("+::aFramesForward[::nCurrentFrame]+"); border-style: none }"
     
     ::cDirection := "R"
+    ::cLastDirection := "R"
 
     oInstance := Self
 
-    //::oPlayerObject := TPanel():New(01, 10, cName, oInstance:oWindow,, .T.,, CLR_YELLOW, CLR_BLUE, 050, 050)
-    ::oPlayerObject := TPanelCss():New(200, 150, , oInstance:oWindow,,,,,, 050, 050)
+    ::oPlayerObject := TPanelCss():New(227, 150, , oInstance:oWindow,,,,,, 050, 050)
     ::oPlayerObject:SetCss(cStyle)
+
 Return Self
 //-------------------------------------------------------------------
 /*/{Protheus.doc} function
@@ -78,20 +94,29 @@ Method Update(oGameManager) Class Player
     If ::IsGrounded()
         If cKey == 'W'
             ::Jump()
+            ::SetState("jumping")
         ElseIf cKey == 'A'
             ::cDirection := "L"
             ::oPlayerObject:nLeft -= SPEED
+            ::SetState("walking")
         ElseIf cKey == 'S'
             //::oPlayerObject:nTop += SPEED
         ElseIf cKey == 'D'
             ::cDirection := "R"
             ::oPlayerObject:nLeft += SPEED
+            ::SetState("walking")
+        Else
+            ::SetState("idle")
         EndIf
+
     ElseIf !::IsGrounded() .and. ::IsJumping()
         ::Jump()
     Else
         ::ApplyGravity()
     EndIf
+
+    ::Animate()
+    ::cLastDirection := ::cDirection
 
 Return
 
@@ -172,3 +197,85 @@ description
 //-------------------------------------------------------------------
 Method IsFalling() Class Player
 Return ::lIsFalling
+
+//-------------------------------------------------------------------
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+//-------------------------------------------------------------------
+Method Animate() Class Player
+
+    Local cState as char
+    Local cStyle as char
+    Local nTime as numeric
+
+    nTime := TimeCounter()
+
+    If nTime - ::nLastFrameTime >= ANIMATION_DELAY
+        
+        cState := ::GetCurrentState()
+    
+
+        If cState == "walking"
+
+            cStyle := "QFrame{ image: url("+::GetNextFrame()+"); border-style: none; }"
+            ::oPlayerObject:SetCss(cStyle)
+
+        ElseIf (cState == "jumping" .or. cState == "idle") .and. ::nCurrentFrame != 1
+
+            ::nCurrentFrame := 1
+
+            cStyle := "QFrame{ image: url("+IIF(::cDirection == "L", ::aFramesBackward[::nCurrentFrame], ::aFramesForward[::nCurrentFrame])+");"
+            cStyle += "border-style: none;}"
+            ::oPlayerObject:SetCss(cStyle)
+
+        EndIf
+        ::nLastFrameTime := nTime
+    EndIf
+
+Return
+//-------------------------------------------------------------------
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+//-------------------------------------------------------------------
+Method SetState(cState) Class Player
+    ::cCurrentState := cState
+Return
+//-------------------------------------------------------------------
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+//-------------------------------------------------------------------
+Method GetCurrentState() Class Player
+Return ::cCurrentState
+//-------------------------------------------------------------------
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+//-------------------------------------------------------------------
+Method GetNextFrame() Class Player
+
+    Local lChangedDirection as logical
+
+    lChangedDirection := ::cLastDirection != ::cDirection
+
+    If ::nCurrentFrame == Len(::aFramesForward) .or. lChangedDirection
+        ::nCurrentFrame := 1
+    Else
+        ::nCurrentFrame++
+    EndIf
+
+Return IIF(::cDirection == "L", ::aFramesBackward[::nCurrentFrame], ::aFramesForward[::nCurrentFrame])

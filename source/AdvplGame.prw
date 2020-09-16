@@ -27,19 +27,20 @@ Main Function Game2D()
 
     oSky := Sky():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[BOTTOM], aDimensions[RIGHT])
     oGround := Ground():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[BOTTOM], aDimensions[RIGHT])
-
+    
     oPlayer := Player():New(oWindow, "Lucas")
-    oClouds := Clouds():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[BOTTOM], aDimensions[RIGHT])
 
-    oPanelLeft := SidePanel():New(oWindow, aDimensions[TOP], aDimensions[LEFT], 150, aDimensions[BOTTOM])
-    oPanelRight := SidePanel():New(oWindow, aDimensions[TOP], 500, 150, aDimensions[BOTTOM])
+    // oPanelLeft := SidePanel():New(oWindow, aDimensions[TOP], aDimensions[LEFT], 150, aDimensions[BOTTOM])
+    // oPanelRight := SidePanel():New(oWindow, aDimensions[TOP], 500, 150, aDimensions[BOTTOM])
+
+    oClouds := Clouds():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[BOTTOM], aDimensions[RIGHT])
 
     oGame:AddObject(oSky)
     oGame:AddObject(oPlayer)
     oGame:AddObject(oClouds)
     oGame:AddObject(oGround)
-    oGame:AddObject(oPanelLeft)
-    oGame:AddObject(oPanelRight)
+    // oGame:AddObject(oPanelLeft)
+    // oGame:AddObject(oPanelRight)
 
     oGame:Start()
 

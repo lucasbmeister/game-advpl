@@ -30,10 +30,9 @@ Method New(oWindow, nTop, nLeft, nBottom, nRight ) Class Sky
     _Super:New(oWindow)
 
     oInstance := Self
+    cStyle := "QFrame{ border-image: url("+StrTran(::GetAssetsPath("background.png"),"\","/")+") 0 0 0 0 stretch stretch }"
 
-    cStyle := "QFrame{ image: url("+StrTran(::GetAssetsPath("background.png"),"\","/")+"); border-style: none }"
-
-    ::oPanel := TPanelCss():New(0, 0, , oInstance:oWindow,,,,,, 600, 1024)
+    ::oPanel := TPanelCss():New(0, 0, , oInstance:oWindow,,,,,, 650, 350)
     ::oPanel:SetCss(cStyle)
 Return Self
 
