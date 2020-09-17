@@ -10,7 +10,8 @@ description
 Class GameManager
 
     Data cLastKey
-    Data aObjects 
+    Data oActiveScene
+    Data aScenes
     Data oWindow 
     Data cGameName
     Data oWebChannel
@@ -21,7 +22,10 @@ Class GameManager
     Data nRight
 
     Method New() Constructor
-    Method AddObject()
+    Method AddScene()
+    Method SetActiveScene()
+    Method GetActiveScene()
+    Method LoadScene()
     Method Start()
     Method SetLastKey()
     Method GetLastKey()
@@ -57,12 +61,14 @@ Method New(cGameName, nTop, nLeft, nBottom, nRight) Class GameManager
     ::nRight := nRight
     
     ::cGameName := cGameName
-    ::aObjects := {}
+    ::aScenes := {}
     ::cLastKey := ""
 
     oInstance := Self
 
     ::oWindow := TDialog():New(::nTop,::nLeft,::nBottom,::nRight,::cGameName ,,,,,CLR_BLACK,CLR_HCYAN,,,.T.)
+    // ::oWindow := TWindow():New(::nTop, ::nLeft, ::nBottom, ::nRight, ::cGameName, NIL, NIL, NIL, NIL, NIL, NIL, NIL,;
+    //     CLR_BLACK, CLR_WHITE, NIL, NIL, NIL, NIL, NIL, NIL, .T. )
 
     ::ExportAssets()
 
@@ -75,8 +81,8 @@ description
 @since   date
 @version version
 */
-Method AddObject(oObject) Class GameManager
-    Aadd(::aObjects, oObject)
+Method AddScene(oScene) Class GameManager
+    Aadd(::aScenes, oScene)
 Return
 /*
 {Protheus.doc} function
@@ -94,12 +100,19 @@ description
 @since   date
 @version version
 */
-Method Start() Class GameManager
+Method Start(cFirstScene) Class GameManager
 
+    Local nPos as numeric
     Static oInstance as object
     oInstance := Self
 
-    ::oWindow:Activate( ,,,.T.,,,{|| oInstance:StartEngine() })
+    nPos := AScan(::aScenes,{|x| x:GetSceneID() == cFirstScene })
+
+    ::SetActiveScene(::aScenes[nPos])
+    
+    ::oWindow:bStart := {||::aScenes[nPos]:Start(),  oInstance:StartEngine() }
+    ::oWindow:Activate()
+
 Return
 
 /*
@@ -130,8 +143,6 @@ Method StartEngine() Class GameManager
 
     ::oWebEngine := TWebEngine():New(oInstance:oWindow, 0, 0, ::nRight - ::nLeft, 10,,::oWebChannel:nPort)	
 	::oWebEngine:Navigate(cLink)
-    ConOut(cLink)
-    ConOut(::oWebChannel:nPort)
     
 Return
 /*
@@ -177,14 +188,10 @@ description
 @version version
 */
 Method Update(oWebChannel, codeType, codeContent) Class GameManager
-    
-    Local nX as numeric
 
     ::SetLastKey(codeContent)
 
-    For nX := 1 To Len(::aObjects)
-        ::aObjects[nX]:Update(Self)
-    Next nX
+    ::GetActiveScene():Update(Self)
 
     ::Processed()
 
@@ -207,9 +214,7 @@ description
 @version version
 */
 Method GetDimensions() Class GameManager
-    Local aDimensions as array
-    aDimensions := {::nTop, ::nLeft, ::nBottom, ::nRight}
-Return aDimensions
+Return {::nTop, ::nLeft, ::nBottom, ::nRight}
 /*
 {Protheus.doc} function
 description
@@ -239,4 +244,45 @@ Method ExportAssets() Class GameManager
 
     FUnzip(cTempPath + cFile, cTempPath + "gameadvpl\")
 
-REturn
+Return
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method SetActiveScene(oScene) Class GameManager
+    ::oActiveScene := oScene
+Return
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method GetActiveScene() Class GameManager
+Return ::oActiveScene
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method LoadScene(cSceneID) Class GameManager
+    
+    Local nPos as numeric
+
+    nPos := AScan(::aScenes,{|x| x:GetSceneID() == cSceneID })
+    
+    If !Empty(::oActiveScene)
+        ::oActiveScene:EndScene()
+    EndIf
+
+    ::SetActiveScene(::aScenes[nPos])
+    ::oActiveScene:Start()
+    ProcessMessage()
+
+Return

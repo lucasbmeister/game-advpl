@@ -6,9 +6,12 @@ Class BaseGameObject
     Data oWindow
     Data aFramesForward
     Data aFramesBackward
+    Data cTag
 
     Method New() Constructor
     Method SetWindow()
+    Method SetTag()
+    Method GetTag()
     Method GetAssetsPath()
     Method LoadFrames()
 
@@ -78,3 +81,22 @@ Method LoadFrames(cEntity) Class BaseGameObject
     Next nX
 
 Return 
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method SetTag(cTag) Class BaseGameObject
+    ::cTag := cTag
+Return
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method GetTag() Class BaseGameObject
+Return ::cTag

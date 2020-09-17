@@ -18,6 +18,7 @@ CLass Clouds From BaseGameObject
     Method New() Constructor
     Method Update()
     Method CreateCloud()
+    Method HideGameObject()
 
 EndClass
 
@@ -82,3 +83,22 @@ Method CreateCloud() Class Clouds
     oCloud:SetCss(::cStyle)
 
 Return oCloud
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method HideGameObject() Class Clouds
+
+    Local nX as numeric
+
+    For nX := 1 To Len(::aClouds)
+        ::aClouds[nX]:Hide()
+        FreeObj(::aClouds[nX])
+    Next nX
+
+    ASize(::aClouds, 0)
+
+Return

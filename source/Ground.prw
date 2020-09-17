@@ -12,6 +12,7 @@ Class Ground From BaseGameObject
 
     Method New() Constructor
     Method Update()
+    Method HideGameObject()
 
 EndClass
 /*
@@ -44,4 +45,17 @@ description
 @version version
 */
 Method Update() Class Ground
+Return
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method HideGameObject() Class Ground
+
+   ::oPanel:Hide()
+    FreeObj(::oPanel)
+
 Return

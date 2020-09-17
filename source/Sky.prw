@@ -12,6 +12,7 @@ Class Sky From BaseGameObject
 
     Method New() Constructor
     Method Update()
+    Method HideGameObject() 
 
 EndClass
 /*
@@ -42,4 +43,17 @@ description
 @version version
 */
 Method Update() Class Sky
+Return
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method HideGameObject() Class Sky
+
+   ::oPanel:Hide()
+    FreeObj(::oPanel)
+
 Return

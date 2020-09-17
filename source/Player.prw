@@ -38,6 +38,7 @@ Class Player From BaseGameObject
     Method SetState()
     Method GetCurrentState()
     Method GetNextFrame()
+    Method HideGameObject()
 
 EndClass
 /*
@@ -98,12 +99,13 @@ Method Update(oGameManager) Class Player
             ::cDirection := "L"
             ::oPlayerObject:nLeft -= SPEED
             ::SetState("walking")
-        ElseIf cKey == 'S'
-            //::oPlayerObject:nTop += SPEED
         ElseIf cKey == 'D'
             ::cDirection := "R"
             ::oPlayerObject:nLeft += SPEED
             ::SetState("walking")
+        ElseIf cKey == "X"
+            oGameManager:LoadScene("level_2")
+            Return
         Else
             ::SetState("idle")
         EndIf
@@ -269,3 +271,17 @@ Method GetNextFrame() Class Player
     EndIf
 
 Return IIF(::cDirection == "L", ::aFramesBackward[::nCurrentFrame], ::aFramesForward[::nCurrentFrame])
+
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method HideGameObject() Class Player
+
+   ::oPlayerObject:Hide()
+    FreeObj(::oPlayerObject)
+
+Return
