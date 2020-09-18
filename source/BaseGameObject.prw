@@ -7,6 +7,10 @@ Class BaseGameObject
     Data aFramesForward
     Data aFramesBackward
     Data cTag
+    Data oCollider
+    Data oGameObject
+    Data nHeight
+    Data nWidth
 
     Method New() Constructor
     Method SetWindow()
@@ -14,6 +18,11 @@ Class BaseGameObject
     Method GetTag()
     Method GetAssetsPath()
     Method LoadFrames()
+    Method GetPosition()
+    Method SetColliderSize()
+    Method HasCollider()
+    Method GetCollider() 
+    Method SetSize()
 
 EndClass
 
@@ -100,3 +109,72 @@ description
 */
 Method GetTag() Class BaseGameObject
 Return ::cTag
+
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method GetPosition() Class BaseGameObject
+
+    Local aPosition as array
+
+    aPosition := {}
+
+    AAdd(aPosition, ::oGameObject:nTop)
+    AAdd(aPosition, ::oGameObject:nLeft)
+    AAdd(aPosition, ::nHeight)
+    AAdd(aPosition, ::nWidth)
+
+    If ::HasCollider()
+        aPosition := ::GetCollider():GetTruePosition(aPosition)
+    EndIf
+
+Return aPosition
+
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method SetColliderSize(nHeight, nWidth) Class BaseGameObject
+    ::oCollider := Collider():New(nHeight, nWidth)
+Return
+
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method HasCollider() Class BaseGameObject
+Return !Empty(::oCollider)
+
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method GetCollider() Class BaseGameObject
+Return ::oCollider
+
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method SetSize(nHeight, nWidth) Class BaseGameObject
+    ::nHeight := nHeight
+    ::nWidth := nWidth
+Return
+
+

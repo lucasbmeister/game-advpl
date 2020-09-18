@@ -5,6 +5,10 @@
 #DEFINE JUMP_SPEED 4
 #DEFINE ANIMATION_DELAY 100 //ms
 
+#DEFINE X_POS 1
+#DEFINE Y_POS 2
+#DEFINE HEIGHT 3
+#DEFINE WIDTH 4
 /*
 {Protheus.doc} function
 description
@@ -15,7 +19,6 @@ description
 
 Class Player From BaseGameObject
 
-    Data oPlayerObject
     Data cDirection
     Data cLastDirection
     Data lIsJumping
@@ -25,6 +28,7 @@ Class Player From BaseGameObject
     Data nCurrentHeight
     Data nCurrentFrame
     Data nLastFrameTime
+    Data aLastPosition
 
     Method New() Constructor
     Method Update()
@@ -36,9 +40,11 @@ Class Player From BaseGameObject
     Method IsFalling()
     Method Animate()
     Method SetState()
-    Method GetCurrentState()
+    Method GetState()
     Method GetNextFrame()
     Method HideGameObject()
+    Method SavePosition()
+    Method MoveBack()
 
 EndClass
 /*
@@ -71,11 +77,12 @@ Method New(oWindow, cName) Class Player
     
     ::cDirection := "R"
     ::cLastDirection := "R"
+    ::aLastPosition := Array(4)
 
     oInstance := Self
-
-    ::oPlayerObject := TPanelCss():New(227, 150, , oInstance:oWindow,,,,,, 050, 050)
-    ::oPlayerObject:SetCss(cStyle)
+    ::SetSize(050, 050)
+    ::oGameObject := TPanelCss():New(227, 150, , oInstance:oWindow,,,,,, 050, 050)
+    ::oGameObject:SetCss(cStyle)
 
 Return Self
 /*
@@ -88,8 +95,10 @@ description
 Method Update(oGameManager) Class Player
 
     Local cKey as char
+    Local aCollision as array
 
     cKey := oGameManager:GetLastKey()
+    ::SavePosition()
 
     If ::IsGrounded()
         If cKey == 'W'
@@ -97,14 +106,18 @@ Method Update(oGameManager) Class Player
             ::SetState("jumping")
         ElseIf cKey == 'A'
             ::cDirection := "L"
-            ::oPlayerObject:nLeft -= SPEED
+            ::oGameObject:nLeft -= SPEED
             ::SetState("walking")
-        ElseIf cKey == 'D'
+        ElseIf cKey == 'D' 
             ::cDirection := "R"
-            ::oPlayerObject:nLeft += SPEED
+            ::oGameObject:nLeft += SPEED
             ::SetState("walking")
         ElseIf cKey == "X"
-            oGameManager:LoadScene("level_2")
+            If oGameManager:GetActiveScene():GetSceneID() == "level_1"
+                oGameManager:LoadScene("level_2")
+            Else
+                oGameManager:LoadScene("level_1")
+            EndIf
             Return
         Else
             ::SetState("idle")
@@ -114,6 +127,12 @@ Method Update(oGameManager) Class Player
         ::Jump()
     Else
         ::ApplyGravity()
+    EndIf
+
+    aCollision := oGameManager:CheckCollision(::GetPosition())
+
+    If aCollision[1]
+        ::MoveBack()
     EndIf
 
     ::Animate()
@@ -134,17 +153,17 @@ Method Jump() Class Player
     ::lIsGrounded := .F.
 
     If ::cDirection == "R"
-        ::oPlayerObject:nLeft += SPEED
+        ::oGameObject:nLeft += SPEED
     Else
-        ::oPlayerObject:nLeft -= SPEED
+        ::oGameObject:nLeft -= SPEED
     EndIf
 
     If ::nCurrentHeight < MAX_JUMP .and. !::IsFalling()
-        ::oPlayerObject:nTop -= JUMP_SPEED
+        ::oGameObject:nTop -= JUMP_SPEED
         ::nCurrentHeight += JUMP_SPEED
     Else
         ::lIsFalling := .T.
-        ::oPlayerObject:nTop += JUMP_SPEED
+        ::oGameObject:nTop += JUMP_SPEED
         ::nCurrentHeight -= JUMP_SPEED
     EndIf
 
@@ -211,13 +230,13 @@ Method Animate() Class Player
 
     If nTime - ::nLastFrameTime >= ANIMATION_DELAY
         
-        cState := ::GetCurrentState()
+        cState := ::GetState()
     
 
         If cState == "walking"
 
             cStyle := "QFrame{ image: url("+::GetNextFrame()+"); border-style: none; }"
-            ::oPlayerObject:SetCss(cStyle)
+            ::oGameObject:SetCss(cStyle)
 
         ElseIf (cState == "jumping" .or. cState == "idle") .and. ::nCurrentFrame != 1
 
@@ -225,7 +244,7 @@ Method Animate() Class Player
 
             cStyle := "QFrame{ image: url("+IIF(::cDirection == "L", ::aFramesBackward[::nCurrentFrame], ::aFramesForward[::nCurrentFrame])+");"
             cStyle += "border-style: none;}"
-            ::oPlayerObject:SetCss(cStyle)
+            ::oGameObject:SetCss(cStyle)
 
         EndIf
         ::nLastFrameTime := nTime
@@ -249,7 +268,7 @@ description
 @since   date
 @version version
 */
-Method GetCurrentState() Class Player
+Method GetState() Class Player
 Return ::cCurrentState
 /*
 {Protheus.doc} function
@@ -281,7 +300,40 @@ description
 */
 Method HideGameObject() Class Player
 
-   ::oPlayerObject:Hide()
-    FreeObj(::oPlayerObject)
+   ::oGameObject:Hide()
+    FreeObj(::oGameObject)
 
 Return
+
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method MoveBack() Class Player
+    ::oGameObject:nTop := ::aLastPosition[X_POS]
+    ::oGameObject:nLeft := ::aLastPosition[Y_POS]
+    ::oGameObject:nHeight := ::aLastPosition[HEIGHT]
+    ::oGameObject:nWidth := ::aLastPosition[WIDTH]
+Return
+
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method SavePosition() Class Player
+    Local aPosition as array
+
+    aPosition := ::GetPosition()
+    ::aLastPosition[X_POS] := aPosition[X_POS]
+    ::aLastPosition[Y_POS] := aPosition[Y_POS]
+    ::aLastPosition[HEIGHT] := ::oGameObject:nHeight
+    ::aLastPosition[WIDTH] := ::oGameObject:nWidth
+
+Return
+

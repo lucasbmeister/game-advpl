@@ -1,5 +1,9 @@
 #include "totvs.ch"
 
+#DEFINE X_POS 1
+#DEFINE Y_POS 2
+#DEFINE HEIGHT 3
+#DEFINE WIDTH 4
 /*
 {Protheus.doc} function
 description
@@ -16,10 +20,10 @@ Class GameManager
     Data cGameName
     Data oWebChannel
     Data oWebEngine
-    Data nTop
-    Data nLeft
-    Data nBottom
-    Data nRight
+    Data nPosX
+    Data nPosY
+    Data nHeight
+    Data nWidth
 
     Method New() Constructor
     Method AddScene()
@@ -36,6 +40,7 @@ Class GameManager
     Method HandleEvent()
     Method ExportAssets()
     Method Processed()
+    Method CheckCollision()
 
 EndClass
 
@@ -46,19 +51,19 @@ description
 @since   date
 @version version
 */
-Method New(cGameName, nTop, nLeft, nBottom, nRight) Class GameManager
+Method New(cGameName, nPosX, nPosY, nHeight, nWidth) Class GameManager
 
     Static oInstance as object
     Default cGameName := "Game 2D"
-    Default nTop := 180
-    Default nLeft := 180
-    Default nBottom := 550
-    Default nRight := 700
+    Default nPosX := 180
+    Default nPosY := 180
+    Default nHeight := 550
+    Default nWidth := 700
 
-    ::nTop := nTop
-    ::nLeft := nLeft
-    ::nBottom := nBottom
-    ::nRight := nRight
+    ::nPosX := nPosX
+    ::nPosY := nPosY
+    ::nHeight := nHeight
+    ::nWidth := nWidth
     
     ::cGameName := cGameName
     ::aScenes := {}
@@ -66,8 +71,8 @@ Method New(cGameName, nTop, nLeft, nBottom, nRight) Class GameManager
 
     oInstance := Self
 
-    ::oWindow := TDialog():New(::nTop,::nLeft,::nBottom,::nRight,::cGameName ,,,,,CLR_BLACK,CLR_HCYAN,,,.T.)
-    // ::oWindow := TWindow():New(::nTop, ::nLeft, ::nBottom, ::nRight, ::cGameName, NIL, NIL, NIL, NIL, NIL, NIL, NIL,;
+    ::oWindow := TDialog():New(::nPosX,::nPosY,::nHeight,::nWidth,::cGameName ,,,,,CLR_BLACK,CLR_HCYAN,,,.T.)
+    // ::oWindow := TWindow():New(::nPosX, ::nPosY, ::nHeight, ::nWidth, ::cGameName, NIL, NIL, NIL, NIL, NIL, NIL, NIL,;
     //     CLR_BLACK, CLR_WHITE, NIL, NIL, NIL, NIL, NIL, NIL, .T. )
 
     ::ExportAssets()
@@ -141,7 +146,7 @@ Method StartEngine() Class GameManager
 
     ::oWebChannel:bJsToAdvpl := {|self,codeType,codeContent| oInstance:HandleEvent(self, codeType, codeContent)} 
 
-    ::oWebEngine := TWebEngine():New(oInstance:oWindow, 0, 0, ::nRight - ::nLeft, 10,,::oWebChannel:nPort)	
+    ::oWebEngine := TWebEngine():New(oInstance:oWindow, 0, 0, ::nWidth - ::nPosY, 10,,::oWebChannel:nPort)	
 	::oWebEngine:Navigate(cLink)
     
 Return
@@ -214,7 +219,7 @@ description
 @version version
 */
 Method GetDimensions() Class GameManager
-Return {::nTop, ::nLeft, ::nBottom, ::nRight}
+Return {::nPosX, ::nPosY, ::nHeight, ::nWidth}
 /*
 {Protheus.doc} function
 description
@@ -286,3 +291,32 @@ Method LoadScene(cSceneID) Class GameManager
     ProcessMessage()
 
 Return
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+Method CheckCollision(aPosition) Class GameManager
+
+    Local aObjColl as array
+    Local aTruePos as array
+    Local nX as numeric
+    Local oObject as object
+    Local lCollision as logical
+
+    lCollision := .F.
+
+    aObjColl := ::GetActiveScene():GetObjectsWithColliders()
+
+    For nX := 1 To Len(aObjColl)
+        aTruePos := aObjColl[nX]:GetPosition()
+        If aPosition[X_POS] < aTruePos[X_POS] + aTruePos[WIDTH] .and. aPosition[X_POS] + aPosition[WIDTH] > aTruePos[X_POS];
+            .and. aPosition[Y_POS] <  aTruePos[Y_POS] + aTruePos[HEIGHT] .and. aPosition[Y_POS] + aPosition[HEIGHT] > aTruePos[Y_POS]
+            lCollision := .T.
+            oObject := aObjColl[nX]
+            Exit
+        EndIf
+    Next nX
+
+Return { lCollision, oObject }

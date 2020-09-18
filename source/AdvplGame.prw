@@ -1,10 +1,10 @@
 #include "totvs.ch"
 #include "protheus.ch"
 
-#DEFINE TOP 1
-#DEFINE LEFT 2
-#DEFINE BOTTOM 3
-#DEFINE RIGHT 4
+#DEFINE X_POS 1
+#DEFINE Y_POS 2
+#DEFINE HEIGHT 3
+#DEFINE WIDTH 4
 /*
 {Protheus.doc} function
 description
@@ -30,10 +30,10 @@ Main Function Game2D()
     aDimensions := oGame:GetDimensions()
 
     // instância uma cena (deverá ser atribuida para janela do jogo)
-    oScene1 := Scene():New(oWindow, "level_1", aDimensions[TOP], aDimensions[LEFT], aDimensions[BOTTOM], aDimensions[RIGHT])
+    oScene1 := Scene():New(oWindow, "level_1", aDimensions[X_POS], aDimensions[Y_POS], aDimensions[HEIGHT], aDimensions[WIDTH])
     oScene1:SetInitCodeBlock({|oScn| LoadScn1(oScn)})
     
-    oScene2 := Scene():New(oWindow, "level_2", aDimensions[TOP], aDimensions[LEFT], aDimensions[BOTTOM], aDimensions[RIGHT])
+    oScene2 := Scene():New(oWindow, "level_2", aDimensions[X_POS], aDimensions[Y_POS], aDimensions[HEIGHT], aDimensions[WIDTH])
     oScene2:SetInitCodeBlock({|oScn| LoadScn2(oScn)})
 
     // adiciona cena ao jogo
@@ -64,18 +64,25 @@ Static Function LoadScn1(oScene1)
     aDimensions := oScene1:GetDimensions()
     oWindow := oScene1:GetSceneWindow()
 
-    oSky := Sky():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[BOTTOM], aDimensions[RIGHT])
-    oGround := Ground():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[BOTTOM], aDimensions[RIGHT])
+    oSky := Sky():New(oWindow, aDimensions[X_POS], aDimensions[Y_POS], aDimensions[HEIGHT], aDimensions[WIDTH])
+
+    oGround := Ground():New(oWindow, aDimensions[X_POS], aDimensions[Y_POS], aDimensions[HEIGHT], aDimensions[WIDTH])
+    oGround:SetTag('ground')
     
     oPlayer := Player():New(oWindow, "Lucas")
+    oPlayer:SetTag('player')
 
-    oClouds := Clouds():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[BOTTOM], aDimensions[RIGHT])
+    oClouds := Clouds():New(oWindow, aDimensions[X_POS], aDimensions[Y_POS], aDimensions[HEIGHT], aDimensions[WIDTH])
 
-    // adiciona objetos a uma cena
+    oSquare := Square():New(oWindow, 227, 200, 50, 50)
+    oSquare:SetColliderSize(50, 50)
+
+    // adiciona objetos a uma cena, mesmo sem adicionar ele será adicionado, entretanto não será gerenciado
     oScene1:AddObject(oSky)
     oScene1:AddObject(oPlayer)
     oScene1:AddObject(oClouds)
     oScene1:AddObject(oGround)
+    oScene1:AddObject(oSquare)
 
 Return
 /*
@@ -91,7 +98,10 @@ Static Function LoadScn2(oScene2)
     Local oPlayer2 as object
 
     oWindow := oScene2:GetSceneWindow()
+
     oPlayer2 := Player():New(oWindow, "Lucas")
+    oPlayer2:SetTag('player')
+
     oScene2:AddObject(oPlayer2)
 
 Return

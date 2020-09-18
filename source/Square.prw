@@ -6,7 +6,7 @@ description
 @since   date
 @version version
 */
-Class Sky From BaseGameObject
+Class Square From BaseGameObject
 
     Method New() Constructor
     Method Update()
@@ -20,18 +20,19 @@ description
 @since   date
 @version version
 */
-Method New(oWindow, nPosX, nPosY, nHeight, nWidth ) Class Sky
+Method New(oWindow, nPosX, nPosY, nHeight, nWidth) Class Square
     Local cStyle as char 
     Static oInstance as object
 
     _Super:New(oWindow)
 
     oInstance := Self
-    cStyle := "QFrame{ border-image: url("+StrTran(::GetAssetsPath("background.png"),"\","/")+") 0 0 0 0 stretch stretch }"
-    
-    ::SetSize(650, 350)
-    ::oGameObject := TPanelCss():New(0, 0, , oInstance:oWindow,,,,,, 650, 350)
+    cStyle := "QFrame{ background-color: black }"
+
+    ::SetSize(nWidth, nHeight)
+    ::oGameObject := TPanelCss():New(nPosX, nPosY, , oInstance:oWindow,,,,,, nWidth, nHeight)
     ::oGameObject:SetCss(cStyle)
+
 Return Self
 
 /*
@@ -41,7 +42,7 @@ description
 @since   date
 @version version
 */
-Method Update() Class Sky
+Method Update() Class Square
 Return
 /*
 {Protheus.doc} function
@@ -50,7 +51,7 @@ description
 @since   date
 @version version
 */
-Method HideGameObject() Class Sky
+Method HideGameObject() Class Square
 
    ::oGameObject:Hide()
     FreeObj(::oGameObject)

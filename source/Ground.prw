@@ -8,8 +8,6 @@ description
 */
 Class Ground From BaseGameObject
 
-    Data oPanel
-
     Method New() Constructor
     Method Update()
     Method HideGameObject()
@@ -22,7 +20,7 @@ description
 @since   date
 @version version
 */
-Method New(oWindow, nTop, nLeft, nBottom, nRight ) Class Ground
+Method New(oWindow, nPosX, nPosY, nHeight, nWidth ) Class Ground
     
     Local cStyle as char 
     Static oInstance as object
@@ -33,8 +31,9 @@ Method New(oWindow, nTop, nLeft, nBottom, nRight ) Class Ground
 
     cStyle := "QFrame{ border-image: url("+StrTran(::GetAssetsPath("ground.png"),"\","/")+") 0 0 0 0 repeat repeat }"
 
-    ::oPanel := TPanelCss():New(255, 0, , oInstance:oWindow,,,,,, 650, 50)
-    ::oPanel:SetCss(cStyle)
+    ::SetSize(650, 50)
+    ::oGameObject := TPanelCss():New(255, 0, , oInstance:oWindow,,,,,, 650, 50)
+    ::oGameObject:SetCss(cStyle)
 
 Return
 /*
@@ -55,7 +54,7 @@ description
 */
 Method HideGameObject() Class Ground
 
-   ::oPanel:Hide()
-    FreeObj(::oPanel)
+   ::oGameObject:Hide()
+    FreeObj(::oGameObject)
 
 Return

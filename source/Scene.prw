@@ -1,5 +1,9 @@
 #include "totvs.ch"
 
+#DEFINE X_POS 1
+#DEFINE Y_POS 2
+#DEFINE HEIGHT 3
+#DEFINE WIDTH 4
 /*
 {Protheus.doc} function
 description
@@ -13,10 +17,10 @@ Class Scene
     Data oParent
     Data lActive
     Data cId
-    Data nTop
-    Data nLeft
-    Data nBottom
-    Data nRight
+    Data nPosX
+    Data nPosY
+    Data nHeight
+    Data nWidth
     Data bLoadObjects
 
     Method New() Constructor
@@ -31,6 +35,7 @@ Class Scene
     Method SetActive()
     Method IsActive() 
     Method ClearScene()
+    Method GetObjectsWithColliders()
 
 EndClass
 /*
@@ -40,22 +45,22 @@ description
 @since   date
 @version version
 */
-Method New(oWindow, cId, nTop, nLeft, nBottom, nRight) Class Scene
+Method New(oWindow, cId, nPosX, nPosY, nHeight, nWidth) Class Scene
 
     Static oInstance as object
 
-    Default nTop := 180
-    Default nLeft := 180
-    Default nBottom := 550
-    Default nRight := 700
+    Default nPosX := 180
+    Default nPosY := 180
+    Default nHeight := 550
+    Default nWidth := 700
 
     oInstance := Self
     ::oParent := oWindow
 
-    ::nTop := nTop
-    ::nLeft := nLeft
-    ::nBottom := nBottom
-    ::nRight := nRight
+    ::nPosX := nPosX
+    ::nPosY := nPosY
+    ::nHeight := nHeight
+    ::nWidth := nWidth
     ::cId := cId
 
     ::aObjects := {}
@@ -150,7 +155,7 @@ description
 @version version
 /*/
 Method GetDimensions() Class Scene
-Return {::nTop, ::nLeft, ::nBottom, ::nRight}
+Return {::nPosX, ::nPosY, ::nHeight, ::nWidth}
 /*/{Protheus.doc} function
 description
 @author  author
@@ -169,13 +174,27 @@ description
 /*/
 Method IsActive() Class Scene
 Return ::lActive
+
 /*/{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
 /*/
-Method ClearScene() CLass Scene
+Method ClearScene() Class Scene
     AEval(::aObjects,{|x| x:HideGameObject() })
     ASize(::aObjects , 0)
 Return
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+Method GetObjectsWithColliders() Class Scene
+    Local aObjColl as array
+    aObjColl := {}
+
+    AEval(::aObjects,{|x| IIF(x:HasCollider(), AAdd(aObjColl, x), nil)})
+
+Return aObjColl

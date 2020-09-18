@@ -29,11 +29,11 @@ description
 @since   date
 @version version
 */
-Method New(oWindow, nTop, nLeft, nBottom, nRight) Class Clouds
+Method New(oWindow, nPosX, nPosY, nHeight, nWidth) Class Clouds
     _Super:New(oWindow)
     ::aClouds := {}
     ::nLastSpawn := 0
-    ::aDimensions := {nTop, nLeft, nBottom, nRight}
+    ::aDimensions := {nPosX, nPosY, nHeight, nWidth}
     ::cStyle := "QFrame{ border-image: url("+StrTran(::GetAssetsPath("cloud.png"),"\","/")+") 0 0 0 0 stretch stretch }"
 
 
@@ -52,7 +52,7 @@ Method Update(oGameManager) Class Clouds
 
     nTime := TimeCounter()
 
-    If Len(::aClouds) <= 5 .and. nTime - ::nLastSpawn >= SPAWN_INTERVAL
+    If Len(::aClouds) < 5 .and. nTime - ::nLastSpawn >= SPAWN_INTERVAL
         AAdd(::aClouds,::CreateCloud())
         ::nLastSpawn := nTime
     EndIf
