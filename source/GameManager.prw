@@ -11,9 +11,9 @@ description
 @since   date
 @version version
 */
-Class GameManager
+Class GameManager From LongNameClass
 
-    Data cLastKey
+    Data oKeys
     Data oActiveScene
     Data aScenes
     Data oWindow 
@@ -31,8 +31,8 @@ Class GameManager
     Method GetActiveScene()
     Method LoadScene()
     Method Start()
-    Method SetLastKey()
-    Method GetLastKey()
+    Method SetPressedKeys()
+    Method GetPressedKeys()
     Method GetMainWindow()
     Method GetDimensions()
     Method StartEngine()
@@ -41,6 +41,7 @@ Class GameManager
     Method ExportAssets()
     Method Processed()
     Method CheckCollision()
+    Method GameOver()
 
 EndClass
 
@@ -67,7 +68,7 @@ Method New(cGameName, nPosX, nPosY, nHeight, nWidth) Class GameManager
     
     ::cGameName := cGameName
     ::aScenes := {}
-    ::cLastKey := ""
+    ::oKeys := {}
 
     oInstance := Self
 
@@ -173,8 +174,8 @@ description
 @since   date
 @version version
 */
-Method SetLastKey(cKey) Class GameManager
-    ::cLastKey := cKey
+Method SetPressedKeys(oKeys) Class GameManager
+    ::oKeys := oKeys
 REturn
 /*
 {Protheus.doc} function
@@ -183,8 +184,8 @@ description
 @since   date
 @version version
 */
-Method GetLastKey() Class GameManager
-Return Upper(::cLastKey)
+Method GetPressedKeys() Class GameManager
+Return ::oKeys
 /*
 {Protheus.doc} function
 description
@@ -194,7 +195,13 @@ description
 */
 Method Update(oWebChannel, codeType, codeContent) Class GameManager
 
-    ::SetLastKey(codeContent)
+    Local oKeys as object
+
+    oKeys := JsonObject():New()
+
+    oKeys:FromJson(Lower(codeContent))
+
+    ::SetPressedKeys(oKeys)
 
     ::GetActiveScene():Update(Self)
 
@@ -300,23 +307,44 @@ description
 Method CheckCollision(aPosition) Class GameManager
 
     Local aObjColl as array
+    Local aCollisions as array
     Local aTruePos as array
     Local nX as numeric
-    Local oObject as object
-    Local lCollision as logical
 
-    lCollision := .F.
 
     aObjColl := ::GetActiveScene():GetObjectsWithColliders()
+    aCollisions := {}
 
     For nX := 1 To Len(aObjColl)
         aTruePos := aObjColl[nX]:GetPosition()
         If aPosition[X_POS] < aTruePos[X_POS] + aTruePos[WIDTH] .and. aPosition[X_POS] + aPosition[WIDTH] > aTruePos[X_POS];
             .and. aPosition[Y_POS] <  aTruePos[Y_POS] + aTruePos[HEIGHT] .and. aPosition[Y_POS] + aPosition[HEIGHT] > aTruePos[Y_POS]
-            lCollision := .T.
-            oObject := aObjColl[nX]
-            Exit
+            Aadd(aCollisions, aObjColl[nX])
         EndIf
     Next nX
 
-Return { lCollision, oObject }
+Return aCollisions
+
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+Method GameOver() Class GameManager
+    
+    Local oSay as object
+    Local cText as char
+
+    cText := "<h1>GAME OVER</h1>"
+
+    oSay := TSay():New(100, 100,{||cText}, oInstance:oWindow,,,,,,.T.,,,100,100,,,,,,.T.)
+
+    Sleep(5000)
+
+    oSay:Hide()
+    FreeObj(oSay)
+
+    ::LoadScene(::GetActiveScene():GetSceneID())
+
+Return

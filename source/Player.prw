@@ -2,8 +2,9 @@
 
 #DEFINE SPEED 4
 #DEFINE MAX_JUMP 60
-#DEFINE JUMP_SPEED 4
+#DEFINE JUMP_SPEED 5
 #DEFINE ANIMATION_DELAY 100 //ms
+#DEFINE GRAVITY 0.05
 
 #DEFINE X_POS 1
 #DEFINE Y_POS 2
@@ -23,12 +24,13 @@ Class Player From BaseGameObject
     Data cLastDirection
     Data lIsJumping
     Data lIsGrounded
-    Data lIsFalling
     Data cCurrentState
     Data nCurrentHeight
     Data nCurrentFrame
     Data nLastFrameTime
     Data aLastPosition
+    Data nGravitySpeed
+    Data nJumpSpeed
 
     Method New() Constructor
     Method Update()
@@ -37,7 +39,6 @@ Class Player From BaseGameObject
     Method IsJumping()
     Method ApplyGravity()
     Method IsGrounded()
-    Method IsFalling()
     Method Animate()
     Method SetState()
     Method GetState()
@@ -45,6 +46,8 @@ Class Player From BaseGameObject
     Method HideGameObject()
     Method SavePosition()
     Method MoveBack()
+    Method IsOutOfBounds()
+    Method CheckKey()
 
 EndClass
 /*
@@ -63,12 +66,13 @@ Method New(oWindow, cName) Class Player
 
     ::lIsJumping := .F.
     ::lIsGrounded := .T.
-    ::lIsFalling := .F.
     ::nCurrentHeight := 0
     ::cCurrentState := "idle"
 
     ::nCurrentFrame := 1
     ::nLastFrameTime := 0
+    ::nGravitySpeed := 0
+    ::nJumpSpeed := 20
 
     ::LoadFrames("player")
 
@@ -94,45 +98,73 @@ description
 */
 Method Update(oGameManager) Class Player
 
-    Local cKey as char
-    Local aCollision as array
+    Local oKeys as char
+    Local aCollisions as array
+    Local aKeys as array
+    Local nX as numeric
+    Local lIdle as logical
 
-    cKey := oGameManager:GetLastKey()
+    oKeys := oGameManager:GetPressedKeys()
+    aKeys := oKeys:GetNames()
+
+    lIdle := .T.
+    
     ::SavePosition()
 
-    If ::IsGrounded()
-        If cKey == 'W'
+    For nX := 1 To Len(aKeys)
+
+        If ::CheckKey('w', oKeys, aKeys, nX) .and. ::IsGrounded() .or. ::IsJumping()
             ::Jump()
             ::SetState("jumping")
-        ElseIf cKey == 'A'
+            lIdle := .F.
+        EndIf
+
+        If ::CheckKey('a', oKeys, aKeys, nX)
             ::cDirection := "L"
             ::oGameObject:nLeft -= SPEED
             ::SetState("walking")
-        ElseIf cKey == 'D' 
+            lIdle := .F.
+        EndIf
+
+        If ::CheckKey('d', oKeys, aKeys, nX)
             ::cDirection := "R"
             ::oGameObject:nLeft += SPEED
             ::SetState("walking")
-        ElseIf cKey == "X"
+            lIdle := .F.
+        EndIf
+
+        If ::CheckKey('x', oKeys, aKeys, nX)
             If oGameManager:GetActiveScene():GetSceneID() == "level_1"
                 oGameManager:LoadScene("level_2")
             Else
                 oGameManager:LoadScene("level_1")
             EndIf
             Return
-        Else
-            ::SetState("idle")
         EndIf
 
-    ElseIf !::IsGrounded() .and. ::IsJumping()
-        ::Jump()
-    Else
-        ::ApplyGravity()
+    Next nX
+
+    If lIdle
+        ::SetState("idle")
     EndIf
 
-    aCollision := oGameManager:CheckCollision(::GetPosition())
+    ::ApplyGravity()
 
-    If aCollision[1]
-        ::MoveBack()
+    If ::IsOutOfBounds()
+        oGameManager:GameOver()
+        Return
+    EndIf
+
+    aCollisions := oGameManager:CheckCollision(::GetPosition())
+
+    ::lIsGrounded := AScan(aCollisions, {|x| x:GetTag() == 'ground'}) > 0
+
+    If !Empty(aCollisions)
+        For nX := 1 To Len(aCollisions)
+            If aCollisions[nX]:GetTag() != 'ground'
+                ::MoveBack()
+            EndIf
+        Next
     EndIf
 
     ::Animate()
@@ -150,27 +182,17 @@ description
 Method Jump() Class Player
 
     ::lIsJumping := .T.
-    ::lIsGrounded := .F.
 
-    If ::cDirection == "R"
-        ::oGameObject:nLeft += SPEED
+    If ::nCurrentHeight < MAX_JUMP
+        ::nJumpSpeed -= JUMP_SPEED 
+        ::oGameObject:nTop -= ::nJumpSpeed 
+        ::nCurrentHeight += IIF(::nJumpSpeed > 0,::nJumpSpeed, JUMP_SPEED)
     Else
-        ::oGameObject:nLeft -= SPEED
+        ::lIsJumping := .F.
+        ::nCurrentHeight := 0
+        ::nJumpSpeed := 20
     EndIf
 
-    If ::nCurrentHeight < MAX_JUMP .and. !::IsFalling()
-        ::oGameObject:nTop -= JUMP_SPEED
-        ::nCurrentHeight += JUMP_SPEED
-    Else
-        ::lIsFalling := .T.
-        ::oGameObject:nTop += JUMP_SPEED
-        ::nCurrentHeight -= JUMP_SPEED
-    EndIf
-
-    If ::nCurrentHeight == 0
-        ::lIsGrounded := .T.
-        ::lIsFalling := .F.
-    EndIf
 
 Return
 /*
@@ -190,8 +212,23 @@ description
 @since   date
 @version version
 */
-Method ApplyGravity() Class Player
+Method CheckKey(cKey, oKeys, aKeys, nPos) Class Player
+Return aKeys[nPos] == cKey .and. oKeys[cKey]
 
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method ApplyGravity() Class Player
+    If !::IsGrounded() .and. !::IsJumping()
+        ::nGravitySpeed += GRAVITY
+        ::oGameObject:nTop += ::nGravitySpeed
+    Else
+        ::nGravitySpeed := 0
+    EndIf
 Return
 
 /*
@@ -203,15 +240,6 @@ description
 */
 Method IsGrounded() Class Player
 Return ::lIsGrounded
-/*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
-*/
-Method IsFalling() Class Player
-Return ::lIsFalling
 
 /*
 {Protheus.doc} function
@@ -336,4 +364,12 @@ Method SavePosition() Class Player
     ::aLastPosition[WIDTH] := ::oGameObject:nWidth
 
 Return
-
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method IsOutOfBounds() Class Player
+Return ::oGameObject:nTop > ::oWindow:nHeight

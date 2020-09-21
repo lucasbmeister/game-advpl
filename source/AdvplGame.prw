@@ -66,8 +66,9 @@ Static Function LoadScn1(oScene1)
 
     oSky := Sky():New(oWindow, aDimensions[X_POS], aDimensions[Y_POS], aDimensions[HEIGHT], aDimensions[WIDTH])
 
-    oGround := Ground():New(oWindow, aDimensions[X_POS], aDimensions[Y_POS], aDimensions[HEIGHT], aDimensions[WIDTH])
+    oGround := Ground():New(oWindow)
     oGround:SetTag('ground')
+    oGround:SetColliderSize(50, 650)
     
     oPlayer := Player():New(oWindow, "Lucas")
     oPlayer:SetTag('player')

@@ -6,21 +6,21 @@
     <script src="jquery.min.js"></script>
     <script type="text/javascript">
 
-        var lastKey = ""
+        var pressedKeys = {};
         var lastUpdateIsProcessed = true;
 
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
 
-				//documento foi carregado, conectar no twebchannel:
-				twebchannel.connect(function() {
-					// Signal que recebe o codigo vindo do AdvPL para injecao
-                    twebchannel.advplToJs = advplToJs;
-					// Envia sinal ao ADVPL informando sucesso na criacao do formulario
-					twebchannel.jsToAdvpl("start", "Pagina Inicializada");
-				});
+            //documento foi carregado, conectar no twebchannel:
+            twebchannel.connect(function () {
+                // Signal que recebe o codigo vindo do AdvPL para injecao
+                twebchannel.advplToJs = advplToJs;
+                // Envia sinal ao ADVPL informando sucesso na criacao do formulario
+                twebchannel.jsToAdvpl("start", "Pagina Inicializada");
+            });
 
-		}, false);
-       
+        }, false);
+
 
         function advplToJs(codeType, codeContent) {
             if (codeType === "started") {
@@ -30,26 +30,31 @@
             }
         }
 
-        function start(){
+        function start() {
             setInterval(update, 33);
         }
 
-        function update(){
+        function update() {
             if (lastUpdateIsProcessed) {
-                twebchannel.jsToAdvpl("update", lastKey || "");
+                twebchannel.jsToAdvpl("update", JSON.stringify(pressedKeys));
                 lastUpdateIsProcessed = false;
-                setLastKey("")
             }
         }
 
-        $(document).keydown(function (evt) {
-            setLastKey(evt.key);
-        });
+        // $(document).keydown(function (evt) {
+        //     setLastKey(evt.key);
+        // });
 
-        function setLastKey(key){
-            lastKey = key;
-            console.log(key);
+        // function setLastKey(key){
+        //     lastKey = key;
+        //     console.log(key);
+        // }
+
+        onkeydown = onkeyup = function (e) {
+            e = e || event;
+            pressedKeys[e.key] = e.type == 'keydown';
         }
+
 
     </script>
 </head>

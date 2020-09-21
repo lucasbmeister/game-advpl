@@ -1,6 +1,6 @@
 #include "totvs.ch"
 
-Class BaseGameObject
+Class BaseGameObject From LongNameClass
 
     Data cAssetsPath
     Data oWindow
@@ -123,8 +123,8 @@ Method GetPosition() Class BaseGameObject
 
     aPosition := {}
 
-    AAdd(aPosition, ::oGameObject:nTop)
     AAdd(aPosition, ::oGameObject:nLeft)
+    AAdd(aPosition, ::oGameObject:nTop)
     AAdd(aPosition, ::nHeight)
     AAdd(aPosition, ::nWidth)
 

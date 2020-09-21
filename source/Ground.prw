@@ -31,7 +31,7 @@ Method New(oWindow, nPosX, nPosY, nHeight, nWidth ) Class Ground
 
     cStyle := "QFrame{ border-image: url("+StrTran(::GetAssetsPath("ground.png"),"\","/")+") 0 0 0 0 repeat repeat }"
 
-    ::SetSize(650, 50)
+    ::SetSize(50, 650)
     ::oGameObject := TPanelCss():New(255, 0, , oInstance:oWindow,,,,,, 650, 50)
     ::oGameObject:SetCss(cStyle)
 
