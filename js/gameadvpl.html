@@ -41,15 +41,6 @@
             }
         }
 
-        // $(document).keydown(function (evt) {
-        //     setLastKey(evt.key);
-        // });
-
-        // function setLastKey(key){
-        //     lastKey = key;
-        //     console.log(key);
-        // }
-
         onkeydown = onkeyup = function (e) {
             e = e || event;
             pressedKeys[e.key] = e.type == 'keydown';
