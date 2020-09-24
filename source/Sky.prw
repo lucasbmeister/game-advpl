@@ -20,7 +20,7 @@ description
 @since   date
 @version version
 */
-Method New(oWindow, nPosX, nPosY, nHeight, nWidth ) Class Sky
+Method New(oWindow, nTop, nLeft, nHieght, nWidth) Class Sky
     Local cStyle as char 
     Static oInstance as object
 
@@ -28,8 +28,7 @@ Method New(oWindow, nPosX, nPosY, nHeight, nWidth ) Class Sky
 
     oInstance := Self
     cStyle := "QFrame{ border-image: url("+StrTran(::GetAssetsPath("background.png"),"\","/")+") 0 0 0 0 stretch stretch }"
-    
-    ::SetSize(650, 350)
+
     ::oGameObject := TPanelCss():New(0, 0, , oInstance:oWindow,,,,,, 650, 350)
     ::oGameObject:SetCss(cStyle)
 Return Self

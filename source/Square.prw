@@ -20,7 +20,7 @@ description
 @since   date
 @version version
 */
-Method New(oWindow, nPosX, nPosY, nHeight, nWidth) Class Square
+Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class Square
     Local cStyle as char 
     Static oInstance as object
 
@@ -29,8 +29,7 @@ Method New(oWindow, nPosX, nPosY, nHeight, nWidth) Class Square
     oInstance := Self
     cStyle := "QFrame{ background-color: black }"
 
-    ::SetSize(nWidth, nHeight)
-    ::oGameObject := TPanelCss():New(nPosX, nPosY, , oInstance:oWindow,,,,,, nWidth, nHeight)
+    ::oGameObject := TPanelCss():New(nTop, nLeft, , oInstance:oWindow,,,,,, nWidth, nHeight)
     ::oGameObject:SetCss(cStyle)
 
 Return Self

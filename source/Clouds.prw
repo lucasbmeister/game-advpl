@@ -29,11 +29,11 @@ description
 @since   date
 @version version
 */
-Method New(oWindow, nPosX, nPosY, nHeight, nWidth) Class Clouds
+Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class Clouds
     _Super:New(oWindow)
     ::aClouds := {}
     ::nLastSpawn := 0
-    ::aDimensions := {nPosX, nPosY, nHeight, nWidth}
+    ::aDimensions := {nTop, nLeft, nHeight, nWidth}
     ::cStyle := "QFrame{ border-image: url("+StrTran(::GetAssetsPath("cloud.png"),"\","/")+") 0 0 0 0 stretch stretch }"
 
 
@@ -77,8 +77,6 @@ description
 Method CreateCloud() Class Clouds
     Local oCloud as object
 
-    // oCloud := TBitmap():New(Randomize(1, 15), Randomize(1, 30), 100, 100, , ::GetAssetsPath("cloud.png"), .T., ::oWindow,;
-    //     nil, nil, .F.,  .F., nil, nil, nil, nil, .F.)
     oCloud := TPanelCss():New(Randomize(1, 150), -70, , ::oWindow,,,,,, 70, 25)
     oCloud:SetCss(::cStyle)
 

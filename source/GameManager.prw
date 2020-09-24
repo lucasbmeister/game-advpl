@@ -1,9 +1,6 @@
 #include "totvs.ch"
+#include "gameadvpl.ch"
 
-#DEFINE X_POS 1
-#DEFINE Y_POS 2
-#DEFINE HEIGHT 3
-#DEFINE WIDTH 4
 /*
 {Protheus.doc} function
 description
@@ -15,13 +12,14 @@ Class GameManager From LongNameClass
 
     Data oKeys
     Data oActiveScene
+    Data nDeltaTime
     Data aScenes
     Data oWindow 
     Data cGameName
     Data oWebChannel
     Data oWebEngine
-    Data nPosX
-    Data nPosY
+    Data nTop
+    Data nLeft
     Data nHeight
     Data nWidth
 
@@ -40,7 +38,7 @@ Class GameManager From LongNameClass
     Method HandleEvent()
     Method ExportAssets()
     Method Processed()
-    Method CheckCollision()
+    Method GetColliders()
     Method GameOver()
 
 EndClass
@@ -52,17 +50,17 @@ description
 @since   date
 @version version
 */
-Method New(cGameName, nPosX, nPosY, nHeight, nWidth) Class GameManager
+Method New(cGameName, nTop, nLeft, nHeight, nWidth) Class GameManager
 
     Static oInstance as object
     Default cGameName := "Game 2D"
-    Default nPosX := 180
-    Default nPosY := 180
+    Default nTop := 180
+    Default nLeft := 180
     Default nHeight := 550
     Default nWidth := 700
 
-    ::nPosX := nPosX
-    ::nPosY := nPosY
+    ::nTop := nTop
+    ::nLeft := nLeft
     ::nHeight := nHeight
     ::nWidth := nWidth
     
@@ -70,11 +68,11 @@ Method New(cGameName, nPosX, nPosY, nHeight, nWidth) Class GameManager
     ::aScenes := {}
     ::oKeys := {}
 
+    ::nDeltaTime := 0
+
     oInstance := Self
 
-    ::oWindow := TDialog():New(::nPosX,::nPosY,::nHeight,::nWidth,::cGameName ,,,,,CLR_BLACK,CLR_HCYAN,,,.T.)
-    // ::oWindow := TWindow():New(::nPosX, ::nPosY, ::nHeight, ::nWidth, ::cGameName, NIL, NIL, NIL, NIL, NIL, NIL, NIL,;
-    //     CLR_BLACK, CLR_WHITE, NIL, NIL, NIL, NIL, NIL, NIL, .T. )
+    ::oWindow := TDialog():New(::nTop ,::nLeft,::nHeight,::nWidth,::cGameName ,,,,,CLR_BLACK,CLR_HCYAN,,,.T.)
 
     ::ExportAssets()
 
@@ -110,6 +108,7 @@ Method Start(cFirstScene) Class GameManager
 
     Local nPos as numeric
     Static oInstance as object
+
     oInstance := Self
 
     nPos := AScan(::aScenes,{|x| x:GetSceneID() == cFirstScene })
@@ -147,7 +146,7 @@ Method StartEngine() Class GameManager
 
     ::oWebChannel:bJsToAdvpl := {|self,codeType,codeContent| oInstance:HandleEvent(self, codeType, codeContent)} 
 
-    ::oWebEngine := TWebEngine():New(oInstance:oWindow, 0, 0, ::nWidth - ::nPosY, 10,,::oWebChannel:nPort)	
+    ::oWebEngine := TWebEngine():New(oInstance:oWindow, 0, 0, ::nWidth, 10,,::oWebChannel:nPort)	
 	::oWebEngine:Navigate(cLink)
     
 Return
@@ -202,7 +201,7 @@ Method Update(oWebChannel, codeType, codeContent) Class GameManager
     oKeys:FromJson(Lower(codeContent))
 
     ::SetPressedKeys(oKeys)
-
+    ::nDeltaTime := TimeCounter() - ::nDeltaTime
     ::GetActiveScene():Update(Self)
 
     ::Processed()
@@ -226,7 +225,7 @@ description
 @version version
 */
 Method GetDimensions() Class GameManager
-Return {::nPosX, ::nPosY, ::nHeight, ::nWidth}
+Return {::nTop, ::nLEft, ::nHeight, ::nWidth}
 /*
 {Protheus.doc} function
 description
@@ -304,26 +303,8 @@ description
 @since   date
 @version version
 /*/
-Method CheckCollision(aPosition) Class GameManager
-
-    Local aObjColl as array
-    Local aCollisions as array
-    Local aTruePos as array
-    Local nX as numeric
-
-
-    aObjColl := ::GetActiveScene():GetObjectsWithColliders()
-    aCollisions := {}
-
-    For nX := 1 To Len(aObjColl)
-        aTruePos := aObjColl[nX]:GetPosition()
-        If aPosition[X_POS] < aTruePos[X_POS] + aTruePos[WIDTH] .and. aPosition[X_POS] + aPosition[WIDTH] > aTruePos[X_POS];
-            .and. aPosition[Y_POS] <  aTruePos[Y_POS] + aTruePos[HEIGHT] .and. aPosition[Y_POS] + aPosition[HEIGHT] > aTruePos[Y_POS]
-            Aadd(aCollisions, aObjColl[nX])
-        EndIf
-    Next nX
-
-Return aCollisions
+Method GetColliders() Class GameManager
+Return ::GetActiveScene():GetObjectsWithColliders()
 
 /*/{Protheus.doc} function
 description

@@ -1,9 +1,6 @@
 #include "totvs.ch"
+#include "gameadvpl.ch"
 
-#DEFINE X_POS 1
-#DEFINE Y_POS 2
-#DEFINE HEIGHT 3
-#DEFINE WIDTH 4
 /*
 {Protheus.doc} function
 description
@@ -17,8 +14,8 @@ Class Scene
     Data oParent
     Data lActive
     Data cId
-    Data nPosX
-    Data nPosY
+    Data nLeft
+    Data nTop
     Data nHeight
     Data nWidth
     Data bLoadObjects
@@ -45,20 +42,20 @@ description
 @since   date
 @version version
 */
-Method New(oWindow, cId, nPosX, nPosY, nHeight, nWidth) Class Scene
+Method New(oWindow, cId, nTop, nLeft, nHeight, nWidth) Class Scene
 
     Static oInstance as object
 
-    Default nPosX := 180
-    Default nPosY := 180
+    Default nLeft := 180
+    Default nTop := 180
     Default nHeight := 550
     Default nWidth := 700
 
     oInstance := Self
     ::oParent := oWindow
 
-    ::nPosX := nPosX
-    ::nPosY := nPosY
+    ::nLeft := nLeft
+    ::nTop := nTop
     ::nHeight := nHeight
     ::nWidth := nWidth
     ::cId := cId
@@ -155,7 +152,7 @@ description
 @version version
 /*/
 Method GetDimensions() Class Scene
-Return {::nPosX, ::nPosY, ::nHeight, ::nWidth}
+Return { ::nTop, ::nLeft, ::nHeight, ::nWidth}
 /*/{Protheus.doc} function
 description
 @author  author

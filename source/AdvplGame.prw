@@ -1,10 +1,6 @@
 #include "totvs.ch"
-#include "protheus.ch"
+#include "gameadvpl.ch"
 
-#DEFINE X_POS 1
-#DEFINE Y_POS 2
-#DEFINE HEIGHT 3
-#DEFINE WIDTH 4
 /*
 {Protheus.doc} function
 description
@@ -30,10 +26,10 @@ Main Function Game2D()
     aDimensions := oGame:GetDimensions()
 
     // instância uma cena (deverá ser atribuida para janela do jogo)
-    oScene1 := Scene():New(oWindow, "level_1", aDimensions[X_POS], aDimensions[Y_POS], aDimensions[HEIGHT], aDimensions[WIDTH])
+    oScene1 := Scene():New(oWindow, "level_1", aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
     oScene1:SetInitCodeBlock({|oScn| LoadScn1(oScn)})
     
-    oScene2 := Scene():New(oWindow, "level_2", aDimensions[X_POS], aDimensions[Y_POS], aDimensions[HEIGHT], aDimensions[WIDTH])
+    oScene2 := Scene():New(oWindow, "level_2", aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
     oScene2:SetInitCodeBlock({|oScn| LoadScn2(oScn)})
 
     // adiciona cena ao jogo
@@ -64,19 +60,19 @@ Static Function LoadScn1(oScene1)
     aDimensions := oScene1:GetDimensions()
     oWindow := oScene1:GetSceneWindow()
 
-    oSky := Sky():New(oWindow, aDimensions[X_POS], aDimensions[Y_POS], aDimensions[HEIGHT], aDimensions[WIDTH])
+    oSky := Sky():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
 
     oGround := Ground():New(oWindow)
     oGround:SetTag('ground')
-    oGround:SetColliderSize(50, 650)
+    oGround:SetColliderMargin(50,0,0,0)
     
     oPlayer := Player():New(oWindow, "Lucas")
     oPlayer:SetTag('player')
 
-    oClouds := Clouds():New(oWindow, aDimensions[X_POS], aDimensions[Y_POS], aDimensions[HEIGHT], aDimensions[WIDTH])
+    oClouds := Clouds():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
 
     oSquare := Square():New(oWindow, 227, 200, 50, 50)
-    oSquare:SetColliderSize(50, 50)
+    oSquare:SetColliderMargin(0,10,0,-105)
 
     // adiciona objetos a uma cena, mesmo sem adicionar ele será adicionado, entretanto não será gerenciado
     oScene1:AddObject(oSky)

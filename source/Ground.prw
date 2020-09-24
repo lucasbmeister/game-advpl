@@ -20,7 +20,7 @@ description
 @since   date
 @version version
 */
-Method New(oWindow, nPosX, nPosY, nHeight, nWidth ) Class Ground
+Method New(oWindow, nTop, nLeft, nHeight, nWidth ) Class Ground
     
     Local cStyle as char 
     Static oInstance as object
@@ -29,9 +29,8 @@ Method New(oWindow, nPosX, nPosY, nHeight, nWidth ) Class Ground
 
     oInstance := Self
 
-    cStyle := "QFrame{ border-image: url("+StrTran(::GetAssetsPath("ground.png"),"\","/")+") 0 0 0 0 repeat repeat }"
+    cStyle := "QFrame{ border-image: url("+StrTran(::GetAssetsPath("ground.png"),"\","/")+") 0 0 0 0 repeat repeat; border-style:solid; border-width:3px; border-color:#FF0000; }"
 
-    ::SetSize(50, 650)
     ::oGameObject := TPanelCss():New(255, 0, , oInstance:oWindow,,,,,, 650, 50)
     ::oGameObject:SetCss(cStyle)
 

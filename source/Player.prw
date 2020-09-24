@@ -1,15 +1,12 @@
 #include "totvs.ch"
+#include "gameadvpl.ch"
 
 #DEFINE SPEED 4
 #DEFINE MAX_JUMP 60
-#DEFINE JUMP_SPEED 5
+#DEFINE JUMP_SPEED 8
 #DEFINE ANIMATION_DELAY 100 //ms
-#DEFINE GRAVITY 0.05
+#DEFINE GRAVITY 1
 
-#DEFINE X_POS 1
-#DEFINE Y_POS 2
-#DEFINE HEIGHT 3
-#DEFINE WIDTH 4
 /*
 {Protheus.doc} function
 description
@@ -25,29 +22,21 @@ Class Player From BaseGameObject
     Data lIsJumping
     Data lIsGrounded
     Data cCurrentState
-    Data nCurrentHeight
     Data nCurrentFrame
     Data nLastFrameTime
-    Data aLastPosition
-    Data nGravitySpeed
-    Data nJumpSpeed
 
     Method New() Constructor
     Method Update()
-    Method Jump()
-    Method Move()
     Method IsJumping()
-    Method ApplyGravity()
     Method IsGrounded()
     Method Animate()
     Method SetState()
     Method GetState()
     Method GetNextFrame()
     Method HideGameObject()
-    Method SavePosition()
-    Method MoveBack()
     Method IsOutOfBounds()
     Method CheckKey()
+    Method SolveCollision()
 
 EndClass
 /*
@@ -59,33 +48,27 @@ description
 */
 Method New(oWindow, cName) Class Player
 
-    Local cStyle as char 
+    Local cStyle as char
     Static oInstance as object
 
     _Super:New(oWindow)
 
     ::lIsJumping := .F.
-    ::lIsGrounded := .T.
-    ::nCurrentHeight := 0
+    ::lIsGrounded := .F.
     ::cCurrentState := "idle"
 
     ::nCurrentFrame := 1
     ::nLastFrameTime := 0
-    ::nGravitySpeed := 0
-    ::nJumpSpeed := 20
-
     ::LoadFrames("player")
 
-   // cStyle := "QFrame{ border-style:solid; border-width:3px; border-color:#FF0000; background-color:#00FF00 }"
+    // cStyle := "QFrame{ border-style:solid; border-width:3px; border-color:#FF0000; background-color:#00FF00 }"
     cStyle := "QFrame{ image: url("+::aFramesForward[::nCurrentFrame]+"); border-style: none }"
-    
-    ::cDirection := "R"
-    ::cLastDirection := "R"
-    ::aLastPosition := Array(4)
+
+    ::cDirection := ::cLastDirection := "R"
 
     oInstance := Self
-    ::SetSize(050, 050)
-    ::oGameObject := TPanelCss():New(227, 150, , oInstance:oWindow,,,,,, 050, 050)
+
+    ::oGameObject := TPanelCss():New(100, 150, , oInstance:oWindow,,,,,, 050, 050)
     ::oGameObject:SetCss(cStyle)
 
 Return Self
@@ -99,36 +82,41 @@ description
 Method Update(oGameManager) Class Player
 
     Local oKeys as char
-    Local aCollisions as array
+    Local aColliders as array
     Local aKeys as array
     Local nX as numeric
     Local lIdle as logical
+    Local nXPos as numeric
+    Local nYPos as numeric
+    Local aNewXY as array
 
     oKeys := oGameManager:GetPressedKeys()
     aKeys := oKeys:GetNames()
 
     lIdle := .T.
-    
-    ::SavePosition()
+
+    nXPos := ::oGameObject:nLeft
+    nYPos := ::oGameObject:nTop
 
     For nX := 1 To Len(aKeys)
 
-        If ::CheckKey('w', oKeys, aKeys, nX) .and. ::IsGrounded() .or. ::IsJumping()
-            ::Jump()
+        If ::CheckKey('w', oKeys, aKeys, nX) .and. !::IsJumping()
+            ::lIsJumping := .T.
+            ::nDy := -JUMP_SPEED * 2
             ::SetState("jumping")
             lIdle := .F.
         EndIf
 
         If ::CheckKey('a', oKeys, aKeys, nX)
             ::cDirection := "L"
-            ::oGameObject:nLeft -= SPEED
+            nXPos -= SPEED
             ::SetState("walking")
             lIdle := .F.
         EndIf
 
         If ::CheckKey('d', oKeys, aKeys, nX)
             ::cDirection := "R"
-            ::oGameObject:nLeft += SPEED
+            nXPos += SPEED
             ::SetState("walking")
             lIdle := .F.
         EndIf
@@ -148,51 +136,35 @@ Method Update(oGameManager) Class Player
         ::SetState("idle")
     EndIf
 
-    ::ApplyGravity()
+    nXPos += ::nDX
 
-    If ::IsOutOfBounds()
-        oGameManager:GameOver()
-        Return
+    If nXPos <= ::oGameObject:nWidth
+        nXPos := ::oGameObject:nWidth
     EndIf
 
-    aCollisions := oGameManager:CheckCollision(::GetPosition())
+    If nXPos >= ::oWindow:nWidth
+        nXPos := ::oWindow:nWidth - ::oGameObject:nWidth
+    EndIf
 
-    ::lIsGrounded := AScan(aCollisions, {|x| x:GetTag() == 'ground'}) > 0
+    ::nDY += GRAVITY
 
-    If !Empty(aCollisions)
-        For nX := 1 To Len(aCollisions)
-            If aCollisions[nX]:GetTag() != 'ground'
-                ::MoveBack()
-            EndIf
+    nYPos += ::nDY
+
+    aColliders := oGameManager:GetColliders()
+
+    aNewXY := {nXPos, nYPos}
+
+    If !Empty(aColliders)
+        For nX := 1 To Len(aColliders)
+            aNewXY := ::SolveCollision(aColliders[nX], aNewXY[1], aNewXY[2])
         Next
     EndIf
 
+    ::oGameObject:nLeft := aNewXY[1]
+    ::oGameObject:nTop := aNewXY[2]
+
     ::Animate()
     ::cLastDirection := ::cDirection
-
-Return
-
-/*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
-*/
-Method Jump() Class Player
-
-    ::lIsJumping := .T.
-
-    If ::nCurrentHeight < MAX_JUMP
-        ::nJumpSpeed -= JUMP_SPEED 
-        ::oGameObject:nTop -= ::nJumpSpeed 
-        ::nCurrentHeight += IIF(::nJumpSpeed > 0,::nJumpSpeed, JUMP_SPEED)
-    Else
-        ::lIsJumping := .F.
-        ::nCurrentHeight := 0
-        ::nJumpSpeed := 20
-    EndIf
-
 
 Return
 /*
@@ -222,22 +194,6 @@ description
 @since   date
 @version version
 */
-Method ApplyGravity() Class Player
-    If !::IsGrounded() .and. !::IsJumping()
-        ::nGravitySpeed += GRAVITY
-        ::oGameObject:nTop += ::nGravitySpeed
-    Else
-        ::nGravitySpeed := 0
-    EndIf
-Return
-
-/*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
-*/
 Method IsGrounded() Class Player
 Return ::lIsGrounded
 
@@ -257,9 +213,9 @@ Method Animate() Class Player
     nTime := TimeCounter()
 
     If nTime - ::nLastFrameTime >= ANIMATION_DELAY
-        
+
         cState := ::GetState()
-    
+
 
         If cState == "walking"
 
@@ -328,40 +284,8 @@ description
 */
 Method HideGameObject() Class Player
 
-   ::oGameObject:Hide()
+    ::oGameObject:Hide()
     FreeObj(::oGameObject)
-
-Return
-
-/*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
-*/
-Method MoveBack() Class Player
-    ::oGameObject:nTop := ::aLastPosition[X_POS]
-    ::oGameObject:nLeft := ::aLastPosition[Y_POS]
-    ::oGameObject:nHeight := ::aLastPosition[HEIGHT]
-    ::oGameObject:nWidth := ::aLastPosition[WIDTH]
-Return
-
-/*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
-*/
-Method SavePosition() Class Player
-    Local aPosition as array
-
-    aPosition := ::GetPosition()
-    ::aLastPosition[X_POS] := aPosition[X_POS]
-    ::aLastPosition[Y_POS] := aPosition[Y_POS]
-    ::aLastPosition[HEIGHT] := ::oGameObject:nHeight
-    ::aLastPosition[WIDTH] := ::oGameObject:nWidth
 
 Return
 /*
@@ -373,3 +297,104 @@ description
 */
 Method IsOutOfBounds() Class Player
 Return ::oGameObject:nTop > ::oWindow:nHeight
+
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method SolveCollision(oObject, nXPos, nYPos) Class Player
+    
+    Local nPlayerTop as numeric 
+    Local nPlayerLeft as numeric 
+    Local nPlayerBottom as numeric 
+    Local nPlayerRight as numeric 
+
+    Local nObjTop as numeric 
+    Local nObjLeft as numeric 
+    Local nObjBottom as numeric 
+    Local nObjRight as numeric 
+    Local cTag as char
+
+    Local lOnTop as logical
+
+    Local aSides as array
+    Local nSide as numeric
+    
+    nPlayerTop := nYPos - ::oGameObject:nHeight
+    nPlayerLeft := nXPos - ::oGameObject:nWidth
+    nPlayerBottom := nYPos + ::oGameObject:nHeight
+    nPlayerRight := nXPos + ::oGameObject:nWidth
+
+    nObjTop := oObject:GetTop()
+    nObjLeft := oObject:GetLeft()
+    nObjBottom := oObject:GetBottom()
+    nObjRight := oObject:GetRight()
+
+    cTag := oObject:GetTag() 
+    lOnTop := .F.
+
+        //check If player is either touching or within the object-bounds
+    If nPlayerRight >= nObjLeft .and. nPlayerLeft <= nObjRight .and. nPlayerBottom >= nObjTop .and. nPlayerTop <= nObjBottom
+        
+        //player is already colliding with top or bottom side of object
+        If (lOnTop := ::oGameObject:nTop + ::oGameObject:nHeight == nObjTop) .or. ::oGameObject:nTop - ::oGameObject:nHeight == nObjBottom
+            nYPos := ::oGameObject:nTop
+        //player is already colliding with left or right side of object
+        ElseIf ::oGameObject:nLeft + ::oGameObject:nWidth == nObjLeft .or. ::oGameObject:nLeft - ::oGameObject:nWidth == nObjRight
+            nXPos := ::oGameObject:nLeft     
+        ElseIf nPlayerRight > nObjLeft .and. nPlayerLeft < nObjRight .and. nPlayerBottom > nObjTop .and. nPlayerTop < nObjBottom 
+            //check on which side the player collides with the object
+            aSides := { Abs(nPlayerBottom - nObjTop), Abs(nPlayerRight - nObjLeft), Abs(nPlayerTop - nObjBottom), Abs(nPlayerLeft - nObjRight)}
+
+            nSide := MinArr(aSides) //returns the side with the smallest distance between player and object
+            
+            If nSide == aSides[TOP] //first check top, than left
+                nYPos := nObjTop - ::oGameObject:nHeight
+            ElseIf nSide == aSides[LEFT] 
+                nXPos := nObjLeft - ::oGameObject:nWidth
+            ElseIf nSide == aSides[BOTTOM] //first check bottom, than right
+                nYPos := nObjBottom + ::oGameObject:nHeight
+            ElseIf nSide == aSides[RIGHT]
+                nXPos := nObjRight + ::oGameObject:nWidth
+            EndIf
+            ::lIsJumping := .F.
+            ::nDY := 0
+        EndIf
+    EndIf    
+
+    If lOnTop
+        ::nDY := 0
+        ::lIsJumping := .F.
+        If cTag == 'ground'
+            ::lIsGrounded := .T.
+        EndIF
+    EndIf   
+
+Return {nXPos, nYPos}
+
+//-------------------------------------------------------------------
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+//-------------------------------------------------------------------
+Static Function MinArr(aValues)
+
+    Local nX as numeric
+    Local nMin as numeric
+    
+    If !Empty(aValues)
+        nMin := aValues[1]
+        For nX := 1 To Len(aValues)
+            If aValues[nX] < nMin
+                nMin := aValues[nX]
+            EndIf
+        Next
+    EndIf
+
+Return nMin

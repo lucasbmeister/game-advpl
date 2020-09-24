@@ -7,10 +7,21 @@ Class BaseGameObject From LongNameClass
     Data aFramesForward
     Data aFramesBackward
     Data cTag
-    Data oCollider
     Data oGameObject
-    Data nHeight
-    Data nWidth
+
+    //fisica
+    Data lHasCollider
+
+    Data nTopMargin
+    Data nLeftMargin
+    Data nBottomMargin
+    Data nRightMargin
+
+    Data nHalfHeight
+    Data nHalfWidth
+
+    Data nDY
+    Data nDX
 
     Method New() Constructor
     Method SetWindow()
@@ -19,10 +30,18 @@ Class BaseGameObject From LongNameClass
     Method GetAssetsPath()
     Method LoadFrames()
     Method GetPosition()
-    Method SetColliderSize()
-    Method HasCollider()
-    Method GetCollider() 
     Method SetSize()
+
+    //fisica
+    Method SetColliderMargin()
+    Method HasCollider()
+    Method GetTruePosition()
+    Method GetMidX()
+    Method GetMidY()
+    Method GetTop()
+    Method GetLeft()
+    Method GetRight()
+    Method GetBottom()
 
 EndClass
 
@@ -42,7 +61,11 @@ Method New(oWindow) Class BaseGameObject
     if !Empty(oWindow)
         ::SetWindow(oWindow)
     EndIf
-    
+
+    ::lHasCollider := .F.
+    ::nDY := 0
+    ::nDX := 0
+
 Return Self
 
 /*
@@ -120,16 +143,16 @@ description
 Method GetPosition() Class BaseGameObject
 
     Local aPosition as array
-
+    
     aPosition := {}
 
-    AAdd(aPosition, ::oGameObject:nLeft)
-    AAdd(aPosition, ::oGameObject:nTop)
-    AAdd(aPosition, ::nHeight)
-    AAdd(aPosition, ::nWidth)
+    Aadd(aPosition, ::oGameObject:nTop)
+    Aadd(aPosition, ::oGameObject:nLeft)
+    Aadd(aPosition, ::oGameObject:nHeight)
+    Aadd(aPosition, ::oGameObject:nWidth)
 
     If ::HasCollider()
-        aPosition := ::GetCollider():GetTruePosition(aPosition)
+        aPosition := ::GetTruePosition(aPosition)
     EndIf
 
 Return aPosition
@@ -141,8 +164,29 @@ description
 @since   date
 @version version
 */
-Method SetColliderSize(nHeight, nWidth) Class BaseGameObject
-    ::oCollider := Collider():New(nHeight, nWidth)
+Method SetColliderMargin(nTopMargin, nLeftMargin, nBottomMargin, nRightMargin) Class BaseGameObject
+
+    If nTopMargin != Nil .and. nLeftMargin == Nil .and. nBottomMargin == Nil .and. nRightMargin == Nil
+
+        ::nTopMargin := ::nLeftMargin := ::nBottomMargin := ::nRightMargin := nTopMargin
+
+    ElseIf nTopMargin != Nil .and. nLeftMargin != Nil .and. nBottomMargin == Nil .and. nRightMargin == Nil
+
+        ::nTopMargin := ::nBottomMargin := nTopMargin
+        ::nLeftMargin := ::nRightMargin := nLeftMargin
+        
+    Else
+        ::nTopMargin := nTopMargin
+        ::nLeftMargin := nLeftMargin
+        ::nBottomMargin := nBottomMargin
+        ::nRightMargin := nRightMargin
+    EndIf
+
+    ::nHalfHeight := (::oGameObject:nHeight + ::nTopMargin + ::nBottomMargin) * 0.5
+    ::nHalfWidth := (::oGameObject:nWidth + ::nLeftMargin + ::nRightMargin) * 0.5
+
+    ::lHasCollider := .T.
+
 Return
 
 /*
@@ -153,7 +197,7 @@ description
 @version version
 */
 Method HasCollider() Class BaseGameObject
-Return !Empty(::oCollider)
+Return ::lHasCollider
 
 /*
 {Protheus.doc} function
@@ -162,9 +206,19 @@ description
 @since   date
 @version version
 */
-Method GetCollider() Class BaseGameObject
-Return ::oCollider
+Method GetTruePosition(aDimensions) Class BaseGameObject
 
+    Local aPosition as array
+
+    aPosition := {}
+
+    AAdd(aPosition, aDimensions[TOP] + ::nTopMargin)
+    AAdd(aPosition, aDimensions[LEFT] + ::nLeftMargin)
+    AAdd(aPosition, aDimensions[HEIGHT] + ::nBottomMargin)
+    AAdd(aPosition, aDimensions[WIDTH] + ::nRightMargin)
+
+
+Return aPosition
 /*
 {Protheus.doc} function
 description
@@ -172,9 +226,50 @@ description
 @since   date
 @version version
 */
-Method SetSize(nHeight, nWidth) Class BaseGameObject
-    ::nHeight := nHeight
-    ::nWidth := nWidth
-Return
-
-
+Method GetMidX(aDimensions) Class BaseGameObject
+Return ::nHalfWidth + ::oGameObject:nLeft
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method GetMidY(aDimensions) Class BaseGameObject
+Return ::nHalfHeight + ::oGameObject:nTop
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method GetTop(aDimensions) Class BaseGameObject
+Return ::oGameObject:nTop + ::nTopMargin
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method GetLeft(aDimensions) Class BaseGameObject
+Return ::oGameObject:nLeft + ::nLeftMargin
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method GetRight(aDimensions) Class BaseGameObject
+Return ::oGameObject:nLeft + ::oGameObject:nWidth + ::nRightMargin
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method GetBottom(aDimensions) Class BaseGameObject
+Return ::oGameObject:nTop + ::oGameObject:nHeight + ::nBottomMargin
