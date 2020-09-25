@@ -20,18 +20,23 @@ description
 @since   date
 @version version
 */
-Method New(oWindow, nTop, nLeft, nHeight, nWidth ) Class Ground
+Method New(oWindow, nTop, nLeft, nHeight, nWidth, lFloating) Class Ground
     
     Local cStyle as char 
+    Local cAsset as char
+
+    Default lFloating := .F.
+
     Static oInstance as object
 
     _Super:New(oWindow)
 
     oInstance := Self
+    cAsset := IIF(!lFloating, ::GetAssetsPath("ground.png"), ::GetAssetsPath("floating_ground.png"))
 
-    cStyle := "QFrame{ border-image: url("+StrTran(::GetAssetsPath("ground.png"),"\","/")+") 0 0 0 0 repeat repeat; border-style:solid; border-width:3px; border-color:#FF0000; }"
+    cStyle := "QFrame{ border-image: url("+StrTran(cAsset,"\","/")+") 0 stretch; }"
 
-    ::oGameObject := TPanelCss():New(255, 0, , oInstance:oWindow,,,,,, 650, 50)
+    ::oGameObject := TPanelCss():New(nTop, nLeft, , oInstance:oWindow,,,,,, nWidth, nHeight)
     ::oGameObject:SetCss(cStyle)
 
 Return

@@ -4,7 +4,7 @@
 #DEFINE SPEED 4
 #DEFINE MAX_JUMP 60
 #DEFINE JUMP_SPEED 8
-#DEFINE ANIMATION_DELAY 100 //ms
+#DEFINE ANIMATION_DELAY 80 //ms
 #DEFINE GRAVITY 1
 
 /*
@@ -37,6 +37,7 @@ Class Player From BaseGameObject
     Method IsOutOfBounds()
     Method CheckKey()
     Method SolveCollision()
+    Method SetDirection()
 
 EndClass
 /*
@@ -46,29 +47,33 @@ description
 @since   date
 @version version
 */
-Method New(oWindow, cName) Class Player
+Method New(oWindow, cName, nTop, nLeft, nHeight, nWidth ) Class Player
 
     Local cStyle as char
     Static oInstance as object
+
+    Default nTop := 100
+    Default nLeft := 150
+    Default nHeight := 050
+    Default nWidth := 050
 
     _Super:New(oWindow)
 
     ::lIsJumping := .F.
     ::lIsGrounded := .F.
     ::cCurrentState := "idle"
+    ::cDirection := ::cLastDirection := "forward"
 
     ::nCurrentFrame := 1
     ::nLastFrameTime := 0
     ::LoadFrames("player")
 
     // cStyle := "QFrame{ border-style:solid; border-width:3px; border-color:#FF0000; background-color:#00FF00 }"
-    cStyle := "QFrame{ image: url("+::aFramesForward[::nCurrentFrame]+"); border-style: none }"
-
-    ::cDirection := ::cLastDirection := "R"
+    cStyle := "QFrame{ border-image: url("+::oAnimations[::cCurrentState][::cDirection][::nCurrentFrame]+") 0 stretch; }"
 
     oInstance := Self
 
-    ::oGameObject := TPanelCss():New(100, 150, , oInstance:oWindow,,,,,, 050, 050)
+    ::oGameObject := TPanelCss():New(nTop, nLeft, , oInstance:oWindow,,,,,, nWidth, nHeight)
     ::oGameObject:SetCss(cStyle)
 
 Return Self
@@ -85,40 +90,37 @@ Method Update(oGameManager) Class Player
     Local aColliders as array
     Local aKeys as array
     Local nX as numeric
-    Local lIdle as logical
     Local nXPos as numeric
     Local nYPos as numeric
+    Local nXOri as numeric
+    Local nYOri as numeric
     Local aNewXY as array
 
     oKeys := oGameManager:GetPressedKeys()
     aKeys := oKeys:GetNames()
 
-    lIdle := .T.
-
-    nXPos := ::oGameObject:nLeft
-    nYPos := ::oGameObject:nTop
+    nXPos := nXOri := ::oGameObject:nLeft
+    nYPos := nYOri := ::oGameObject:nTop
 
     For nX := 1 To Len(aKeys)
 
         If ::CheckKey('w', oKeys, aKeys, nX) .and. !::IsJumping()
+            ::SetState("jumping")
             ::lIsJumping := .T.
             ::nDy := -JUMP_SPEED * 2
-            ::SetState("jumping")
-            lIdle := .F.
         EndIf
 
         If ::CheckKey('a', oKeys, aKeys, nX)
-            ::cDirection := "L"
+            ::SetDirection("backward")
+            ::SetState("running")
             nXPos -= SPEED
-            ::SetState("walking")
-            lIdle := .F.
+
         EndIf
 
         If ::CheckKey('d', oKeys, aKeys, nX)
-            ::cDirection := "R"
+            ::SetDirection("forward")
+            ::SetState("running")
             nXPos += SPEED
-            ::SetState("walking")
-            lIdle := .F.
         EndIf
 
         If ::CheckKey('x', oKeys, aKeys, nX)
@@ -132,14 +134,10 @@ Method Update(oGameManager) Class Player
 
     Next nX
 
-    If lIdle
-        ::SetState("idle")
-    EndIf
-
     nXPos += ::nDX
 
-    If nXPos <= ::oGameObject:nWidth
-        nXPos := ::oGameObject:nWidth
+    If nXPos + ::nLeftMargin <= 0
+        nXPos := -::nLeftMargin
     EndIf
 
     If nXPos >= ::oWindow:nWidth
@@ -156,12 +154,23 @@ Method Update(oGameManager) Class Player
 
     If !Empty(aColliders)
         For nX := 1 To Len(aColliders)
-            aNewXY := ::SolveCollision(aColliders[nX], aNewXY[1], aNewXY[2])
+            If aColliders[nX]:GetTag() != 'player'
+                aNewXY := ::SolveCollision(aColliders[nX], aNewXY[1], aNewXY[2])
+            EndIf
         Next
     EndIf
 
     ::oGameObject:nLeft := aNewXY[1]
     ::oGameObject:nTop := aNewXY[2]
+
+    If ::IsOutOfBounds()
+        oGameManager:GameOver()
+        Return
+    EndIF
+
+    If nXOri == ::oGameObject:nLeft .and. nYOri == ::oGameObject:nTop
+        ::SetState("idle")
+    EndIf
 
     ::Animate()
     ::cLastDirection := ::cDirection
@@ -217,17 +226,9 @@ Method Animate() Class Player
         cState := ::GetState()
 
 
-        If cState == "walking"
+        If cState != "jumping"
 
-            cStyle := "QFrame{ image: url("+::GetNextFrame()+"); border-style: none; }"
-            ::oGameObject:SetCss(cStyle)
-
-        ElseIf (cState == "jumping" .or. cState == "idle") .and. ::nCurrentFrame != 1
-
-            ::nCurrentFrame := 1
-
-            cStyle := "QFrame{ image: url("+IIF(::cDirection == "L", ::aFramesBackward[::nCurrentFrame], ::aFramesForward[::nCurrentFrame])+");"
-            cStyle += "border-style: none;}"
+            cStyle := "QFrame{ border-image: url("+::GetNextFrame(cState)+") 0 stretch; }"
             ::oGameObject:SetCss(cStyle)
 
         EndIf
@@ -261,19 +262,19 @@ description
 @since   date
 @version version
 */
-Method GetNextFrame() Class Player
+Method GetNextFrame(cState) Class Player
 
     Local lChangedDirection as logical
 
     lChangedDirection := ::cLastDirection != ::cDirection
 
-    If ::nCurrentFrame == Len(::aFramesForward) .or. lChangedDirection
+    If ::nCurrentFrame >= Len(::oAnimations[cState][::cDirection]) .or. lChangedDirection
         ::nCurrentFrame := 1
     Else
         ::nCurrentFrame++
     EndIf
 
-Return IIF(::cDirection == "L", ::aFramesBackward[::nCurrentFrame], ::aFramesForward[::nCurrentFrame])
+Return ::oAnimations[cState][::cDirection][::nCurrentFrame]
 
 /*
 {Protheus.doc} function
@@ -327,6 +328,7 @@ Method SolveCollision(oObject, nXPos, nYPos) Class Player
     nPlayerLeft := nXPos - ::oGameObject:nWidth
     nPlayerBottom := nYPos + ::oGameObject:nHeight
     nPlayerRight := nXPos + ::oGameObject:nWidth
+    
 
     nObjTop := oObject:GetTop()
     nObjLeft := oObject:GetLeft()
@@ -375,14 +377,13 @@ Method SolveCollision(oObject, nXPos, nYPos) Class Player
 
 Return {nXPos, nYPos}
 
-//-------------------------------------------------------------------
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
-//-------------------------------------------------------------------
+*/
 Static Function MinArr(aValues)
 
     Local nX as numeric
@@ -398,3 +399,14 @@ Static Function MinArr(aValues)
     EndIf
 
 Return nMin
+
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method SetDirection(cDirection) Class Player
+    ::cDirection := cDirection
+Return

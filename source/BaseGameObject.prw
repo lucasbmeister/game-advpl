@@ -4,10 +4,10 @@ Class BaseGameObject From LongNameClass
 
     Data cAssetsPath
     Data oWindow
-    Data aFramesForward
-    Data aFramesBackward
     Data cTag
     Data oGameObject
+
+    Data oAnimations
 
     //fisica
     Data lHasCollider
@@ -97,20 +97,45 @@ description
 @version version
 */
 Method LoadFrames(cEntity) Class BaseGameObject
+
     Local cPath as char
     Local nX as numeric
+    Local nY as numeric
+    Local aDirectory as array
+    Local aAnimations as array
+    Local aFramesForward as array
+    Local aFramesBackward as array
+    Local cTempPath as char
 
-    cPath := ::GetAssetsPath(cEntity + "\")
+    ::oAnimations := JsonObject():New()
 
-    ::aFramesForward := Directory(cPath + "forward\*.png", "A",,.F.)
-    ::aFramesBackward := Directory(cPath + "backward\*.png", "A",,.F.)
+    cPath := ::GetAssetsPath(cEntity + "\animation\")
 
-    cPath :=  StrTran(cPath, "\", "/")
+    aDirectory := Directory(cPath + "*.*", "D",,.F.)
+    cTempPath := StrTran(cPath, "\", "/")
+    aAnimations := {}
 
-    For nX := 1 To Len(::aFramesForward)
-        ::aFramesForward[nX] := cPath + "forward/" + ::aFramesForward[nX][1]
-        ::aFramesBackward[nX] := cPath + "backward/" + ::aFramesBackward[nX][1]
-    Next nX
+    If !Empty(aDirectory)
+
+        AEval(aDirectory, { |x| IIF(x[5] == 'D', Aadd(aAnimations, x[1]), nil)})
+
+        For nX := 1 To Len(aAnimations)
+
+            aFramesForward := Directory(cPath + aAnimations[nX] + "\forward\*.png", "A",,.F.)
+            aFramesBackward := Directory(cPath + aAnimations[nX] + "\backward\*.png", "A",,.F.)
+
+            For nY := 1 To Len(aFramesForward)
+                aFramesForward[nY] := cTempPath + aAnimations[nX] + "/forward/" + aFramesForward[nY][1]
+                aFramesBackward[nY] := cTempPath + aAnimations[nX] + "/backward/" + aFramesBackward[nY][1]
+            Next nY
+
+            ::oAnimations[aAnimations[nX]] := JsonObject():New()
+            ::oAnimations[aAnimations[nX]]['forward'] := aFramesForward
+            ::oAnimations[aAnimations[nX]]['backward'] := aFramesBackward
+
+        Next nX
+
+    EndIf
 
 Return 
 /*

@@ -54,6 +54,7 @@ Static Function LoadScn1(oScene1)
     Local oWindow as object
     Local oSky as object
     Local oGround as object
+    Local oGround2 as object
     Local oPlayer as object
     Local oClouds as object
 
@@ -62,24 +63,28 @@ Static Function LoadScn1(oScene1)
 
     oSky := Sky():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
 
-    oGround := Ground():New(oWindow)
+    oGround := Ground():New(oWindow, 260, 0, 42, 110)
     oGround:SetTag('ground')
-    oGround:SetColliderMargin(50,0,0,0)
+    oGround:SetColliderMargin(25, 70, 0, -210)
+    //oGround:SetColliderMargin(0)
+
+    oGround2 := Ground():New(oWindow, 260, 180, 42, 110)
+    oGround2:SetTag('ground')
+    oGround2:SetColliderMargin(25, 70, 0, -210)
+    //oGround2:SetColliderMargin(0)
     
-    oPlayer := Player():New(oWindow, "Lucas")
+    oPlayer := Player():New(oWindow, "Lucas", 50, 50, 50, 80)
     oPlayer:SetTag('player')
+    oPlayer:SetColliderMargin(10, 60, -5, -60)
 
     oClouds := Clouds():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
-
-    oSquare := Square():New(oWindow, 227, 200, 50, 50)
-    oSquare:SetColliderMargin(0,10,0,-105)
 
     // adiciona objetos a uma cena, mesmo sem adicionar ele será adicionado, entretanto não será gerenciado
     oScene1:AddObject(oSky)
     oScene1:AddObject(oPlayer)
     oScene1:AddObject(oClouds)
     oScene1:AddObject(oGround)
-    oScene1:AddObject(oSquare)
+    oScene1:AddObject(oGround2)
 
 Return
 /*
@@ -102,3 +107,7 @@ Static Function LoadScn2(oScene2)
     oScene2:AddObject(oPlayer2)
 
 Return
+
+
+    // oSquare := Square():New(oWindow, 227, 200, 50, 50)
+    // oSquare:SetColliderMargin(0,10,0,-105)
