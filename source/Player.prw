@@ -68,7 +68,6 @@ Method New(oWindow, cName, nTop, nLeft, nHeight, nWidth ) Class Player
     ::nLastFrameTime := 0
     ::LoadFrames("player")
 
-    // cStyle := "QFrame{ border-style:solid; border-width:3px; border-color:#FF0000; background-color:#00FF00 }"
     cStyle := "QFrame{ border-image: url("+::oAnimations[::cCurrentState][::cDirection][::nCurrentFrame]+") 0 stretch; }"
 
     oInstance := Self

@@ -19,6 +19,7 @@ Class Scene
     Data nHeight
     Data nWidth
     Data bLoadObjects
+    Data cDescription
 
     Method New() Constructor
     Method GetSceneID()
@@ -33,6 +34,8 @@ Class Scene
     Method IsActive() 
     Method ClearScene()
     Method GetObjectsWithColliders()
+    Method SetDescription()
+    Method GetDescription()
 
 EndClass
 /*
@@ -59,6 +62,7 @@ Method New(oWindow, cId, nTop, nLeft, nHeight, nWidth) Class Scene
     ::nHeight := nHeight
     ::nWidth := nWidth
     ::cId := cId
+    ::cDescription := cId
 
     ::aObjects := {}
 
@@ -136,58 +140,67 @@ description
 */
 Method GetSceneWindow() Class Scene
 Return ::oParent
-/*/{Protheus.doc} function
+
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Method SetInitCodeBlock(bBlock) Class Scene
     ::bLoadObjects := bBlock
 Return
-/*/{Protheus.doc} function
+
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Method GetDimensions() Class Scene
 Return { ::nTop, ::nLeft, ::nHeight, ::nWidth}
-/*/{Protheus.doc} function
+
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Method SetActive(lActive) Class Scene
     ::lActive := lActive
 Return
 
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Method IsActive() Class Scene
 Return ::lActive
 
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Method ClearScene() Class Scene
     AEval(::aObjects,{|x| x:HideGameObject() })
     ASize(::aObjects , 0)
 Return
-/*/{Protheus.doc} function
+/*
+{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Method GetObjectsWithColliders() Class Scene
     Local aObjColl as array
     aObjColl := {}
@@ -195,3 +208,22 @@ Method GetObjectsWithColliders() Class Scene
     AEval(::aObjects,{|x| IIF(x:HasCollider(), AAdd(aObjColl, x), nil)})
 
 Return aObjColl
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method SetDescription(cDesc) Class Scene
+    ::cDescription := cDesc
+Return
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method GetDescription() Class Scene
+Return ::cDescription

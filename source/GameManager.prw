@@ -148,7 +148,7 @@ Method StartEngine() Class GameManager
 
     ::oWebEngine := TWebEngine():New(oInstance:oWindow, 0, 0, ::nWidth, 10,,::oWebChannel:nPort)	
 	::oWebEngine:Navigate(cLink)
-    
+
 Return
 /*
 {Protheus.doc} function
@@ -294,6 +294,7 @@ Method LoadScene(cSceneID) Class GameManager
 
     ::SetActiveScene(::aScenes[nPos])
     ::oActiveScene:Start()
+    ::oWebEngine:SetFocus()
     ProcessMessage()
 
 Return
@@ -319,7 +320,8 @@ Method GameOver() Class GameManager
 
     cText := "<h1>GAME OVER</h1>"
 
-    oSay := TSay():New(100, 100,{||cText}, oInstance:oWindow,,,,,,.T.,,,100,100,,,,,,.T.)
+    oSay := TSay():New(1, 1,{||cText}, ::oWindow,,,,,,.T.,,,100,100,,,,,,.T.)
+    oSay:SetCSS('QLabel { backgound-color: white }')
 
     Sleep(5000)
 
