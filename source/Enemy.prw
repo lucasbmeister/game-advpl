@@ -179,7 +179,7 @@ Method Animate() Class Enemy
             cState += '_1'
         EndIf
 
-        cStyle := "TPanel { border-image: url("+::GetNextFrame(cState)+") 0 0 0 0 stretch}"
+        cStyle := "TPanel { border-image: url("+::GetNextFrame(cState)+") 0 0 0 0 stretch; background-color: black}"
         //cStyle := "QFrame{ image: url("+::GetNextFrame(cState)+")}"
         //cStyle := "QFrame{ background-image: url("+::GetNextFrame(cState)+"); background-repeat: no-repeat, no-repeat; background-size: cover; background-position: center; height: 100%; width: 100%;}"
         ::oGameObject:SetCss(cStyle)
