@@ -74,7 +74,7 @@ Static Function LoadMenu(oMenu, oGame)
 
     oSky := Sky():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
 
-    oGameTitle := TPanelCss():New(-20, 80, , oWindow,,,,,, 500, 150)
+    oGameTitle := TPanel():New(-20, 80, , oWindow,,,,,, 500, 150)
     oGameTitle:SetCSS(GetTitleCSS())
 
     oPlay := TButton():New(120,270,"", oWindow,{|| oGame:LoadScene('level_1') },120,40,,,,.T.)
@@ -157,6 +157,7 @@ Static Function LoadLvl1(oLevel)
     Local oGround3 as object
     Local oGround4 as object
     Local oPlayer as object
+    Local oEnemy as object
     Local oClouds as object
 
     aDimensions := oLevel:GetDimensions()
@@ -166,29 +167,43 @@ Static Function LoadLvl1(oLevel)
 
     oGround1 := Ground():New(oWindow, 260, 0, 42, 110)
     oGround1:SetTag('ground')
-    oGround1:SetColliderMargin(25, 70, 0, -210)
+    //oGround1:SetColliderMargin(25, 70, 0, -210)
+    //oGround1:SetColliderMargin(15, -45, 0, -110)
+    oGround1:SetColliderMargin(25, 0, 0, -150)
 
     oGround2 := Ground():New(oWindow, 260, 180, 42, 110)
     oGround2:SetTag('ground')
-    oGround2:SetColliderMargin(25, 70, 0, -210)
+    //oGround2:SetColliderMargin(25, 70, 0, -210)
+    //oGround2:SetColliderMargin(15, -180, 0, 110)
+    oGround2:SetColliderMargin(25, 0, 0, -150)
 
     oGround3 := Ground():New(oWindow, 260, 360, 42, 110)
     oGround3:SetTag('ground')
-    oGround3:SetColliderMargin(25, 70, 0, -210)
+    //oGround3:SetColliderMargin(25, 70, 0, -210)
+    //oGround3:SetColliderMargin(15, -45, 0, -110)
+    oGround3:SetColliderMargin(25, 0, 0, -150)
 
     oGround4 := Ground():New(oWindow, 260, 540, 42, 110)
     oGround4:SetTag('ground')
-    oGround4:SetColliderMargin(25, 70, 0, -210)
+    //oGround4:SetColliderMargin(25, 70, 0, -210)
+    //oGround4:SetColliderMargin(15, -45, 0, -110)
+    oGround4:SetColliderMargin(25, 0, 0, -150)
 
-    oPlayer := Player():New(oWindow, "Lucas", 50, 50, 50, 80)
+    oEnemy := Enemy():New(oWindow, "Inimigo", 50, 200, 50, 80)
+    oEnemy:SetTag('enemy')
+    //oEnemy:SetColliderMargin(0, 20, 0, -20)
+    oEnemy:SetColliderMargin(0, 50, 0, -50)
+
+    oPlayer := Player():New(oWindow, "Player", 50, 60, 50, 80)
     oPlayer:SetTag('player')
-    oPlayer:SetColliderMargin(10, 60, -5, -60)
+    oPlayer:SetColliderMargin(0, 50, 0, -50)
 
     oClouds := Clouds():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
 
     // adiciona objetos a uma cena, mesmo sem adicionar ele será apresentado, entretanto não será gerenciado
     oLevel:AddObject(oSky)
     oLevel:AddObject(oPlayer)
+    oLevel:AddObject(oEnemy)
     oLevel:AddObject(oClouds)
     oLevel:AddObject(oGround1)
     oLevel:AddObject(oGround2)
@@ -252,7 +267,7 @@ Static Function GetButtonCSS(cButton, lTransparent)
 
     BeginContent var cCss
 
-    QPushButton {
+    TButton {
         background-image: url(%Exp:cPathNormal%);
         background-size: contain;
         background-repeat: no-repeat no-repeat;
@@ -262,12 +277,12 @@ Static Function GetButtonCSS(cButton, lTransparent)
 
     }
 
-    QPushButton:hover {
+    TButton:hover {
         background-image: url(%Exp:cPathHover%);
         %Exp:cBorderHover%
     }
 
-    QPushButton:pressed {
+    TButton:pressed {
         border: 2px dashed black
     }
 
@@ -290,7 +305,7 @@ Static Function GetTitleCSS()
     cPath := StrTran(GetTempPath(),"\","/") + 'gameadvpl/assets/ui/title.png'
 
     BeginContent var cCss
-        QFrame{ 
+        TPanel { 
             border-image: url(%Exp:cPath%) 0 0 0 0 stretch; 
         }
     EndContent

@@ -27,9 +27,9 @@ Method New(oWindow, nTop, nLeft, nHieght, nWidth) Class Sky
     _Super:New(oWindow)
 
     oInstance := Self
-    cStyle := "QFrame{ border-image: url("+StrTran(::GetAssetsPath("background.png"),"\","/")+") 0 0 0 0 stretch stretch }"
+    cStyle := "TPanel { border-image: url("+StrTran(::GetAssetsPath("background.png"),"\","/")+") 0 0 0 0 stretch stretch }"
 
-    ::oGameObject := TPanelCss():New(0, 0, , oInstance:oWindow,,,,,, 650, 350)
+    ::oGameObject := TPanel():New(0, 0, , oInstance:oWindow,,,,,, 650, 350)
     ::oGameObject:SetCss(cStyle)
 Return Self
 

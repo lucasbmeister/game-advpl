@@ -34,9 +34,9 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth, lFloating) Class Ground
     oInstance := Self
     cAsset := IIF(!lFloating, ::GetAssetsPath("ground.png"), ::GetAssetsPath("floating_ground.png"))
 
-    cStyle := "QFrame{ border-image: url("+StrTran(cAsset,"\","/")+") 0 stretch; }"
+    cStyle := "TPanel { border-image: url("+StrTran(cAsset,"\","/")+") 0 stretch; ; background-color: blue}"
 
-    ::oGameObject := TPanelCss():New(nTop, nLeft, , oInstance:oWindow,,,,,, nWidth, nHeight)
+    ::oGameObject := TPanel():New(nTop, nLeft, , oInstance:oWindow,,,,,, nWidth, nHeight)
     ::oGameObject:SetCss(cStyle)
 
 Return

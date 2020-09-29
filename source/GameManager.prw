@@ -323,7 +323,7 @@ Method GameOver() Class GameManager
     oSay := TSay():New(1, 1,{||cText}, ::oWindow,,,,,,.T.,,,100,100,,,,,,.T.)
     oSay:SetCSS('QLabel { backgound-color: white }')
 
-    Sleep(5000)
+    Sleep(1000)
 
     oSay:Hide()
     FreeObj(oSay)

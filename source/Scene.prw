@@ -89,9 +89,14 @@ Method Update(oGameManager) Class Scene
     
     Local nX as numeric
 
-    For nX := 1 To Len(::aObjects)
+    For nX := Len(::aObjects)  To 1 STEP -1
         If ::IsActive()
             ::aObjects[nX]:Update(oGameManager)
+            If ::aObjects[nX]:ShouldDestroy()
+                FreeObj(::aObjects[nX])
+                ADel(::aObjects, nX)
+                ASize(::aObjects, Len(::aObjects) - 1)
+            EndIf
         Else
             Exit
         EndIf
@@ -191,7 +196,7 @@ description
 @version version
 */
 Method ClearScene() Class Scene
-    AEval(::aObjects,{|x| x:HideGameObject() })
+    AEval(::aObjects,{|x| x:HideGameObject(), FreeObj(x) })
     ASize(::aObjects , 0)
 Return
 /*

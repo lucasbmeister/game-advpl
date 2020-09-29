@@ -6,6 +6,8 @@ Class BaseGameObject From LongNameClass
     Data oWindow
     Data cTag
     Data oGameObject
+    Data cInternalId
+    Data lDestroy
 
     Data oAnimations
 
@@ -29,19 +31,22 @@ Class BaseGameObject From LongNameClass
     Method GetTag()
     Method GetAssetsPath()
     Method LoadFrames()
-    Method GetPosition()
     Method SetSize()
+    Method GetInternalId()
+    Method GetHeight()
+    Method GetWidth()
 
     //fisica
     Method SetColliderMargin()
     Method HasCollider()
-    Method GetTruePosition()
     Method GetMidX()
     Method GetMidY()
     Method GetTop()
     Method GetLeft()
     Method GetRight()
     Method GetBottom()
+    Method Destroy()
+    Method ShouldDestroy()
 
 EndClass
 
@@ -62,7 +67,9 @@ Method New(oWindow) Class BaseGameObject
         ::SetWindow(oWindow)
     EndIf
 
+    ::cInternalId := UUIDRandom()
     ::lHasCollider := .F.
+    ::lDestroy := .F.
     ::nDY := 0
     ::nDX := 0
 
@@ -117,7 +124,7 @@ Method LoadFrames(cEntity) Class BaseGameObject
 
     If !Empty(aDirectory)
 
-        AEval(aDirectory, { |x| IIF(x[5] == 'D', Aadd(aAnimations, x[1]), nil)})
+        AEval(aDirectory, { |x| IIF(x[5] == 'D', Aadd(aAnimations, x[1]), nil)}, 3)
 
         For nX := 1 To Len(aAnimations)
 
@@ -157,30 +164,6 @@ description
 */
 Method GetTag() Class BaseGameObject
 Return ::cTag
-
-/*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
-*/
-Method GetPosition() Class BaseGameObject
-
-    Local aPosition as array
-    
-    aPosition := {}
-
-    Aadd(aPosition, ::oGameObject:nTop)
-    Aadd(aPosition, ::oGameObject:nLeft)
-    Aadd(aPosition, ::oGameObject:nHeight)
-    Aadd(aPosition, ::oGameObject:nWidth)
-
-    If ::HasCollider()
-        aPosition := ::GetTruePosition(aPosition)
-    EndIf
-
-Return aPosition
 
 /*
 {Protheus.doc} function
@@ -231,27 +214,7 @@ description
 @since   date
 @version version
 */
-Method GetTruePosition(aDimensions) Class BaseGameObject
-
-    Local aPosition as array
-
-    aPosition := {}
-
-    AAdd(aPosition, aDimensions[TOP] + ::nTopMargin)
-    AAdd(aPosition, aDimensions[LEFT] + ::nLeftMargin)
-    AAdd(aPosition, aDimensions[HEIGHT] + ::nBottomMargin)
-    AAdd(aPosition, aDimensions[WIDTH] + ::nRightMargin)
-
-
-Return aPosition
-/*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
-*/
-Method GetMidX(aDimensions) Class BaseGameObject
+Method GetMidX() Class BaseGameObject
 Return ::nHalfWidth + ::oGameObject:nLeft
 /*
 {Protheus.doc} function
@@ -260,7 +223,7 @@ description
 @since   date
 @version version
 */
-Method GetMidY(aDimensions) Class BaseGameObject
+Method GetMidY() Class BaseGameObject
 Return ::nHalfHeight + ::oGameObject:nTop
 /*
 {Protheus.doc} function
@@ -269,7 +232,7 @@ description
 @since   date
 @version version
 */
-Method GetTop(aDimensions) Class BaseGameObject
+Method GetTop() Class BaseGameObject
 Return ::oGameObject:nTop + ::nTopMargin
 /*
 {Protheus.doc} function
@@ -278,7 +241,7 @@ description
 @since   date
 @version version
 */
-Method GetLeft(aDimensions) Class BaseGameObject
+Method GetLeft() Class BaseGameObject
 Return ::oGameObject:nLeft + ::nLeftMargin
 /*
 {Protheus.doc} function
@@ -287,7 +250,7 @@ description
 @since   date
 @version version
 */
-Method GetRight(aDimensions) Class BaseGameObject
+Method GetRight() Class BaseGameObject
 Return ::oGameObject:nLeft + ::oGameObject:nWidth + ::nRightMargin
 /*
 {Protheus.doc} function
@@ -296,5 +259,53 @@ description
 @since   date
 @version version
 */
-Method GetBottom(aDimensions) Class BaseGameObject
+Method GetBottom() Class BaseGameObject
 Return ::oGameObject:nTop + ::oGameObject:nHeight + ::nBottomMargin
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method GetInternalId() Class BaseGameObject
+Return ::cInternalId
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method Destroy() Class BaseGameObject
+    ::lDestroy := .T.
+Return 
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method ShouldDestroy() Class BaseGameObject
+Return ::lDestroy
+
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method GetHeight() Class BaseGameObject
+Return ::oGameObject:nHeight
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method GetWidth() Class BaseGameObject
+Return ::oGameObject:nWidth
+

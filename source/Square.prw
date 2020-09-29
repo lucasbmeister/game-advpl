@@ -27,9 +27,9 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class Square
     _Super:New(oWindow)
 
     oInstance := Self
-    cStyle := "QFrame{ background-color: black }"
+    cStyle := "TPanel { background-color: black }"
 
-    ::oGameObject := TPanelCss():New(nTop, nLeft, , oInstance:oWindow,,,,,, nWidth, nHeight)
+    ::oGameObject := TPanel():New(nTop, nLeft, , oInstance:oWindow,,,,,, nWidth, nHeight)
     ::oGameObject:SetCss(cStyle)
 
 Return Self

@@ -34,7 +34,7 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class Clouds
     ::aClouds := {}
     ::nLastSpawn := 0
     ::aDimensions := {nTop, nLeft, nHeight, nWidth}
-    ::cStyle := "QFrame{ border-image: url("+StrTran(::GetAssetsPath("cloud.png"),"\","/")+") 0 0 0 0 stretch stretch }"
+    ::cStyle := "TPanel { border-image: url("+StrTran(::GetAssetsPath("cloud.png"),"\","/")+") 0 0 0 0 stretch stretch }"
 
 
 Return
@@ -77,7 +77,7 @@ description
 Method CreateCloud() Class Clouds
     Local oCloud as object
 
-    oCloud := TPanelCss():New(Randomize(1, 150), -70, , ::oWindow,,,,,, 70, 25)
+    oCloud := TPanel():New(Randomize(1, 150), -70, , ::oWindow,,,,,, 70, 25)
     oCloud:SetCss(::cStyle)
 
 Return oCloud
