@@ -27,7 +27,7 @@ Method New(oWindow, nTop, nLeft, nHieght, nWidth) Class Sky
     _Super:New(oWindow)
 
     oInstance := Self
-    cStyle := "TPanel { border-image: url("+StrTran(::GetAssetsPath("background.png"),"\","/")+") 0 0 0 0 stretch stretch }"
+    cStyle := "TPanel { border-image: url("+StrTran(::GetAssetsPath("environment\background.png"),"\","/")+") 0 0 0 0 stretch stretch }"
 
     ::oGameObject := TPanel():New(0, 0, , oInstance:oWindow,,,,,, 650, 350)
     ::oGameObject:SetCss(cStyle)

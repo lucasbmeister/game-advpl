@@ -32,9 +32,10 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth, lFloating) Class Ground
     _Super:New(oWindow)
 
     oInstance := Self
-    cAsset := IIF(!lFloating, ::GetAssetsPath("ground.png"), ::GetAssetsPath("floating_ground.png"))
+    cAsset := IIF(!lFloating, ::GetAssetsPath("environment\ground.png"), ::GetAssetsPath("environment\floating_ground.png"))
 
-    cStyle := "TPanel { border-image: url("+StrTran(cAsset,"\","/")+") 0 stretch; ; background-color: blue}"
+    cStyle := "TPanel { border-image: url("+StrTran(cAsset,"\","/")+") 0 stretch}"
+    //cStyle := "TPanel { border: 1 solid black }"
 
     ::oGameObject := TPanel():New(nTop, nLeft, , oInstance:oWindow,,,,,, nWidth, nHeight)
     ::oGameObject:SetCss(cStyle)

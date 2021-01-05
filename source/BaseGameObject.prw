@@ -25,6 +25,8 @@ Class BaseGameObject From LongNameClass
     Data nDY
     Data nDX
 
+    Data nMass
+
     Method New() Constructor
     Method SetWindow()
     Method SetTag()
@@ -45,6 +47,7 @@ Class BaseGameObject From LongNameClass
     Method GetLeft()
     Method GetRight()
     Method GetBottom()
+    Method GetMass()
     Method Destroy()
     Method ShouldDestroy()
 
@@ -127,18 +130,23 @@ Method LoadFrames(cEntity) Class BaseGameObject
         AEval(aDirectory, { |x| IIF(x[5] == 'D', Aadd(aAnimations, x[1]), nil)}, 3)
 
         For nX := 1 To Len(aAnimations)
-
+            // tem que existir pelo menos um estado
             aFramesForward := Directory(cPath + aAnimations[nX] + "\forward\*.png", "A",,.F.)
             aFramesBackward := Directory(cPath + aAnimations[nX] + "\backward\*.png", "A",,.F.)
-
+            // se for animação deve existir pelo menos a direção forward
             For nY := 1 To Len(aFramesForward)
                 aFramesForward[nY] := cTempPath + aAnimations[nX] + "/forward/" + aFramesForward[nY][1]
-                aFramesBackward[nY] := cTempPath + aAnimations[nX] + "/backward/" + aFramesBackward[nY][1]
+                If !Empty(aFramesBackward)
+                    aFramesBackward[nY] := cTempPath + aAnimations[nX] + "/backward/" + aFramesBackward[nY][1]
+                EndIf
             Next nY
 
             ::oAnimations[aAnimations[nX]] := JsonObject():New()
             ::oAnimations[aAnimations[nX]]['forward'] := aFramesForward
-            ::oAnimations[aAnimations[nX]]['backward'] := aFramesBackward
+            
+            If !Empty(aFramesBackward)
+                ::oAnimations[aAnimations[nX]]['backward'] := aFramesBackward
+            EndIf
 
         Next nX
 
@@ -232,8 +240,8 @@ description
 @since   date
 @version version
 */
-Method GetTop() Class BaseGameObject
-Return ::oGameObject:nTop + ::nTopMargin
+Method GetTop(lMargin) Class BaseGameObject
+Return ::oGameObject:nTop + IIF(lMargin, ::nTopMargin, 0)
 /*
 {Protheus.doc} function
 description
@@ -241,8 +249,8 @@ description
 @since   date
 @version version
 */
-Method GetLeft() Class BaseGameObject
-Return ::oGameObject:nLeft + ::nLeftMargin
+Method GetLeft(lMargin) Class BaseGameObject
+Return ::oGameObject:nLeft + IIF(lMargin, ::nLeftMargin, 0)
 /*
 {Protheus.doc} function
 description
@@ -250,8 +258,8 @@ description
 @since   date
 @version version
 */
-Method GetRight() Class BaseGameObject
-Return ::oGameObject:nLeft + ::oGameObject:nWidth + ::nRightMargin
+Method GetRight(lMargin) Class BaseGameObject
+Return ::oGameObject:nLeft + ::oGameObject:nWidth + IIF(lMargin, ::nRightMargin, 0)
 /*
 {Protheus.doc} function
 description
@@ -259,8 +267,8 @@ description
 @since   date
 @version version
 */
-Method GetBottom() Class BaseGameObject
-Return ::oGameObject:nTop + ::oGameObject:nHeight + ::nBottomMargin
+Method GetBottom(lMargin) Class BaseGameObject
+Return ::oGameObject:nTop + ::oGameObject:nHeight + IIF(lMargin, ::nBottomMargin, 0)
 /*
 {Protheus.doc} function
 description
@@ -308,4 +316,12 @@ description
 */
 Method GetWidth() Class BaseGameObject
 Return ::oGameObject:nWidth
-
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method GetMass() Class BaseGameObject
+Return ::nMass

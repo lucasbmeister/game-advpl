@@ -22,6 +22,8 @@ Class GameManager From LongNameClass
     Data nLeft
     Data nHeight
     Data nWidth
+    Data nPlayerScore
+    Data nPlayerLife 
 
     Method New() Constructor
     Method AddScene()
@@ -39,6 +41,10 @@ Class GameManager From LongNameClass
     Method ExportAssets()
     Method Processed()
     Method GetColliders()
+    Method UpdateScore()
+    Method GetScore()
+    Method UpdateLife()
+    Method GetLife()
     Method GameOver()
 
 EndClass
@@ -58,6 +64,9 @@ Method New(cGameName, nTop, nLeft, nHeight, nWidth) Class GameManager
     Default nLeft := 180
     Default nHeight := 550
     Default nWidth := 700
+
+    ::nPlayerScore := 0
+    ::nPlayerLife := 0
 
     ::nTop := nTop
     ::nLeft := nLeft
@@ -331,3 +340,37 @@ Method GameOver() Class GameManager
     ::LoadScene(::GetActiveScene():GetSceneID())
 
 Return
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+Method UpdateScore(nValue) Class GameManager
+    ::nPlayerScore += nValue
+Return ::nPlayerScore
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+Method GetScore() Class GameManager
+Return ::nPlayerScore
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+Method UpdateLife(nLife) Class GameManager
+    ::nPlayerLife += nLife
+Return ::nPlayerLife
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+Method GetLife() Class GameManager
+Return ::nPlayerLife

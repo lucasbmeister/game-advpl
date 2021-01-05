@@ -34,7 +34,7 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class Clouds
     ::aClouds := {}
     ::nLastSpawn := 0
     ::aDimensions := {nTop, nLeft, nHeight, nWidth}
-    ::cStyle := "TPanel { border-image: url("+StrTran(::GetAssetsPath("cloud.png"),"\","/")+") 0 0 0 0 stretch stretch }"
+    ::cStyle := "TPanel { border-image: url("+StrTran(::GetAssetsPath("environment\cloud.png"),"\","/")+") 0 0 0 0 stretch stretch }"
 
 
 Return

@@ -8,7 +8,7 @@ description
 @since   date
 @version version
 */
-Main Function Game2D()
+Main Function GameAdvpl()
 
 Local oGame as object
 Local oMenu as object
@@ -19,7 +19,7 @@ Local oWindow as object
 Local aDimensions as array
 
 // instância gerenciador do jogo
-oGame := GameManager():New("Game Teste", 50, 50, 650, 1330)
+oGame := GameManager():New("Game Advpl", 50, 50, 650, 1330)
 
 // obtém janela princial onde as cenas serão adicionadas
 oWindow := oGame:GetMainWindow()
@@ -36,11 +36,11 @@ oLevels:SetInitCodeBlock({|oLevel| LoadLevels(oLevel, oGame)})
 
 // instância uma cena (deverá ser atribuida para janela do jogo)
 oLevel1 := Scene():New(oWindow, "level_1", aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
-oLevel1:SetInitCodeBlock({|oLevel| LoadLvl1(oLevel)})
+oLevel1:SetInitCodeBlock({|oLevel| LoadLvl1(oLevel, oGame)})
 oLevel1:SetDescription('Nível 1')
 
 oLevel2 := Scene():New(oWindow, "level_2", aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
-oLevel2:SetInitCodeBlock({|oLevel| LoadLvl2(oLevel)})
+oLevel2:SetInitCodeBlock({|oLevel| LoadLvl2(oLevel, oGame)})
 oLevel2:SetDescription('Nível 2')
 
 // adiciona cena ao jogo
@@ -147,7 +147,7 @@ description
 @since   date
 @version version
 */
-Static Function LoadLvl1(oLevel)
+Static Function LoadLvl1(oLevel, oGame)
 
     Local aDimensions as array
     Local oWindow as object
@@ -156,9 +156,16 @@ Static Function LoadLvl1(oLevel)
     Local oGround2 as object
     Local oGround3 as object
     Local oGround4 as object
+    Local oGround5 as object
+    Local oGround6 as object
     Local oPlayer as object
     Local oEnemy as object
     Local oClouds as object
+    Local oStartWall as object
+    Local oEndWall as object
+    Local oCoin1 as object
+    Local oPlayerLife as object
+    Local oPlayerScore as object
 
     aDimensions := oLevel:GetDimensions()
     oWindow := oLevel:GetSceneWindow()
@@ -167,50 +174,70 @@ Static Function LoadLvl1(oLevel)
 
     oGround1 := Ground():New(oWindow, 260, 0, 42, 110)
     oGround1:SetTag('ground')
-    //oGround1:SetColliderMargin(25, 70, 0, -210)
-    //oGround1:SetColliderMargin(15, -45, 0, -110)
-    oGround1:SetColliderMargin(25, -60, 0, -100)
+    oGround1:SetColliderMargin(25, 0, 0, 0)
 
-    oGround2 := Ground():New(oWindow, 260, 180, 42, 110)
+    oGround2 := Ground():New(oWindow, 260, 110, 42, 110)
     oGround2:SetTag('ground')
-    //oGround2:SetColliderMargin(25, 70, 0, -210)
-    //oGround2:SetColliderMargin(15, -180, 0, 110)
-    oGround2:SetColliderMargin(25, -60, 0, -100)
+    oGround2:SetColliderMargin(25, 0, 0, 0)
 
-    oGround3 := Ground():New(oWindow, 260, 360, 42, 110)
+    oGround3 := Ground():New(oWindow, 260, 220, 42, 110)
     oGround3:SetTag('ground')
-    //oGround3:SetColliderMargin(25, 70, 0, -210)
-    //oGround3:SetColliderMargin(15, -45, 0, -110)
-    oGround3:SetColliderMargin(25, -60, 0, -100)
+    oGround3:SetColliderMargin(25, 0, 0, 0)
 
-    oGround4 := Ground():New(oWindow, 260, 540, 42, 110)
+    oGround4 := Ground():New(oWindow, 260, 330, 42, 110)
     oGround4:SetTag('ground')
-    //oGround4:SetColliderMargin(25, 70, 0, -210)
-    //oGround4:SetColliderMargin(15, -45, 0, -110)
-    oGround4:SetColliderMargin(25, -60, 0, -100)
+    oGround4:SetColliderMargin(25, 0, 0, 0)
 
-    oEnemy := Enemy():New(oWindow, "Inimigo", 50, 200, 50, 80)
+    oGround5 := Ground():New(oWindow, 260, 440, 42, 110)
+    oGround5:SetTag('ground')
+    oGround5:SetColliderMargin(25, 0, 0, 0)
+
+    oGround6 := Ground():New(oWindow, 260, 550, 42, 110)
+    oGround6:SetTag('ground')
+    oGround6:SetColliderMargin(25, 0, 0, 0)
+
+    oEnemy := Enemy():New(oWindow, "Excel", 50, 60, 50, 80)
     oEnemy:SetTag('enemy')
-    //oEnemy:SetColliderMargin(0, 20, 0, -20)
-    //oEnemy:SetColliderMargin(0, 115, 0, -115)
     oEnemy:SetColliderMargin(0, 50, 0, -50)
 
-    oPlayer := Player():New(oWindow, "Player", 50, 60, 50, 80)
+    oPlayer := Player():New(oWindow, "Protheus", 50, 200, 50, 80)
     oPlayer:SetTag('player')
-    //oPlayer:SetColliderMargin(0, 115, 0, -115)
     oPlayer:SetColliderMargin(0, 50, 0, -50)
 
     oClouds := Clouds():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
 
+    oCoin1 := Coin():New(oWindow,, 250, 60, 10, 10)
+
+    oStartWall := Square():New(oWindow, 1, -15, aDimensions[HEIGHT], 10)
+    oStartWall:SetTag('startwall')
+    oStartWall:SetColliderMargin(0, 0, 0, 0)
+
+    oEndWall := Square():New(oWindow, 1, (aDimensions[WIDTH] / 2) - 15, aDimensions[HEIGHT], 10)
+    oEndWall:SetTag('endwall')
+    oEndWall:SetColliderMargin(0, 0, 0, 0)
+
+    oPlayerLife := PlayerLife():New(oWindow, 5, 5, 30, 60)
+    oPlayerScore := PlayerScore():New(oWindow, 5, (aDimensions[WIDTH] / 2) - 85, 30, 60)
+
+
+    oGame:UpdateLife(100)
+    oGame:UpdateScore(0)
     // adiciona objetos a uma cena, mesmo sem adicionar ele será apresentado, entretanto não será gerenciado
     oLevel:AddObject(oSky)
     oLevel:AddObject(oPlayer)
     oLevel:AddObject(oEnemy)
+    oLevel:AddObject(oCoin1)
     oLevel:AddObject(oClouds)
     oLevel:AddObject(oGround1)
     oLevel:AddObject(oGround2)
     oLevel:AddObject(oGround3)
     oLevel:AddObject(oGround4)
+    oLevel:AddObject(oGround5)
+    oLevel:AddObject(oGround6)
+    oLevel:AddObject(oStartWall)
+    oLevel:AddObject(oEndWall)
+    oLevel:AddObject(oPlayerLife)
+    oLevel:AddObject(oPlayerScore)
 
 Return
 /*
@@ -220,7 +247,7 @@ description
 @since   date
 @version version
 */
-Static Function LoadLvl2(oLevel)
+Static Function LoadLvl2(oLevel, oGame)
 
     Local oWindow as object
     Local oPlayer as object
