@@ -8,9 +8,12 @@ description
 */
 Class Square From BaseGameObject
 
+    Data lInvisible
+
     Method New() Constructor
     Method Update()
     Method HideGameObject() 
+    Method SetInvisible()
 
 EndClass
 /*
@@ -55,4 +58,25 @@ Method HideGameObject() Class Square
    ::oGameObject:Hide()
     FreeObj(::oGameObject)
 
+Return
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method SetInvisible(lInvisible) Class Square
+
+    Local cStyle as char
+
+    ::lInvisible := lInvisible
+
+    If lInvisible
+        cStyle := "TPanel { background-color: black }"
+    Else
+        cStyle := "TPanel { opacity : 0 }"
+    EndIf
+
+    ::oGameObject:SetCss(cStyle)
 Return

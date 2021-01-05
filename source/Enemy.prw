@@ -319,7 +319,7 @@ Method SolveCollision(oObject, nXPos, nYPos) Class Enemy
             nYPos := ::oGameObject:nTop /*+ ::nTopMargin*/
 
             //player is already colliding with left or right side of object
-        ElseIf ::oGameObject:nLeft + nWidth /*+ ::nLeftMargin*/ == nObjLeft .or. ::oGameObject:nLeft - nWidth /*+ ::nRightMargin*/ == nObjRight
+        ElseIf ::oGameObject:nLeft + nWidth /*+ ::nLeftMargin*/ == nObjLeft .or. ::oGameObject:nLeft - nWidth /*+ ::nRightMargin*/ == nObjRight .and. cTag != 'floating_ground'
             nXPos := ::oGameObject:nLeft /* + ::nLeftMargin  */
 
         ElseIf nEnemyRight > nObjLeft .and. nEnemyLeft < nObjRight .and. nEnemyBottom > nObjTop .and. nEnemyTop < nObjBottom
@@ -330,11 +330,11 @@ Method SolveCollision(oObject, nXPos, nYPos) Class Enemy
 
             If nSide == aSides[TOP] //first check top, than left
                 nYPos := nObjTop - nHeight /*+ ::nTopMargin*/
-            ElseIf nSide == aSides[LEFT]
+            ElseIf nSide == aSides[LEFT] .and. cTag != 'floating_ground'
                 nXPos := nObjLeft - nWidth + ::nLeftMargin
-            ElseIf nSide == aSides[BOTTOM] //first check bottom, than right
+            ElseIf nSide == aSides[BOTTOM]  .and. cTag != 'floating_ground' //first check bottom, than right
                 nYPos := nObjBottom + nHeight/* + ::nBottomMargin*/
-            ElseIf nSide == aSides[RIGHT]
+            ElseIf nSide == aSides[RIGHT]  .and. cTag != 'floating_ground'
                 nXPos := nObjRight + ::nRightMargin
             EndIf
 
@@ -347,7 +347,7 @@ Method SolveCollision(oObject, nXPos, nYPos) Class Enemy
             EndIf
             lIsGrounded := .F.
         Else
-            If cTag == 'ground'
+            If cTag $ 'ground;floating_ground'
                 lIsGrounded := .T.
             EndIf
         EndIf

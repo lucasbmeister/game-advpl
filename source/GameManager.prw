@@ -25,6 +25,13 @@ Class GameManager From LongNameClass
     Data nPlayerScore
     Data nPlayerLife 
 
+    Data lCameraUpdate
+    Data cCameraDirection
+    Data nCameraSpeed
+
+    Data oStartLimit
+    Data oEndLimit
+
     Method New() Constructor
     Method AddScene()
     Method SetActiveScene()
@@ -46,6 +53,12 @@ Class GameManager From LongNameClass
     Method UpdateLife()
     Method GetLife()
     Method GameOver()
+    Method SetCameraUpdate()
+    Method ShouldUpdateCamera()
+    Method GetMidScreen()
+    Method SetCameraLimits()
+    Method GetStartLimit()
+    Method GetEndLimit()
 
 EndClass
 
@@ -72,10 +85,17 @@ Method New(cGameName, nTop, nLeft, nHeight, nWidth) Class GameManager
     ::nLeft := nLeft
     ::nHeight := nHeight
     ::nWidth := nWidth
-    
+
+    ::oStartLimit := nil
+    ::oEndLimit := nil
+        
     ::cGameName := cGameName
     ::aScenes := {}
     ::oKeys := {}
+
+    ::lCameraUpdate := .F.
+    ::cCameraDirection := ''
+    ::nCameraSpeed := 0
 
     ::nDeltaTime := 0
 
@@ -204,14 +224,23 @@ description
 Method Update(oWebChannel, codeType, codeContent) Class GameManager
 
     Local oKeys as object
+    Local oActiveScene as object
 
     oKeys := JsonObject():New()
 
     oKeys:FromJson(Lower(codeContent))
 
+    oActiveScene := ::GetActiveScene()
+
     ::SetPressedKeys(oKeys)
     ::nDeltaTime := TimeCounter() - ::nDeltaTime
-    ::GetActiveScene():Update(Self)
+    oActiveScene:Update(Self)
+
+    If ::ShouldUpdateCamera()
+        //basicamente move todos os objetos na direção contrário do player (incluindo o player)
+        oActiveScene:UpdateCamera(Self, ::cCameraDirection, ::nCameraSpeed)
+        ::SetCameraUpdate(.F.)
+    EndIf
 
     ::Processed()
 
@@ -374,3 +403,56 @@ description
 /*/
 Method GetLife() Class GameManager
 Return ::nPlayerLife
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+Method SetCameraUpdate(lUpdate, cDirection, nSpeed) Class GameManager
+    ::lCameraUpdate := lUpdate
+    ::cCameraDirection := cDirection
+    ::nCameraSpeed := nSpeed
+Return 
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+Method ShouldUpdateCamera() Class GameManager
+Return ::lCameraUpdate
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+Method GetMidScreen() Class GameManager
+Return ::oWindow:nWidth / 2
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+Method SetCameraLimits(oStartLimit, oEndLimit) Class GameManager
+    ::oStartLimit := oStartLimit
+    ::oEndLimit := oEndLimit
+Return
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+Method GetStartLimit() Class GameManager
+Return ::oStartLimit:oGameObject:nLeft
+/*/{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+/*/
+Method GetEndLimit() Class GameManager
+Return ::oEndLimit:oGameObject:nLeft

@@ -20,6 +20,7 @@ Class Scene
     Data nWidth
     Data bLoadObjects
     Data cDescription
+    Data nCameraPostion
 
     Method New() Constructor
     Method GetSceneID()
@@ -31,11 +32,13 @@ Class Scene
     Method SetInitCodeBlock()
     Method GetDimensions()
     Method SetActive()
-    Method IsActive() 
+    Method IsActive()
     Method ClearScene()
     Method GetObjectsWithColliders()
     Method SetDescription()
     Method GetDescription()
+    Method UpdateCamera()
+    Method IsGameObject()
 
 EndClass
 /*
@@ -63,6 +66,7 @@ Method New(oWindow, cId, nTop, nLeft, nHeight, nWidth) Class Scene
     ::nWidth := nWidth
     ::cId := cId
     ::cDescription := cId
+    ::nCameraPostion := nil
 
     ::aObjects := {}
 
@@ -86,7 +90,7 @@ description
 @version version
 */
 Method Update(oGameManager) Class Scene
-    
+
     Local nX as numeric
 
     For nX := Len(::aObjects)  To 1 STEP -1
@@ -135,7 +139,7 @@ description
 Method EndScene() Class Scene
     ::SetActive(.F.)
     ::ClearScene()
-Return 
+Return
 /*
 {Protheus.doc} function
 description
@@ -232,3 +236,43 @@ description
 */
 Method GetDescription() Class Scene
 Return ::cDescription
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method UpdateCamera(oGame, cDirection, nSpeed) Class Scene
+
+    Local nX as numeric
+
+    If cDirection == 'forward'
+        nSpeed := -nSpeed
+    EndIF
+
+    If ::nCameraPostion == nil
+        ::nCameraPostion := oGame:GetMidScreen()
+    EndIf
+
+    For nX := 1 To Len(::aObjects)
+        If ::IsGameObject(::aObjects[nX]) .and.::aObjects[nX]:GetTag() != 'background'
+            // If ::nCameraPostion - oGame:GetStartLimit() >= oGame:GetMidScreen() .or.;
+            //         oGame:GetEndLimit() - ::nCameraPostion <= oGame:GetMidScreen()
+                ::aObjects[nX]:oGameObject:nLeft += nSpeed
+            //EndIf
+        EndIf
+    Next
+
+    ::nCameraPostion += nSpeed
+
+Return
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method IsGameObject(oObject) Class Scene
+REturn AttIsMemberOf(oObject, 'oGameObject', .T.) .and. MethIsMemberOf(oObject, 'GetTag', .T.) .and. !Empty(oObject:oGameObject)

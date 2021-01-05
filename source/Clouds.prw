@@ -52,8 +52,11 @@ Method Update(oGameManager) Class Clouds
 
     nTime := TimeCounter()
 
-    If Len(::aClouds) < 5 .and. nTime - ::nLastSpawn >= SPAWN_INTERVAL
-        AAdd(::aClouds,::CreateCloud())
+    If Len(::aClouds) < 5 .and. nTime - ::nLastSpawn >= SPAWN_INTERVAL 
+        If Randomize(1, 100) < 40
+            AAdd(::aClouds,::CreateCloud())
+        EndIf
+
         ::nLastSpawn := nTime
     EndIf
 
@@ -77,7 +80,7 @@ description
 Method CreateCloud() Class Clouds
     Local oCloud as object
 
-    oCloud := TPanel():New(Randomize(1, 150), -70, , ::oWindow,,,,,, 70, 25)
+    oCloud := TPanel():New(Randomize(1, 20), -70, , ::oWindow,,,,,, 70, 25)
     oCloud:SetCss(::cStyle)
 
 Return oCloud

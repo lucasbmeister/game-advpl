@@ -6,7 +6,7 @@ description
 @since   date
 @version version
 */
-Class Ground From BaseGameObject
+Class FloatingGround From BaseGameObject
 
     Method New() Constructor
     Method Update()
@@ -20,7 +20,7 @@ description
 @since   date
 @version version
 */
-Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class Ground
+Method New(oWindow, nTop, nLeft, nHeight, nWidth, nType) Class FloatingGround
     
     Local cStyle as char 
     Local cAsset as char
@@ -32,7 +32,7 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class Ground
     _Super:New(oWindow)
 
     oInstance := Self
-    cAsset := ::GetAssetsPath("environment\ground.png")
+    cAsset := ::GetAssetsPath("environment\floating_ground_"+cValToChar(nType)+".png")
 
     cStyle := "TPanel { border-image: url("+StrTran(cAsset,"\","/")+") 0 stretch}"
     //cStyle := "TPanel { border: 1 solid black }"
@@ -48,7 +48,7 @@ description
 @since   date
 @version version
 */
-Method Update() Class Ground
+Method Update() Class FloatingGround
 Return
 /*
 {Protheus.doc} function
@@ -57,7 +57,7 @@ description
 @since   date
 @version version
 */
-Method HideGameObject() Class Ground
+Method HideGameObject() Class FloatingGround
 
    ::oGameObject:Hide()
     FreeObj(::oGameObject)
