@@ -95,8 +95,12 @@ Method Update(oGameManager) Class Scene
 
     For nX := Len(::aObjects)  To 1 STEP -1
         If ::IsActive()
-            ::aObjects[nX]:Update(oGameManager)
-            If ::aObjects[nX]:ShouldDestroy()
+            //::aObjects[nX]:Update(oGameManager)
+            If MethIsMemberOf(::aObjects[nX], 'Update')
+                ::aObjects[nX]:Update(oGameManager)
+            EndIf
+            //If ::aObjects[nX]:ShouldDestroy()
+            If MethIsMemberOf(::aObjects[nX], 'ShouldDestroy') .and. ::aObjects[nX]:ShouldDestroy() 
                 FreeObj(::aObjects[nX])
                 ADel(::aObjects, nX)
                 ASize(::aObjects, Len(::aObjects) - 1)
@@ -200,7 +204,8 @@ description
 @version version
 */
 Method ClearScene() Class Scene
-    AEval(::aObjects,{|x| x:HideGameObject(), FreeObj(x) })
+    //AEval(::aObjects,{|x| x:HideGameObject(), FreeObj(x) })
+    AEval(::aObjects,{|x| IIF(MethIsMemberOf(x, 'HideGameObject'),x:HideGameObject(), x:Hide()), FreeObj(x) })
     ASize(::aObjects , 0)
 Return
 /*
@@ -259,7 +264,7 @@ Method UpdateCamera(oGame, cDirection, nSpeed) Class Scene
         If ::IsGameObject(::aObjects[nX]) .and.::aObjects[nX]:GetTag() != 'background'
             // If ::nCameraPostion - oGame:GetStartLimit() >= oGame:GetMidScreen() .or.;
             //         oGame:GetEndLimit() - ::nCameraPostion <= oGame:GetMidScreen()
-                ::aObjects[nX]:oGameObject:nLeft += nSpeed
+            ::aObjects[nX]:oGameObject:nLeft += nSpeed
             //EndIf
         EndIf
     Next

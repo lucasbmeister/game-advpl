@@ -33,6 +33,21 @@
         function start() {
             setInterval(update, 33);
         }
+        // não funciona. O objeto TWebEngine precisa estar em primeiro plano
+        // function mouseUpDownEvent(e) {
+        //     e = e || event;
+        //     pressedKeys['mouseDown'] = e.type == 'mousedown';
+        // }
+
+        // function mouseMoveEvent(e) {
+        //     e = e || event;
+        //     pressedKeys['mousePositionX'] = e.x;
+        //     pressedKeys['mousePositionY'] = e.y;
+        // }
+
+        // window.addEventListener('mousedown', mouseUpDownEvent)
+        // window.addEventListener('mouseup', mouseUpDownEvent)
+        // window.addEventListener('mousemove', mouseMoveEvent)
 
         function update() {
             if (lastUpdateIsProcessed) {

@@ -6,14 +6,11 @@ description
 @since   date
 @version version
 */
-Class Square From BaseGameObject
-
-    Data lInvisible
+Class Ground From BaseGameObject
 
     Method New() Constructor
     Method Update()
-    Method HideGameObject() 
-    Method SetInvisible()
+    Method HideGameObject()
 
 EndClass
 /*
@@ -23,28 +20,31 @@ description
 @since   date
 @version version
 */
-Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class Square
+Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class Ground
+    
     Local cStyle as char 
+    Local cAsset as char
+
+    Default lFloating := .F.
+
+    Default nTop := 100
+    Default nLeft := 150
+    Default nHeight := 050
+    Default nWidth := 050
+
     Static oInstance as object
 
     _Super:New(oWindow)
 
     oInstance := Self
-    cStyle := "TPanel { background-color: black }"
+    cAsset := ::GetAssetsPath("environment\ground.png")
+
+    cStyle := "TPanel { border-image: url("+StrTran(cAsset,"\","/")+") 0 stretch}"
+    //cStyle := "TPanel { border: 1 solid black }"
 
     ::oGameObject := TPanel():New(nTop, nLeft, , oInstance:oWindow,,,,,, nWidth, nHeight)
     ::oGameObject:SetCss(cStyle)
 
-Return Self
-
-/*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
-*/
-Method Update() Class Square
 Return
 /*
 {Protheus.doc} function
@@ -53,30 +53,18 @@ description
 @since   date
 @version version
 */
-Method HideGameObject() Class Square
+Method Update() Class Ground
+Return
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method HideGameObject() Class Ground
 
    ::oGameObject:Hide()
     FreeObj(::oGameObject)
 
-Return
-/*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
-*/
-Method SetInvisible(lInvisible) Class Square
-
-    Local cStyle as char
-
-    ::lInvisible := lInvisible
-
-    If lInvisible
-        cStyle := "TPanel { background-color: black }"
-    Else
-        cStyle := "TPanel { opacity : 0 }"
-    EndIf
-
-    ::oGameObject:SetCss(cStyle)
 Return

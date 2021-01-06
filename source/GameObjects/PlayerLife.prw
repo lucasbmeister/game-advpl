@@ -6,7 +6,9 @@ description
 @since   date
 @version version
 */
-Class Ground From BaseGameObject
+Class PlayerLife From BaseGameObject
+
+    Data oLifeText
 
     Method New() Constructor
     Method Update()
@@ -20,24 +22,32 @@ description
 @since   date
 @version version
 */
-Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class Ground
+Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class PlayerLife
     
     Local cStyle as char 
     Local cAsset as char
+    Local oFont as object
 
-    Default lFloating := .F.
+    Default nTop := 100
+    Default nLeft := 150
+    Default nHeight := 050
+    Default nWidth := 050
 
     Static oInstance as object
 
     _Super:New(oWindow)
 
     oInstance := Self
-    cAsset := ::GetAssetsPath("environment\ground.png")
+    cAsset := ::GetAssetsPath("ui\heart.png")
 
     cStyle := "TPanel { border-image: url("+StrTran(cAsset,"\","/")+") 0 stretch}"
     //cStyle := "TPanel { border: 1 solid black }"
 
-    ::oGameObject := TPanel():New(nTop, nLeft, , oInstance:oWindow,,,,,, nWidth, nHeight)
+    ::oGameObject := TPanel():New(nTop, nLeft, , oInstance:oWindow,,,,,, nWidth - 37, nHeight - 10)
+
+    oFont := TFont():New('Impact',,-32,.T.)
+
+    ::oLifeText := TSay():New(nTop,nLeft + 30,{|| StrZero(100,3)},oInstance:oWindow,,oFont,,,,.T.,,,nWidth,nHeight)
     ::oGameObject:SetCss(cStyle)
 
 Return
@@ -48,7 +58,16 @@ description
 @since   date
 @version version
 */
-Method Update() Class Ground
+Method Update(oGameManager) Class PlayerLife
+    
+    Local nLife as char
+
+    nLife := oGameManager:GetLife()
+
+    ::oLifeText:SetText(StrZero(nLife,3))
+
+    ::oLifeText:MoveToTop()
+    ::oGameObject:MoveToTop()
 Return
 /*
 {Protheus.doc} function
@@ -57,7 +76,7 @@ description
 @since   date
 @version version
 */
-Method HideGameObject() Class Ground
+Method HideGameObject() Class PlayerLife
 
    ::oGameObject:Hide()
     FreeObj(::oGameObject)

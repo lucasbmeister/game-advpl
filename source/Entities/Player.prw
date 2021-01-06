@@ -1,9 +1,10 @@
 #include "totvs.ch"
 #include "gameadvpl.ch"
 
-#DEFINE SPEED 2
+#DEFINE SPEED 4
+#DEFINE MAX_JUMP 60
+#DEFINE JUMP_SPEED 8
 #DEFINE ANIMATION_DELAY 80 //ms
-#DEFINE ATTACK_COOLDOWN 3000 //ms
 #DEFINE GRAVITY 1
 
 /*
@@ -14,20 +15,20 @@ description
 @version version
 */
 
-Class Enemy From BaseGameObject
+Class Player From BaseGameObject
 
     Data cDirection
     Data cLastDirection
+    Data lIsJumping
     Data lIsGrounded
     Data cCurrentState
     Data nCurrentFrame
     Data nLastFrameTime
-    Data nTime
-    Data nLastAttackTime
     Data cLastState
 
     Method New() Constructor
     Method Update()
+    Method IsJumping()
     Method IsGrounded()
     Method Animate()
     Method SetState()
@@ -35,10 +36,12 @@ Class Enemy From BaseGameObject
     Method GetNextFrame()
     Method HideGameObject()
     Method IsOutOfBounds()
+    Method CheckKey()
     Method SolveCollision()
     Method SetDirection()
     Method IsAttacking()
     Method IsLastFrame()
+    Method IsBlocking()
 
 EndClass
 /*
@@ -48,7 +51,7 @@ description
 @since   date
 @version version
 */
-Method New(oWindow, cName, nTop, nLeft, nHeight, nWidth ) Class Enemy
+Method New(oWindow, nTop, nLeft, nHeight, nWidth, cName ) Class Player
 
     Local cStyle as char
     Static oInstance as object
@@ -60,20 +63,21 @@ Method New(oWindow, cName, nTop, nLeft, nHeight, nWidth ) Class Enemy
 
     _Super:New(oWindow)
 
+    ::lIsJumping := .F.
     ::lIsGrounded := .F.
     ::cLastState := ::cCurrentState := "idle"
-    ::cDirection := ::cLastDirection := "backward"
+    ::cDirection := ::cLastDirection := "forward"
 
     ::nCurrentFrame := 1
     ::nLastFrameTime := 0
-    ::nLastAttackTime := 0
     ::LoadFrames("player")
 
     cStyle := "TPanel { border-image: url("+::oAnimations[::cCurrentState][::cDirection][::nCurrentFrame]+") 0 stretch; }"
 
     oInstance := Self
 
-    ::oGameObject := TPanel():New(nTop, nLeft, cName, oInstance:oWindow,,,,,, nWidth, nHeight)
+    //::oGameObject := TPanelCss():New(nTop, nLeft, , oInstance:oWindow,,,,,, nWidth, nHeight)
+    ::oGameObject := TPanel():New(nTop,nLeft, cName,oInstance:oWindow,,,,,,nWidth,nHeight)
     ::oGameObject:SetCss(cStyle)
 
 Return Self
@@ -84,8 +88,9 @@ description
 @since   date
 @version version
 */
-Method Update(oGameManager) Class Enemy
+Method Update(oGameManager) Class Player
 
+    Local oKeys as char
     Local aColliders as array
     Local nX as numeric
     Local nXPos as numeric
@@ -94,33 +99,60 @@ Method Update(oGameManager) Class Enemy
     Local nYOri as numeric
     Local aNewXY as array
 
+    oKeys := oGameManager:GetPressedKeys()
+
     nXPos := nXOri := ::oGameObject:nLeft
     nYPos := nYOri := ::oGameObject:nTop
 
-    ::nTime := TimeCounter()
+    If oKeys['i'] .and. !::IsBlocking()
+        ::SetState("block")
+    ElseIf !oKeys['i'] .and. ::IsBlocking() .and. !::IsAttacking()
+        ::SetState("idle")
+    EndIF
 
-    If ::IsGrounded() .and. !::IsAttacking()
-        If ::cLastDirection == 'backward'
-            ::SetState("running")
-            nXPos -= SPEED
+    If !::IsAttacking() .and. !::IsBlocking()
+
+        If oKeys['w'] .and. !::IsJumping() .and. ::IsGrounded()
+            ::SetState("jumping")
+            ::lIsJumping := .T.
+            ::nDy := -JUMP_SPEED * 2
         EndIf
 
-        If ::cLastDirection == 'forward'
+        If oKeys['a']
+            ::SetDirection("backward")
+            ::SetState("running")
+            nXPos -= SPEED
+
+        EndIf
+
+        If oKeys['d']
+            ::SetDirection("forward")
             ::SetState("running")
             nXPos += SPEED
         EndIf
+
+        If oKeys['j']
+            ::SetState("attacking_1")
+        EndIf
+
+        If oKeys['k']
+            ::SetState("attacking_2")
+        EndIf
+
+        If oKeys['l']
+            ::SetState("attacking_3")
+        EndIf
+
     EndIf
 
     nXPos += ::nDX
 
     // If nXPos + ::nLeftMargin <= 0
     //     nXPos := -::nLeftMargin
-    //     ::SetDirection('forward')
     // EndIf
 
     // If nXPos + ::GetWidth() + ::nRightMargin >= ::oWindow:nWidth
     //     nXPos := ::oWindow:nWidth - ::GetWidth() - ::nRightMargin
-    //     ::SetDirection('backward')
     // EndIf
 
     ::nDY += GRAVITY
@@ -133,12 +165,8 @@ Method Update(oGameManager) Class Enemy
 
     If !Empty(aColliders)
         For nX := 1 To Len(aColliders)
-            If aColliders[nX]:GetInternalId() != ::GetInternalId()
+            If aColliders[nX]:GetTag() != 'player' .and. !Empty(aColliders[nX])
                 aNewXY := ::SolveCollision(aColliders[nX], aNewXY[1], aNewXY[2])
-
-                If aNewXY[3] .and. !::IsGrounded()
-                    ::lIsGrounded := .T.
-                EndIf
             EndIf
         Next
     EndIf
@@ -147,11 +175,16 @@ Method Update(oGameManager) Class Enemy
     ::oGameObject:nTop := aNewXY[2]
 
     If ::IsOutOfBounds()
-        ::HideGameObject()
+        oGameManager:GameOver()
         Return
     EndIF
 
-    If nXOri == ::oGameObject:nLeft .and. nYOri == ::oGameObject:nTop .and. !::IsAttacking()
+    If (::oGameObject:nLeft - oGameManager:GetStartLimit() >= oGameManager:GetMidScreen() .or.;
+            oGameManager:GetEndLimit() - ::oGameObject:nLeft <= oGameManager:GetMidScreen()) .and. nXOri != ::oGameObject:nLeft
+        oGameManager:SetCameraUpdate(.T., ::cDirection, SPEED) 
+    EndIF
+
+    If nXOri == ::oGameObject:nLeft .and. nYOri == ::oGameObject:nTop .and. !::IsAttacking() .and. !::IsBlocking()
         ::SetState("idle")
     EndIf
 
@@ -167,7 +200,27 @@ description
 @since   date
 @version version
 */
-Method IsGrounded() Class Enemy
+Method IsJumping() Class Player
+Return ::lIsJumping
+
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method CheckKey(cKey, oKeys, aKeys, nPos) Class Player
+Return aKeys[nPos] == cKey .and. oKeys[cKey]
+
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method IsGrounded() Class Player
 Return ::lIsGrounded
 
 /*
@@ -177,26 +230,33 @@ description
 @since   date
 @version version
 */
-Method Animate() Class Enemy
+Method Animate() Class Player
 
     Local cState as char
     Local cStyle as char
+    Local nTime as numeric
 
-    If ::nTime - ::nLastFrameTime >= ANIMATION_DELAY
+    nTime := TimeCounter()
+
+    If nTime - ::nLastFrameTime >= ANIMATION_DELAY
 
         cState := ::GetState()
 
-        If ::IsLastFrame(cState) .and. ::IsAttacking()
-            ::SetState('idle')
-            ::nLastAttackTime := ::nTime
+
+        If cState != "jumping"
+
+            If ::IsLastFrame(cState) .and. ::IsAttacking()
+                ::SetState('idle')
+            EndIf
+
+            cStyle := "TPanel { border-image: url("+::GetNextFrame(::GetState())+") 0 0 0 0 stretch}"
+            //cStyle := "TPanel { border: 1 solid black }"
+            //cStyle := "QFrame{ image: url("+::GetNextFrame(cState)+")}"
+            //cStyle := "QFrame{ background-image: url("+::GetNextFrame(cState)+"); background-repeat: no-repeat, no-repeat; background-size: 100% 100%; background-position: center; height: 100%; width: 100%;}"
+            ::oGameObject:SetCss(cStyle)
+
         EndIf
-
-        cStyle := "TPanel { border-image: url("+::GetNextFrame(::GetState())+") 0 0 0 0 stretch}"
-        //cStyle := "TPanel { border: 1 solid black }"
-        //cStyle := "QFrame{ background-image: url("+::GetNextFrame(cState)+"); background-repeat: no-repeat, no-repeat; background-size: cover; background-position: center; height: 100%; width: 100%;}"
-        ::oGameObject:SetCss(cStyle)
-
-        ::nLastFrameTime := ::nTime
+        ::nLastFrameTime := nTime
     EndIf
 
 Return
@@ -207,7 +267,7 @@ description
 @since   date
 @version version
 */
-Method SetState(cState) Class Enemy
+Method SetState(cState) Class Player
     ::cCurrentState := cState
 Return
 /*
@@ -217,7 +277,7 @@ description
 @since   date
 @version version
 */
-Method GetState() Class Enemy
+Method GetState() Class Player
 Return ::cCurrentState
 /*
 {Protheus.doc} function
@@ -226,7 +286,7 @@ description
 @since   date
 @version version
 */
-Method GetNextFrame(cState) Class Enemy
+Method GetNextFrame(cState) Class Player
 
     Local lChangedDirection as logical
 
@@ -247,10 +307,9 @@ description
 @since   date
 @version version
 */
-Method HideGameObject() Class Enemy
+Method HideGameObject() Class Player
 
     ::oGameObject:Hide()
-    ::Destroy()
     FreeObj(::oGameObject)
 
 Return
@@ -261,7 +320,7 @@ description
 @since   date
 @version version
 */
-Method IsOutOfBounds() Class Enemy
+Method IsOutOfBounds() Class Player
 Return ::oGameObject:nTop > ::oWindow:nHeight
 
 /*
@@ -271,12 +330,12 @@ description
 @since   date
 @version version
 */
-Method SolveCollision(oObject, nXPos, nYPos) Class Enemy
+Method SolveCollision(oObject, nXPos, nYPos) Class Player
 
-    Local nEnemyTop as numeric
-    Local nEnemyLeft as numeric
-    Local nEnemyBottom as numeric
-    Local nEnemyRight as numeric
+    Local nPlayerTop as numeric
+    Local nPlayerLeft as numeric
+    Local nPlayerBottom as numeric
+    Local nPlayerRight as numeric
 
     Local nObjTop as numeric
     Local nObjLeft as numeric
@@ -289,18 +348,18 @@ Method SolveCollision(oObject, nXPos, nYPos) Class Enemy
     Local aSides as array
     Local nSide as numeric
 
-    Local nWidth as numeric
     Local nHeight as numeric
+    Local nWidth as numeric
 
-    Local lIsGrounded as logical
-
-    nWidth := ::GetWidth()
     nHeight := ::GetHeight()
+    nWidth := ::GetWidth()
 
-    nEnemyTop := nYPos + ::nTopMargin
-    nEnemyLeft := nXPos  + ::nLeftMargin
-    nEnemyBottom := nYPos + nHeight + ::nBottomMargin
-    nEnemyRight := nXPos + nWidth + ::nRightMargin
+
+    nPlayerTop := nYPos + ::nTopMargin
+    nPlayerLeft := nXPos  + ::nLeftMargin
+    nPlayerBottom := nYPos + nHeight + ::nBottomMargin
+    nPlayerRight := nXPos + nWidth + ::nRightMargin
+
 
     nObjTop := oObject:GetTop(.T.)
     nObjLeft := oObject:GetLeft(.T.)
@@ -309,22 +368,21 @@ Method SolveCollision(oObject, nXPos, nYPos) Class Enemy
 
     cTag := oObject:GetTag()
     lOnTop := .F.
-    lIsGrounded := .F.
 
     //check If player is either touching or within the object-bounds
-    If nEnemyRight >= nObjLeft .and. nEnemyLeft <= nObjRight .and. nEnemyBottom >= nObjTop .and. nEnemyTop <= nObjBottom
+    If nPlayerRight >= nObjLeft .and. nPlayerLeft <= nObjRight .and. nPlayerBottom >= nObjTop .and. nPlayerTop <= nObjBottom
 
         //player is already colliding with top or bottom side of object
-        If (lOnTop := ::oGameObject:nTop + nHeight /*+ ::nTopMargin*/ == nObjTop) .or. ::oGameObject:nTop - nHeight /*+ ::nBottomMargin*/ == nObjBottom
+        If (lOnTop := ::oGameObject:nTop + nHeight /*+ ::nTopMargin*/ == nObjTop) .or. ::oGameObject:nTop /*+ ::nBottomMargin*/ == nObjBottom
             nYPos := ::oGameObject:nTop /*+ ::nTopMargin*/
 
             //player is already colliding with left or right side of object
-        ElseIf ::oGameObject:nLeft + nWidth /*+ ::nLeftMargin*/ == nObjLeft .or. ::oGameObject:nLeft - nWidth /*+ ::nRightMargin*/ == nObjRight .and. cTag != 'floating_ground'
-            nXPos := ::oGameObject:nLeft /* + ::nLeftMargin  */
+        ElseIf ::oGameObject:nLeft + nWidth/* + ::nLeftMargin*/ == nObjLeft .or. ::oGameObject:nLeft /*+ ::nRightMargin*/ == nObjRight  .and. cTag != 'floating_ground'
+            nXPos := ::oGameObject:nLeft /* + ::nLeftMargin   */
 
-        ElseIf nEnemyRight > nObjLeft .and. nEnemyLeft < nObjRight .and. nEnemyBottom > nObjTop .and. nEnemyTop < nObjBottom
+        ElseIf nPlayerRight > nObjLeft .and. nPlayerLeft < nObjRight .and. nPlayerBottom > nObjTop .and. nPlayerTop < nObjBottom
             //check on which side the player collides with the object
-            aSides := { Abs(nEnemyBottom - nObjTop), Abs(nEnemyRight - nObjLeft), Abs(nEnemyTop - nObjBottom), Abs(nEnemyLeft - nObjRight)}
+            aSides := { Abs(nPlayerBottom - nObjTop), Abs(nPlayerRight - nObjLeft), Abs(nPlayerTop - nObjBottom), Abs(nPlayerLeft - nObjRight)}
 
             nSide := MinArr(aSides) //returns the side with the smallest distance between player and object
 
@@ -332,43 +390,30 @@ Method SolveCollision(oObject, nXPos, nYPos) Class Enemy
                 nYPos := nObjTop - nHeight /*+ ::nTopMargin*/
             ElseIf nSide == aSides[LEFT] .and. cTag != 'floating_ground'
                 nXPos := nObjLeft - nWidth + ::nLeftMargin
-            ElseIf nSide == aSides[BOTTOM]  .and. cTag != 'floating_ground' //first check bottom, than right
-                nYPos := nObjBottom + nHeight/* + ::nBottomMargin*/
-            ElseIf nSide == aSides[RIGHT]  .and. cTag != 'floating_ground'
+            ElseIf nSide == aSides[BOTTOM] .and. cTag != 'floating_ground'//first check bottom, than right
+                nYPos := nObjBottom
+            ElseIf nSide == aSides[RIGHT] .and. cTag != 'floating_ground'
                 nXPos := nObjRight + ::nRightMargin
             EndIf
+            ::lIsJumping := .F.
+
+            If !lOnTop
+                ::lIsGrounded := .F.
+            EndIF
 
             ::nDY := 0
-        EndIf
-
-        If !lOnTop
-            If cTag == 'player' .and. !::IsAttacking() .and. ::nTime - ::nLastAttackTime  >= ATTACK_COOLDOWN
-                ::SetState('attacking_' + cValToChar(Randomize(1, 3)))
-            EndIf
-            lIsGrounded := .F.
-        Else
-            If cTag $ 'ground;floating_ground'
-                lIsGrounded := .T.
-            EndIf
-        EndIf
-
-        If cTag == 'endwall'
-            ::SetDirection('backward')
-        ElseIf cTag == 'startwall'
-            ::SetDirection('forward')
         EndIf
     EndIf
 
     If lOnTop
-
-        If ((nXPos <= nObjLeft .and. ::cDirection == 'backward') .or. (nXPos >= nObjRight .and. ::cDirection == 'forward'))  .and. !::IsAttacking() .and. !::IsGrounded()
-            ::SetDirection(IIF(::cDirection == 'forward', 'backward', 'forward'))
-        EndIF
-
         ::nDY := 0
+        ::lIsJumping := .F.
+        If cTag $ 'ground;floating_ground'
+            ::lIsGrounded := .T.
+        EndIF
     EndIf
 
-Return {nXPos, nYPos, lIsGrounded}
+Return {nXPos, nYPos}
 
 /*
 {Protheus.doc} function
@@ -400,7 +445,7 @@ description
 @since   date
 @version version
 */
-Method SetDirection(cDirection) Class Enemy
+Method SetDirection(cDirection) Class Player
     ::cDirection := cDirection
 Return
 /*
@@ -410,7 +455,7 @@ description
 @since   date
 @version version
 */
-Method IsAttacking() Class Enemy
+Method IsAttacking() Class Player
 Return 'attacking' $ ::GetState()
 /*
 {Protheus.doc} function
@@ -419,5 +464,14 @@ description
 @since   date
 @version version
 */
-Method IsLastFrame(cState) Class Enemy
+Method IsBlocking() Class Player
+Return ::GetState() == 'block'
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method IsLastFrame(cState) Class Player
 Return ::nCurrentFrame >= Len(::oAnimations[cState][::cDirection]) .and. ::cLastState == cState

@@ -28,7 +28,7 @@ description
 @since   date
 @version version
 */
-Method New(oWindow, cName, nTop, nLeft, nHeight, nWidth ) Class Coin
+Method New(oWindow, nTop, nLeft, nHeight, nWidth, cName ) Class Coin
 
     Local cStyle as char
     Static oInstance as object

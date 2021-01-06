@@ -25,7 +25,12 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth, nType) Class FloatingGround
     Local cStyle as char 
     Local cAsset as char
 
-    Default lFloating := .F.
+    Default nType := 1
+
+    Default nTop := 100
+    Default nLeft := 150
+    Default nHeight := 050
+    Default nWidth := 050
 
     Static oInstance as object
 

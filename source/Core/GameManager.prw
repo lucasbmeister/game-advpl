@@ -101,7 +101,7 @@ Method New(cGameName, nTop, nLeft, nHeight, nWidth) Class GameManager
 
     oInstance := Self
 
-    ::oWindow := TDialog():New(::nTop ,::nLeft,::nHeight,::nWidth,::cGameName ,,,,,CLR_BLACK,CLR_HCYAN,,,.T.)
+    ::oWindow := TDialog():New(::nTop ,::nLeft, ::nHeight,::nWidth,::cGameName ,,,,,CLR_BLACK,CLR_HCYAN,,,.T.)
 
     ::ExportAssets()
 
@@ -175,6 +175,7 @@ Method StartEngine() Class GameManager
 
     ::oWebChannel:bJsToAdvpl := {|self,codeType,codeContent| oInstance:HandleEvent(self, codeType, codeContent)} 
 
+    //::oWebEngine := TWebEngine():New(oInstance:oWindow, 0, 0, ::nWidth, 10,,::oWebChannel:nPort)	
     ::oWebEngine := TWebEngine():New(oInstance:oWindow, 0, 0, ::nWidth, 10,,::oWebChannel:nPort)	
 	::oWebEngine:Navigate(cLink)
 
