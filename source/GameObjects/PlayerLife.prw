@@ -30,8 +30,8 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class PlayerLife
 
     Default nTop := 100
     Default nLeft := 150
-    Default nHeight := 050
-    Default nWidth := 050
+    Default nHeight := 30
+    Default nWidth := 60
 
     Static oInstance as object
 

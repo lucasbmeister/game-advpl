@@ -29,8 +29,8 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class Ground
 
     Default nTop := 100
     Default nLeft := 150
-    Default nHeight := 050
-    Default nWidth := 050
+    Default nHeight := 42
+    Default nWidth := 110
 
     Static oInstance as object
 

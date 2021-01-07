@@ -44,7 +44,7 @@ Main Function GameAdvpl()
     oLevel2:SetDescription('Nível 2')
 
     oEditor := Scene():New(oWindow, "editor", aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
-    oEditor:SetInitCodeBlock({|oLevel| U_GameEditor(oLevel, oGame)})
+    oEditor:SetInitCodeBlock({|oLevel| U_EditorLevel(oLevel, oGame)})
     oEditor:SetDescription('Editor')
 
     // adiciona cena ao jogo

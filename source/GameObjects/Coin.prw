@@ -35,8 +35,8 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth, cName ) Class Coin
 
     Default nTop := 100
     Default nLeft := 150
-    Default nHeight := 050
-    Default nWidth := 050
+    Default nHeight := 10
+    Default nWidth := 10
 
     _Super:New(oWindow)
 

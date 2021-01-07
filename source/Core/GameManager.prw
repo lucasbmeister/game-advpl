@@ -101,7 +101,7 @@ Method New(cGameName, nTop, nLeft, nHeight, nWidth) Class GameManager
 
     oInstance := Self
 
-    ::oWindow := TDialog():New(::nTop ,::nLeft, ::nHeight,::nWidth,::cGameName ,,,,,CLR_BLACK,CLR_HCYAN,,,.T.)
+    ::oWindow := TDialog():New(::nTop ,::nLeft, ::nHeight,::nWidth,::cGameName ,,,,,CLR_BLACK,CLR_WHITE,,,.T.)
 
     ::ExportAssets()
 

@@ -29,8 +29,16 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth, nType) Class FloatingGround
 
     Default nTop := 100
     Default nLeft := 150
-    Default nHeight := 050
-    Default nWidth := 050
+    Default nHeight := 42
+
+    If nType == 1
+        Default nWidth := 110
+    ElseIf nType == 2
+        Default nHeight := 42
+    ElseIf nType == 3
+        Default nHeight := 42
+    EndIf
+
 
     Static oInstance as object
 

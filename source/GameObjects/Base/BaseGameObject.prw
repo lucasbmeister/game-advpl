@@ -49,6 +49,7 @@ Class BaseGameObject From LongNameClass
     Method GetBottom()
     Method GetMass()
     Method Destroy()
+    Method SetClickAction()
     Method ShouldDestroy()
 
 EndClass
@@ -325,3 +326,13 @@ description
 */
 Method GetMass() Class BaseGameObject
 Return ::nMass
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method SetClickAction(bBlock) Class BaseGameObject
+    ::oGameObject:bLClicked := bBlock
+Return
