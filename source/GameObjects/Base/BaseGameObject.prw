@@ -1,5 +1,12 @@
 #include "totvs.ch"
 
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
 Class BaseGameObject From LongNameClass
 
     Data cAssetsPath
@@ -49,7 +56,8 @@ Class BaseGameObject From LongNameClass
     Method GetBottom()
     Method GetMass()
     Method Destroy()
-    Method SetClickAction()
+    Method SetLeftClickAction()
+    Method SetRightClickAction()
     Method ShouldDestroy()
 
 EndClass
@@ -333,6 +341,17 @@ description
 @since   date
 @version version
 */
-Method SetClickAction(bBlock) Class BaseGameObject
+Method SetLeftClickAction(bBlock) Class BaseGameObject
     ::oGameObject:bLClicked := bBlock
 Return
+/*
+{Protheus.doc} function
+description
+@author  author
+@since   date
+@version version
+*/
+Method SetRightClickAction(bBlock) Class BaseGameObject
+    ::oGameObject:bRClicked := bBlock
+Return
+

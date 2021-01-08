@@ -2,12 +2,12 @@
 #include "gameadvpl.ch"
 
 #DEFINE ANIMATION_DELAY 80 //ms
-/*/{Protheus.doc} function
+/*{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Class Coin From BaseGameObject 
 
     Data nCurrentFrame

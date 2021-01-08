@@ -337,21 +337,21 @@ Method LoadScene(cSceneID) Class GameManager
     ProcessMessage()
 
 Return
-/*/{Protheus.doc} function
+/*{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Method GetColliders() Class GameManager
 Return ::GetActiveScene():GetObjectsWithColliders()
 
-/*/{Protheus.doc} function
+/*{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Method GameOver() Class GameManager
     
     Local oSay as object
@@ -370,90 +370,90 @@ Method GameOver() Class GameManager
     ::LoadScene(::GetActiveScene():GetSceneID())
 
 Return
-/*/{Protheus.doc} function
+/*{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Method UpdateScore(nValue) Class GameManager
     ::nPlayerScore += nValue
 Return ::nPlayerScore
-/*/{Protheus.doc} function
+/*{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Method GetScore() Class GameManager
 Return ::nPlayerScore
-/*/{Protheus.doc} function
+/*{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Method UpdateLife(nLife) Class GameManager
     ::nPlayerLife += nLife
 Return ::nPlayerLife
-/*/{Protheus.doc} function
+/*{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Method GetLife() Class GameManager
 Return ::nPlayerLife
-/*/{Protheus.doc} function
+/*{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Method SetCameraUpdate(lUpdate, cDirection, nSpeed) Class GameManager
     ::lCameraUpdate := lUpdate
     ::cCameraDirection := cDirection
     ::nCameraSpeed := nSpeed
 Return 
-/*/{Protheus.doc} function
+/*{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Method ShouldUpdateCamera() Class GameManager
 Return ::lCameraUpdate
-/*/{Protheus.doc} function
+/*{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Method GetMidScreen() Class GameManager
 Return ::oWindow:nWidth / 2
-/*/{Protheus.doc} function
+/*{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Method SetCameraLimits(oStartLimit, oEndLimit) Class GameManager
     ::oStartLimit := oStartLimit
     ::oEndLimit := oEndLimit
 Return
-/*/{Protheus.doc} function
+/*{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Method GetStartLimit() Class GameManager
 Return ::oStartLimit:oGameObject:nLeft
-/*/{Protheus.doc} function
+/*{Protheus.doc} function
 description
 @author  author
 @since   date
 @version version
-/*/
+*/
 Method GetEndLimit() Class GameManager
 Return ::oEndLimit:oGameObject:nLeft
