@@ -1,10 +1,11 @@
 #include "totvs.ch"
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Class Square 
+Classe que representa um quadrado simples
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Class Square From BaseGameObject
 
@@ -16,14 +17,16 @@ Class Square From BaseGameObject
     Method SetInvisible()
 
 EndClass
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method New(oWindow, nTop, nLeft, nHeight, nWidth)
+Instância classe Square
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class Square
+
     Local cStyle as char 
     Static oInstance as object
 
@@ -43,20 +46,21 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class Square
 Return Self
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method Update()
+Método update (sem uso por enquanto)
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method Update() Class Square
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method HideGameObject()
+Destrói objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method HideGameObject() Class Square
 
@@ -64,12 +68,13 @@ Method HideGameObject() Class Square
     FreeObj(::oGameObject)
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SetInvisible(lInvisible)
+Set quadrado com invisivel (WIP)
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetInvisible(lInvisible) Class Square
 

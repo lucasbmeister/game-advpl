@@ -1,10 +1,10 @@
 #include "totvs.ch"
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Class Ground
+Classe para objeto piso
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Class Ground From BaseGameObject
 
@@ -13,12 +13,13 @@ Class Ground From BaseGameObject
     Method HideGameObject()
 
 EndClass
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method New(oWindow, nTop, nLeft, nHeight, nWidth)
+Instância classe Ground
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class Ground
     
@@ -46,21 +47,23 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class Ground
     ::oGameObject:SetCss(cStyle)
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method Update()
+Método update (sem uso por enquanto)
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method Update() Class Ground
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method HideGameObject()
+Destrói objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method HideGameObject() Class Ground
 

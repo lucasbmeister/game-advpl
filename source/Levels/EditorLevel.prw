@@ -1,11 +1,11 @@
 #include "totvs.ch"
 #include "gameadvpl.ch"
 
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+/*{Protheus.doc} User Function EditorLevel(oEditor, oGame)
+Monta cena do editor
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 User Function EditorLevel(oEditor, oGame)
 

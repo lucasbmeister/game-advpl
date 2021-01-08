@@ -1,12 +1,13 @@
 #include "totvs.ch"
 
 #DEFINE SPAWN_INTERVAL 7000
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} CLass Clouds
+Classe que contém a lógica para as nuvens que passam no fundo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 CLass Clouds From BaseGameObject
 
@@ -23,11 +24,11 @@ CLass Clouds From BaseGameObject
 EndClass
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method New(oWindow, nTop, nLeft, nHeight, nWidth)
+Instância classe Clouds
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class Clouds
     _Super:New(oWindow)
@@ -38,12 +39,13 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class Clouds
 
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method Update(oGameManager)
+Realiza o controle e movimentação de nuvens em tela
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method Update(oGameManager) Class Clouds
 
@@ -70,12 +72,13 @@ Method Update(oGameManager) Class Clouds
     Next nX
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method CreateCloud()
+Cria um nuvem
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method CreateCloud() Class Clouds
     Local oCloud as object
@@ -84,12 +87,13 @@ Method CreateCloud() Class Clouds
     oCloud:SetCss(::cStyle)
 
 Return oCloud
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method HideGameObject()
+Destrói todas as nuvens criadas e o objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method HideGameObject() Class Clouds
 

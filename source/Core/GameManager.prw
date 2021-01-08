@@ -2,11 +2,12 @@
 #include "gameadvpl.ch"
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Class GameManager
+Classe que gerencia o jogo. Faz a comunicação com loop de jogo e
+também de dados que devem ser persistidos entre cenas
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Class GameManager From LongNameClass
 
@@ -63,11 +64,11 @@ Class GameManager From LongNameClass
 EndClass
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method New(cGameName, nTop, nLeft, nHeight, nWidth) Class GameManager
+Instância classe GameManager
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method New(cGameName, nTop, nLeft, nHeight, nWidth) Class GameManager
 
@@ -108,30 +109,32 @@ Method New(cGameName, nTop, nLeft, nHeight, nWidth) Class GameManager
 Return Self
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method AddScene(oScene) Class GameManager
+Adiciona uma nova cena no jogo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method AddScene(oScene) Class GameManager
     Aadd(::aScenes, oScene)
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetMainWindow() Class GameManager
+Retorna dialog criado para o jogo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetMainWindow() Class GameManager
 Return ::oWindow
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method Start(cFirstScene) Class GameManager
+Inicia o jogo com a primeira cena configurada por parâmetro
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method Start(cFirstScene) Class GameManager
 
@@ -150,11 +153,11 @@ Method Start(cFirstScene) Class GameManager
 Return
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method StartEngine() Class GameManager
+Inicia motor web para loop de jogo em JS.
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method StartEngine() Class GameManager
 
@@ -180,12 +183,13 @@ Method StartEngine() Class GameManager
 	::oWebEngine:Navigate(cLink)
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method HandleEvent(oWebChannel, codeType, codeContent) Class GameManager
+Método que age como proxy entre as requisições JS e Advpl
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method HandleEvent(oWebChannel, codeType, codeContent) Class GameManager
 
@@ -196,31 +200,35 @@ Method HandleEvent(oWebChannel, codeType, codeContent) Class GameManager
     EndIf 
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SetPressedKeys(oKeys) Class GameManager
+Define quais as teclas pressionadas em determinado frame
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetPressedKeys(oKeys) Class GameManager
     ::oKeys := oKeys
 REturn
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetPressedKeys() Class GameManager
+Retorna as teclas pressionadas em determinado frame
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetPressedKeys() Class GameManager
 Return ::oKeys
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method Update(oWebChannel, codeType, codeContent) Class GameManager
+Method executa em cada frame responsável por passar a informações que os objetos devem ser atualizados
+dentro da cena e também avisar o loop de jogo em JS que processamento do frame foi concluído
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method Update(oWebChannel, codeType, codeContent) Class GameManager
 
@@ -246,31 +254,34 @@ Method Update(oWebChannel, codeType, codeContent) Class GameManager
     ::Processed()
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method Processed()  Class GameManager
+Avisar o loop de jogo em JS que processamento do frame foi concluído
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method Processed()  Class GameManager
     ::oWebChannel:advplToJs("processed", "true")
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetDimensions() Class GameManager
+Retorna array com dimensões da tela de jogo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetDimensions() Class GameManager
 Return {::nTop, ::nLEft, ::nHeight, ::nWidth}
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method ExportAssets() Class GameManager
+Exporta os assests (sprites, js, html) de jogo para o diretório temporário do computador
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method ExportAssets() Class GameManager
 
@@ -295,31 +306,35 @@ Method ExportAssets() Class GameManager
     FUnzip(cTempPath + cFile, cTempPath + "gameadvpl\")
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SetActiveScene(oScene) Class GameManager
+Define qual cena está ativa no momento
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetActiveScene(oScene) Class GameManager
     ::oActiveScene := oScene
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetActiveScene() Class GameManager
+Retorna a cena atva
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetActiveScene() Class GameManager
 Return ::oActiveScene
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method LoadScene(cSceneID) Class GameManager
+Carrega uma cena no jogo. Caso exista uma cena aberta, ela é encerrada antes de 
+ser aberta a nova
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method LoadScene(cSceneID) Class GameManager
     
@@ -337,20 +352,21 @@ Method LoadScene(cSceneID) Class GameManager
     ProcessMessage()
 
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method GetColliders() Class GameManager
+Retorna todos os objetos da cena ativa que possuam colisão ativada
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetColliders() Class GameManager
 Return ::GetActiveScene():GetObjectsWithColliders()
 
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+/*{Protheus.doc} Method GameOver() Class GameManager
+(WIP) Caso o player morra, apresenta tela de gameover
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GameOver() Class GameManager
     
@@ -370,90 +386,100 @@ Method GameOver() Class GameManager
     ::LoadScene(::GetActiveScene():GetSceneID())
 
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method UpdateScore(nValue) Class GameManager
+Atualiza váriavel com pontuação do player
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method UpdateScore(nValue) Class GameManager
     ::nPlayerScore += nValue
 Return ::nPlayerScore
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method GetScore() Class GameManager
+Retorna pontuação do player
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetScore() Class GameManager
 Return ::nPlayerScore
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method UpdateLife(nLife) Class GameManager
+Atualiza váriavel com vida do player
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method UpdateLife(nLife) Class GameManager
     ::nPlayerLife += nLife
 Return ::nPlayerLife
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method GetLife() Class GameManager
+Retorna vida do player
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetLife() Class GameManager
 Return ::nPlayerLife
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method SetCameraUpdate(lUpdate, cDirection, nSpeed) Class GameManager
+Define que a câmera deve ser atualizada antes do fim de processamento do frame
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetCameraUpdate(lUpdate, cDirection, nSpeed) Class GameManager
     ::lCameraUpdate := lUpdate
     ::cCameraDirection := cDirection
     ::nCameraSpeed := nSpeed
 Return 
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method ShouldUpdateCamera() Class GameManager
+Retorna se câmera deve ser atualizada
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method ShouldUpdateCamera() Class GameManager
 Return ::lCameraUpdate
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method GetMidScreen() Class GameManager
+Retorna meio da tela
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetMidScreen() Class GameManager
 Return ::oWindow:nWidth / 2
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method SetCameraLimits(oStartLimit, oEndLimit) Class GameManager
+Define objetos que representam os limites da área de jogo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetCameraLimits(oStartLimit, oEndLimit) Class GameManager
     ::oStartLimit := oStartLimit
     ::oEndLimit := oEndLimit
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method GetStartLimit() Class GameManager
+Retorna coordenada de limite inicial (esquerdo) da area de jogo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetStartLimit() Class GameManager
 Return ::oStartLimit:oGameObject:nLeft
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method GetEndLimit() Class GameManager
+Retorna coordenada de limite final (direita) da area de jogo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetEndLimit() Class GameManager
 Return ::oEndLimit:oGameObject:nLeft

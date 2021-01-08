@@ -2,11 +2,11 @@
 #include "gameadvpl.ch"
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Main Function GameAdvpl()
+Inicia o jogo. Função principal
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Main Function GameAdvpl()
 

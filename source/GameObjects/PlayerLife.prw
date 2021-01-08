@@ -1,10 +1,11 @@
 #include "totvs.ch"
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Class PlayerLife
+Classe com lógica para apresentação do status da vida do player em tela
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Class PlayerLife From BaseGameObject
 
@@ -15,12 +16,13 @@ Class PlayerLife From BaseGameObject
     Method HideGameObject()
 
 EndClass
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method New(oWindow, nTop, nLeft, nHeight, nWidth)
+Instância a classe PLayerLife
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class PlayerLife
     
@@ -51,12 +53,13 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class PlayerLife
     ::oGameObject:SetCss(cStyle)
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method Update(oGameManager)
+Atualizado em cada frame, buscando dados de vida armazenados no GameManager
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method Update(oGameManager) Class PlayerLife
     
@@ -69,12 +72,13 @@ Method Update(oGameManager) Class PlayerLife
     ::oLifeText:MoveToTop()
     ::oGameObject:MoveToTop()
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method HideGameObject()
+Destrói objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method HideGameObject() Class PlayerLife
 

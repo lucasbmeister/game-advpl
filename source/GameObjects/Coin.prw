@@ -2,11 +2,12 @@
 #include "gameadvpl.ch"
 
 #DEFINE ANIMATION_DELAY 80 //ms
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Class Coin 
+Classe que representa uma moeda. Moedas fornecem pontos para o jogador
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Class Coin From BaseGameObject 
 
@@ -21,12 +22,13 @@ Class Coin From BaseGameObject
     Method HideGameObject()
 
 EndClass
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method New(oWindow, nTop, nLeft, nHeight, nWidth, cName ) 
+Instância a class Coin
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method New(oWindow, nTop, nLeft, nHeight, nWidth, cName ) Class Coin
 
@@ -52,12 +54,14 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth, cName ) Class Coin
     ::oGameObject:SetCss(cStyle)
 
 Return Self
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method Update(oGameManager)
+Checa gatilho para coletar moeda e caso for coletada, o objeto é destruído
+e a pontuação do player aumentada
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method Update(oGameManager) Class Coin
 
@@ -84,12 +88,13 @@ Method Update(oGameManager) Class Coin
         ::Animate()
     EndIf
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method Animate()
+Realizada a animação de rotação da moeda
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method Animate() Class Coin
 
@@ -108,12 +113,13 @@ Method Animate() Class Coin
     EndIf
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetNextFrame(cState)
+Busca o caminho do próximo sprite de acordo com o frame atual
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetNextFrame(cState) Class Coin
 
@@ -129,6 +135,13 @@ Method GetNextFrame(cState) Class Coin
 
 Return ::oAnimations[cState][cDirection][::nCurrentFrame]
 
+/*
+{Protheus.doc} Method CheckTrigger(oObject)
+Verifica se player está dentro da área do gatilho
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
 Method CheckTrigger(oObject) Class Coin
 
     Local nCoinTop as numeric
@@ -164,12 +177,13 @@ Method CheckTrigger(oObject) Class Coin
     EndIf
 
 Return lTriggered
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method HideGameObject()
+Destrói objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method HideGameObject() Class Coin
 

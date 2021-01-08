@@ -2,11 +2,13 @@
 #include "gameadvpl.ch"
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Class Scene
+Classe que representa uma cena. Ela é  responsável por armazenar os objetos de uma
+cena e realizar operações de atualizções por frame. Ela também atualiza a poição
+da câmera
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Class Scene
 
@@ -41,12 +43,13 @@ Class Scene
     Method IsGameObject()
 
 EndClass
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method New(oWindow, cId, nTop, nLeft, nHeight, nWidth) Class Scene
+Instância classe Scene
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method New(oWindow, cId, nTop, nLeft, nHeight, nWidth) Class Scene
 
@@ -73,21 +76,24 @@ Method New(oWindow, cId, nTop, nLeft, nHeight, nWidth) Class Scene
     ::SetActive(.F.)
 
 Return
+
 /*
-{Protheus.doc} function
-descriptiondd
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetSceneID() Class Scene
+Retorna ID único da cena.
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetSceneID() Class Scene
 Return ::cId
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method Update(oGameManager) Class Scene
+Realiza as lógicas de atualização de frame de cada objeto e remove objetos
+marcados para destruição
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method Update(oGameManager) Class Scene
 
@@ -100,7 +106,7 @@ Method Update(oGameManager) Class Scene
                 ::aObjects[nX]:Update(oGameManager)
             EndIf
             //If ::aObjects[nX]:ShouldDestroy()
-            If MethIsMemberOf(::aObjects[nX], 'ShouldDestroy') .and. ::aObjects[nX]:ShouldDestroy() 
+            If MethIsMemberOf(::aObjects[nX], 'ShouldDestroy') .and. ::aObjects[nX]:ShouldDestroy()
                 FreeObj(::aObjects[nX])
                 ADel(::aObjects, nX)
                 ASize(::aObjects, Len(::aObjects) - 1)
@@ -111,109 +117,114 @@ Method Update(oGameManager) Class Scene
     Next nX
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method AddObject(oObject) Class Scene
+Adiciona um objeto na cena
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method AddObject(oObject) Class Scene
     Aadd(::aObjects, oObject)
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method Start() CLass Scene
+Inicia a cena, chamandoo o bloco de código de construção
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method Start() CLass Scene
     ::ClearScene()
     ::SetActive(.T.)
     Eval(::bLoadObjects, Self)
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method EndScene() Class Scene
+Encerra uma cena limpando seus objetos
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method EndScene() Class Scene
     ::SetActive(.F.)
     ::ClearScene()
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetSceneWindow() Class Scene
+Retorna janela pai da cena
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetSceneWindow() Class Scene
 Return ::oParent
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SetInitCodeBlock(bBlock) Class Scene
+Define bloco de código que será executado no método ::Start()
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetInitCodeBlock(bBlock) Class Scene
     ::bLoadObjects := bBlock
 Return
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetDimensions() Class Scene
+Retorna array dimensões da cena
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetDimensions() Class Scene
 Return { ::nTop, ::nLeft, ::nHeight, ::nWidth}
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SetActive(lActive) Class Scene
+Maraca a cena como ativa
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetActive(lActive) Class Scene
     ::lActive := lActive
 Return
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method IsActive() Class Scene
+Verifica se a cena está ativa
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method IsActive() Class Scene
 Return ::lActive
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method ClearScene() Class Scene
+Limpa a cena, eliminando todos os objetos
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method ClearScene() Class Scene
     //AEval(::aObjects,{|x| x:HideGameObject(), FreeObj(x) })
     AEval(::aObjects,{|x| IIF(MethIsMemberOf(x, 'HideGameObject'),x:HideGameObject(), x:Hide()), FreeObj(x) })
     ASize(::aObjects , 0)
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetObjectsWithColliders() Class Scene
+Retorna todos os objetos que possuem colisões ativas
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetObjectsWithColliders() Class Scene
     Local aObjColl as array
@@ -222,31 +233,34 @@ Method GetObjectsWithColliders() Class Scene
     AEval(::aObjects,{|x| IIF(x:HasCollider(), AAdd(aObjColl, x), nil)})
 
 Return aObjColl
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SetDescription(cDesc) Class Scene
+Define descrição da cena
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetDescription(cDesc) Class Scene
     ::cDescription := cDesc
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetDescription() Class Scene
+Retorna descrição da cena
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetDescription() Class Scene
 Return ::cDescription
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method UpdateCamera(oGame, cDirection, nSpeed) Class Scene
+Atualiza posição da câmera
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method UpdateCamera(oGame, cDirection, nSpeed) Class Scene
 
@@ -268,16 +282,17 @@ Method UpdateCamera(oGame, cDirection, nSpeed) Class Scene
             //EndIf
         EndIf
     Next
-
+    
     ::nCameraPostion += nSpeed
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method IsGameObject(oObject) Class Scene
+Verifica se objeto é um objeto de jogo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method IsGameObject(oObject) Class Scene
 REturn AttIsMemberOf(oObject, 'oGameObject', .T.) .and. MethIsMemberOf(oObject, 'GetTag', .T.) .and. !Empty(oObject:oGameObject)

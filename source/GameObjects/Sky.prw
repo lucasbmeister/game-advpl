@@ -1,10 +1,11 @@
 #include "totvs.ch"
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Class Sky 
+Classe para objeto de background
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Class Sky From BaseGameObject
 
@@ -13,12 +14,13 @@ Class Sky From BaseGameObject
     Method HideGameObject() 
 
 EndClass
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method New(oWindow, nTop, nLeft, nHieght, nWidth)
+Instância classe Sky
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method New(oWindow, nTop, nLeft, nHieght, nWidth) Class Sky
     Local cStyle as char 
@@ -34,20 +36,21 @@ Method New(oWindow, nTop, nLeft, nHieght, nWidth) Class Sky
 Return Self
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method Update()
+Método update (sem uso por enquanto)
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method Update() Class Sky
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method HideGameObject()
+Destrói objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method HideGameObject() Class Sky
 

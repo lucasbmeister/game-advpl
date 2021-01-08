@@ -1,11 +1,12 @@
 #include "totvs.ch"
 #include "gameadvpl.ch"
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} User Function LoadMenu(oMenu, oGame)
+Monta menu principal
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 User Function LoadMenu(oMenu, oGame)
 
@@ -40,12 +41,13 @@ User Function LoadMenu(oMenu, oGame)
     oMenu:AddObject(oQuit)
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} User Function LoadLevels(oLevels, oGame)
+Carrega cena de lista de níveis
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 User Function LoadLevels(oLevels, oGame)
 
@@ -106,11 +108,11 @@ User Function LoadLevels(oLevels, oGame)
 Return
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Static Function GetButtonCSS(cButton, lTransparent)
+Retorna CSS para botões de níveis. Assets são carregados de acordo com o parâmetro cButton
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Static Function GetButtonCSS(cButton, lTransparent)
 
@@ -163,11 +165,11 @@ Static Function GetButtonCSS(cButton, lTransparent)
 Return cCss
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Static Function GetTitleCSS()
+Retorna CSS do título
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Static Function GetTitleCSS()
 
@@ -185,11 +187,11 @@ Static Function GetTitleCSS()
 Return cCss
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Static Function GetScnId(oButton, aScenes)
+Retorna ID da cena de acordo com o botão clicado
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Static Function GetScnId(oButton, aScenes)
 

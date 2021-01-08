@@ -1,11 +1,12 @@
 #include "totvs.ch"
 #include "gameadvpl.ch"
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} User Function LoadLvl2(oLevel, oGame)
+Monta cena do nível 2
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 User Function LoadLvl2(oLevel, oGame)
 

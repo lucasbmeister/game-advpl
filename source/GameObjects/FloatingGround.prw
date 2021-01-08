@@ -1,10 +1,11 @@
 #include "totvs.ch"
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Class FloatingGround
+Classe para objetos de piso flutuantes
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Class FloatingGround From BaseGameObject
 
@@ -13,12 +14,13 @@ Class FloatingGround From BaseGameObject
     Method HideGameObject()
 
 EndClass
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method New(oWindow, nTop, nLeft, nHeight, nWidth, nType)
+Instância classe FloatinGround
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method New(oWindow, nTop, nLeft, nHeight, nWidth, nType) Class FloatingGround
     
@@ -54,21 +56,23 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth, nType) Class FloatingGround
     ::oGameObject:SetCss(cStyle)
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method Update()
+Método update (sem uso por enquanto)
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method Update() Class FloatingGround
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method HideGameObject()
+Destrói objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method HideGameObject() Class FloatingGround
 

@@ -1,11 +1,11 @@
 #include "totvs.ch"
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Class BaseGameObject
+Classe base para todos os objetos de jogo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Class BaseGameObject From LongNameClass
 
@@ -63,11 +63,12 @@ Class BaseGameObject From LongNameClass
 EndClass
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method New(oWindow)
+Classe não é instânciada diretamente. Deve ser herdada por outros objetos
+e chamados o método _Super:New()
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method New(oWindow) Class BaseGameObject
     Local cTempPath as char
@@ -88,32 +89,32 @@ Method New(oWindow) Class BaseGameObject
 Return Self
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SetWindow(oWindow)
+Define a janela utilizada pelo objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetWindow(oWindow) Class BaseGameObject
     ::oWindow := oWindow
 Return 
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetAssetsPath(cAsset)
+Retorna o caminho da pasta com assets do objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetAssetsPath(cAsset) Class BaseGameObject
 Return ::cAssetsPath + cAsset
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method LoadFrames(cEntity)
+Carrega todos os caminhos de frames em um array para utilização em animações
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method LoadFrames(cEntity) Class BaseGameObject
 
@@ -162,32 +163,35 @@ Method LoadFrames(cEntity) Class BaseGameObject
     EndIf
 
 Return 
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SetTag(cTag)
+Define um tag para o objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetTag(cTag) Class BaseGameObject
     ::cTag := cTag
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetTag()
+Retorna qual a tag definida
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetTag() Class BaseGameObject
 Return ::cTag
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SetColliderMargin(nTopMargin, nLeftMargin, nBottomMargin, nRightMargin)
+Define qual a margem entre a borda do objeto e a área de colisão. Isso e necessário
+porque a sprite não corresponde exatamente ao tamanho do objeto de tela
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetColliderMargin(nTopMargin, nLeftMargin, nBottomMargin, nRightMargin) Class BaseGameObject
 
@@ -215,141 +219,155 @@ Method SetColliderMargin(nTopMargin, nLeftMargin, nBottomMargin, nRightMargin) C
 Return
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method HasCollider()
+Verifica se objeto possui colisão ativada
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method HasCollider() Class BaseGameObject
 Return ::lHasCollider
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetMidX()
+Retorna meio do objeto no eixo X
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetMidX() Class BaseGameObject
 Return ::nHalfWidth + ::oGameObject:nLeft
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetMidY()
+Retorna meio do objeto no eixo Y
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetMidY() Class BaseGameObject
 Return ::nHalfHeight + ::oGameObject:nTop
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetTop(lMargin)
+Retorna coordenada do nTop do objeto com margem, caso possua.
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetTop(lMargin) Class BaseGameObject
 Return ::oGameObject:nTop + IIF(lMargin, ::nTopMargin, 0)
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetLeft(lMargin)
+Retorna coordenada nLeft do objeto com margem, caso possua.
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetLeft(lMargin) Class BaseGameObject
 Return ::oGameObject:nLeft + IIF(lMargin, ::nLeftMargin, 0)
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetRight(lMargin) 
+Retorna coordenada nRight do objeto com margem, caso possua.
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetRight(lMargin) Class BaseGameObject
 Return ::oGameObject:nLeft + ::oGameObject:nWidth + IIF(lMargin, ::nRightMargin, 0)
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetBottom(lMargin)
+Retorna coordenada nBottom do objeto com margem, caso possua.
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetBottom(lMargin) Class BaseGameObject
 Return ::oGameObject:nTop + ::oGameObject:nHeight + IIF(lMargin, ::nBottomMargin, 0)
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetInternalId()
+Retorna Id único do objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetInternalId() Class BaseGameObject
 Return ::cInternalId
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method Destroy()
+Marca objeto para destruição
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method Destroy() Class BaseGameObject
     ::lDestroy := .T.
 Return 
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method ShouldDestroy() 
+Verifica se objeto deve ser destruído
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method ShouldDestroy() Class BaseGameObject
 Return ::lDestroy
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetHeight()
+Retorna propriedade nHeight do objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetHeight() Class BaseGameObject
 Return ::oGameObject:nHeight
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetWidth()
+Retorna propriedade nWidth do objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetWidth() Class BaseGameObject
 Return ::oGameObject:nWidth
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetMass()
+Retorna massa do objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetMass() Class BaseGameObject
 Return ::nMass
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SetLeftClickAction(bBlock)
+Define bloco de ação a ser executado quando clicado com o botão esquerdo
+do mouse sobre o objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetLeftClickAction(bBlock) Class BaseGameObject
     ::oGameObject:bLClicked := bBlock
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SetRightClickAction(bBlock) 
+Define bloco de ação a ser executado quando clicado com o botão direito
+do mouse sobre o objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetRightClickAction(bBlock) Class BaseGameObject
     ::oGameObject:bRClicked := bBlock

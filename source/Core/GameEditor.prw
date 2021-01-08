@@ -2,11 +2,11 @@
 #include "gameadvpl.ch"
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Class GameEditor 
+Classe responsável por montar a tela de edição de níveis
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Class GameEditor From LongNameClass
 
@@ -22,8 +22,15 @@ Class GameEditor From LongNameClass
     Data oTopBar
     Data nMovementSpeed
     Data nScenePanSpeed
+    Data nCameraOffset
     Data oWindow 
     Data oGame
+    Data oSpinBoxTop
+    Data oSpinBoxLeft
+    Data oSpinBoxHeight
+    Data oSpinBoxWidth
+    Data oCheckHasCollider
+    Data oContextMenu
 
     Method New() Constructor
     Method LoadObjects()
@@ -54,15 +61,25 @@ Class GameEditor From LongNameClass
     Method GetGameManager()
     Method GetMainWindow()
     Method DuplicateObject()
-
+    Method UpdateInspector()
+    Method OpenContextMenu()
+    Method HideContextMenu()
+    Method ExecuteContextOption()
+    Method DeleteObject()
+    Method ClearInspector()
+    Method ClearSelectedObject()
+    Method SetObjectTop()
+    Method SetObjectLeft()
+    Method SetObjectHeight()
+    Method SetObjectWidth()
 
 EndClass
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method New(oWindow, oGame) Class GameEditor
+Método que instância a classe GameEditor e constrói os componentes de tela
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method New(oWindow, oGame) Class GameEditor
 
@@ -71,6 +88,7 @@ Method New(oWindow, oGame) Class GameEditor
     ::cComboObject := ''
     ::nMovementSpeed := 1
     ::nScenePanSpeed := 1
+    ::nCameraOffset := 0
 
     ::SetGameManager(oGame)
     ::SetMainWindow(oWindow)
@@ -83,11 +101,11 @@ Method New(oWindow, oGame) Class GameEditor
 
 Return Self
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method LoadObjects(oListObjects) Class GameEditor
+Carrega a lista de opções de objetos e monta um botão para cada objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method LoadObjects(oListObjects) Class GameEditor
 
@@ -116,11 +134,11 @@ Method LoadObjects(oListObjects) Class GameEditor
 
 Return
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SetupObjectList() Class GameEditor
+Monta área de scroll da lista de objetos
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetupObjectList() Class GameEditor
 
@@ -148,11 +166,12 @@ Method SetupObjectList() Class GameEditor
 
 Return
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SetupInspector() Class GameEditor
+Monta área de inspeção do objeto selecionado permitindo alterações de suas propriedades. Aqui
+também é possível alterar o objeto selecioando
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetupInspector() Class GameEditor
 
@@ -167,19 +186,52 @@ Method SetupInspector() Class GameEditor
     oInstance := Self
 
     ::oInspector := TPanel():New(25, (oWindow:nWidth / 2) - 80, , oWindow,,,,/*CLR_WHITE*/,CLR_BLACK, 80, oWindow:nHeight / 2)
+
     oInstance:cComboObject := ''
+
     ::oComboObjects := TComboBox():New(5,5,{|u|if(PCount()>0,oInstance:cComboObject:=u,oInstance:cComboObject) };
         , {''},70,30,::oInspector,,{|u|oInstance:SetSelectedObject(u:nAt, .T.)},,CLR_BLACK,CLR_WHITE,.T.,,,,,,,,, 'oInstance:cComboObject', 'Selecionado', 1, ,CLR_WHITE)
 
-    //::oComboObjects:MoveToTop()
+
+    TSay():new(25, 5, {|| "Topo "}, ::oInspector, , , , , , .T., CLR_WHITE, , 70, 10)
+    
+    ::oSpinBoxTop := TSpinBox():new(33, 5, ::oInspector, {|x| oInstance:SetObjectTop(x), oInstance:HideContextMenu()  }, 70, 13)
+    ::oSpinBoxTop:SetRange(-9999, 9999)
+    ::oSpinBoxTop:SetStep(1)
+    ::oSpinBoxTop:SetValue(0)
+
+    TSay():new(48, 5, {|| "Esquerda "}, ::oInspector, , , , , , .T., CLR_WHITE, , 70, 10)
+    
+    ::oSpinBoxLeft := TSpinBox():new(56, 5, ::oInspector, {|x| oInstance:SetObjectLeft(x - oInstance:nCameraOffset), oInstance:HideContextMenu() }, 70, 13)
+    ::oSpinBoxLeft:SetRange(-9999, 9999)
+    ::oSpinBoxLeft:SetStep(1)
+    ::oSpinBoxLeft:SetValue(0)
+
+    TSay():new(71, 5, {|| "Altura "}, ::oInspector, , , , , , .T., CLR_WHITE, , 70, 10)
+
+    ::oSpinBoxHeight := TSpinBox():new(79, 5, ::oInspector, {|x| oInstance:SetObjectHeight(x), oInstance:HideContextMenu()  }, 70, 13)
+    ::oSpinBoxHeight:SetRange(-9999, 9999)
+    ::oSpinBoxHeight:SetStep(1)
+    ::oSpinBoxHeight:SetValue(0)
+
+    TSay():new(94, 5, {|| "Largura "}, ::oInspector, , , , , , .T., CLR_WHITE, , 70, 10)
+
+    ::oSpinBoxWidth := TSpinBox():new(102, 5, ::oInspector, {|x|  oInstance:SetObjectWidth(x), oInstance:HideContextMenu() }, 70, 13)
+    ::oSpinBoxWidth:SetRange(-9999, 9999)
+    ::oSpinBoxWidth:SetStep(1)
+    ::oSpinBoxWidth:SetValue(0)
+
+    ::oCheckHasCollider := TCheckBox():New(120,5,'Colisão?',{||.T. }, ::oInspector,70,10,,,,,CLR_WHITE,,,.T.,,,)
+
 
 Return
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetObjectList(lOnlyLen) Class GameEditor
+Retorna uma array com os nomes das classes disponíveis para uso. Caso seja passado o parâmetro lOnlyLen
+como .T., será retornado somente a quantidade de objetos.
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetObjectList(lOnlyLen) Class GameEditor
 
@@ -196,15 +248,18 @@ Method GetObjectList(lOnlyLen) Class GameEditor
     Aadd(aObjects, 'FloatingGround')
     Aadd(aObjects, 'Enemy')
     Aadd(aObjects, 'Square')
-    Aadd(aObjects, 'PlayerLife')
-    Aadd(aObjects, 'PlayerScore')
+    // deverá ser adicionado automaticamente nas cenas
+    //Aadd(aObjects, 'PlayerLife')
+    //Aadd(aObjects, 'PlayerScore')
 
 Return IIF(lOnlyLen, Len(aObjects), aObjects)
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method SpawnObject(cClassName, nTop, nLeft, lSetSelected) Class GameEditor
+Realizada a instanciação de um objeto na área do editor e atribui funções a serem executadas quando algum
+objeto for selecionado
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SpawnObject(cClassName, nTop, nLeft, lSetSelected) Class GameEditor
 
@@ -234,54 +289,62 @@ Method SpawnObject(cClassName, nTop, nLeft, lSetSelected) Class GameEditor
     AAdd(::aObjects, oObject)
 
     bLeftBlock := &('{|| oInstance:SetSelectedObject('+cValToChar(Len(::aObjects))+')} ')
-    bRightBlock := &('{|| oInstance:DuplicateObject("'+cClassName+'", '+ cValToChar(Len(::aObjects))+')} ')
+    bRightBlock := &('{|| oInstance:OpenContextMenu("'+cClassName+'", '+ cValToChar(Len(::aObjects))+')} ')
 
     oObject:SetLeftClickAction(bLeftBlock)
     oObject:SetRightClickAction(bRightBlock)
 
     ::AddComboOption(Len(::aObjects), cClassName)
 
-    // If lSetSelected
-    //     ::SetSelectedObject(Len(::aObjects))
-    // EndIf
+    If lSetSelected
+        ::SetSelectedObject(Len(::aObjects))
+    EndIf
+
+    ::HideContextMenu()
     
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method SetSelectedObject(nObject, lCombo) Class GameEditor
+Torna um objeto selecionado com base no array de objetos ativos
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetSelectedObject(nObject, lCombo) Class GameEditor
 
     Default lCombo := .F.
 
-    If nObject > 0
+    If nObject > 0 .and. !Empty(::aObjects)
         ::oSelectedObject := ::aObjects[nObject]
-        //::oComboObjects:nAt := nObject
-        //::cComboObject := Str(nObject)
+)
         If !lCombo
-            //::oComboObjects:Select(nObject)
             ::cComboObject := cValToChar(nObject)
         EndIf
+
+        ::UpdateInspector(nObject)
     EndIf
-    //::oComboObjects:Refresh()
-    //ProcessMessage()
+
+    ::HideContextMenu()
+
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method GetSelectedObject() Class GameEditor
+Retorna o objeto selecionado atualmente
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetSelectedObject() Class GameEditor
 Return ::oSelectedObject
 
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+/*{Protheus.doc} Method AddComboOption(nPos, cClassName) Class GameEditor
+Adiciona uma nova opção na lista de objetos disponíveis (combo do inspetor)
+Ex.: 1=Coin
+Todo momento que ele é executado, é executado um método para trazer toda a UI para frente.
+Dessa forma impede que elementos de tela fiquem atrás de objetos de jogo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method AddComboOption(nPos, cClassName) Class GameEditor
     Local nAtBkp as numeric
@@ -289,10 +352,9 @@ Method AddComboOption(nPos, cClassName) Class GameEditor
     nAtBkp := ::oComboObjects:nAt
 
     Aadd(::aCombo, cValTochar(nPos) + '=' + cClassName)
-    //::oComboObjects:aItems := AClone(::aCombo)
+
     ::oComboObjects:SetItems(AClone(::aCombo))
 
-    //::oComboObjects:Select(nAtBkp)
     ::cComboObject := cValToChar(nAtBkp)
 
     If Len(::aCombo) == 1
@@ -301,11 +363,12 @@ Method AddComboOption(nPos, cClassName) Class GameEditor
 
     ::MoveUIToTop()
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method SetupTopBar() Class GameEditor
+Realiza a instanciação da barra superior.
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetupTopBar() Class GameEditor
 
@@ -328,11 +391,12 @@ Method SetupTopBar() Class GameEditor
     TSay():New(15,(oWindow:nWidth / 2) - 35,{||'Inspetor'},::oTopBar,,,,,,.T.,CLR_WHITE,CLR_BLACK,30,20)
 
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method ToggleUIObject(oObject, oButton) Class GameEditor
+Realiza a minimização/maximização de algum objeto em tela (UI)
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method ToggleUIObject(oObject, oButton) Class GameEditor
 
@@ -345,11 +409,12 @@ Method ToggleUIObject(oObject, oButton) Class GameEditor
     EndIf
 
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method SetupObjectAxis() Class GameEditor
+Realiza a instanciação das setas de manipulação de obejtos
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetupObjectAxis() Class GameEditor
 
@@ -384,11 +449,12 @@ Method SetupObjectAxis() Class GameEditor
     oSlider:SetValue(1)
 
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method MoveObjectUp(oObject) Class GameEditor
+Move o objeto do parâmetro para cima
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method MoveObjectUp(oObject) Class GameEditor
     
@@ -398,14 +464,16 @@ Method MoveObjectUp(oObject) Class GameEditor
 
     If !Empty(oObject)
         oObject:oGameObject:nTop -= nSpeed
+        ::UpdateInspector(Val(::cComboObject))
     EndIf
 
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method MoveObjectLeft(oObject) Class GameEditor
+Move o objeto do parâmetro para esquerda
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method MoveObjectLeft(oObject) Class GameEditor
     Local nSpeed as numeric
@@ -414,14 +482,16 @@ Method MoveObjectLeft(oObject) Class GameEditor
     
     If !Empty(oObject)
         oObject:oGameObject:nLeft -= nSpeed
+        ::UpdateInspector(Val(::cComboObject))
     EndIf
 
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method MoveObjectLeft(oObject) Class GameEditor
+Move o objeto do parâmetro para baixo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method MoveObjectDown(oObject) Class GameEditor
     Local nSpeed as numeric
@@ -430,14 +500,16 @@ Method MoveObjectDown(oObject) Class GameEditor
     
     If !Empty(oObject)
         oObject:oGameObject:nTop += nSpeed
+        ::UpdateInspector(Val(::cComboObject))
     EndIf
 
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method MoveObjectRight(oObject) Class GameEditor
+Move o objeto do parâmetro para direita
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method MoveObjectRight(oObject) Class GameEditor
 
@@ -447,37 +519,41 @@ Method MoveObjectRight(oObject) Class GameEditor
     
     If !Empty(oObject)
         oObject:oGameObject:nLeft += nSpeed
+        ::UpdateInspector(Val(::cComboObject))
     EndIf
 
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method SetMovementSpeed(nValue) Class GameEditor
+Define qual será a velocidade de moviemnto dos objetos (valor de incremento das coordenadas)
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetMovementSpeed(nValue) Class GameEditor
     ::nMovementSpeed := nValue
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method GetMovementSpeed() Class GameEditor
+Retorna a velocidade de moviemnto dos objetos
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetMovementSpeed() Class GameEditor
 Return ::nMovementSpeed
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method SetupSceneNavigator() Class GameEditor
+Realiza a instanciação das setas para movimentação da câmera (movimenta a cena para os lados)
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetupSceneNavigator() Class GameEditor
 
     Local oSlider as object
     Local oScenePanSpeed as object
-     Local oWindow as object
+    Local oWindow as object
     Local oGame as object
 
     oWindow := ::GetMainWindow()
@@ -503,11 +579,12 @@ Method SetupSceneNavigator() Class GameEditor
     oSlider:SetStep(1)
     oSlider:SetValue(1)
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method MoveSceneLeft() Class GameEditor
+Move a cena para esquerda
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method MoveSceneLeft() Class GameEditor
 
@@ -521,12 +598,15 @@ Method MoveSceneLeft() Class GameEditor
         ::aObjects[nX]:oGameObject:nLeft += nSpeed
     Next
 
+    ::nCameraOffset -= nSpeed
+
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method MoveSceneRight() Class GameEditor
+Move a cena para direita
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method MoveSceneRight() Class GameEditor
 
@@ -540,29 +620,34 @@ Method MoveSceneRight() Class GameEditor
         ::aObjects[nX]:oGameObject:nLeft -= nSpeed
     Next
 
+    ::nCameraOffset += nSpeed
+
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method SetScenePanSpeed(nSpeed) Class GameEditor
+Define qual será a velocidade de moviemnto da câmera da cena (valor de incremento das coordenadas)
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetScenePanSpeed(nSpeed) Class GameEditor
     ::nScenePanSpeed := nSpeed
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method GetScenePanSpeed() Class GameEditor
+Retorna a velocidade de moviemnto da câmera da cena (valor de incremento das coordenadas)
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetScenePanSpeed() Class GameEditor
 Return ::nScenePanSpeed
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method MoveUIToTop() Class GameEditor
+Move os elementos de UI principais para a camada superior da tela, acima dos demais objetos
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method MoveUIToTop() Class GameEditor
     ::oInspector:MoveToTop()
@@ -571,47 +656,288 @@ Method MoveUIToTop() Class GameEditor
     ::oSceneNavigator:MoveToTop()
     ::oTopBar:MoveToTop()
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method SetGameManager(oGame) Class GameEditor
+Define a váriavel que armazena instância do GameManager
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetGameManager(oGame) Class GameEditor
     ::oGame := oGame
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method SetMainWindow(oWindow) Class GameEditor
+Define váriavel de janela principal que será utilizada pelos elementos de tela
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetMainWindow(oWindow) Class GameEditor
     ::oWindow := oWindow
 Return
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method GetGameManager() Class GameEditor
+Retorna instância do GameManager
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetGameManager() Class GameEditor
 Return ::oGame
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method GetMainWindow() Class GameEditor
+Retorna janela principal do jogo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
+
 Method GetMainWindow() Class GameEditor
 Return ::oWindow
-/*{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+
+/*{Protheus.doc} Method DuplicateObject(cClassName, nObject) Class GameEditor
+Duplica um objeto que foi selecionado na área de edição
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method DuplicateObject(cClassName, nObject) Class GameEditor
-    ::SpawnObject(cClassName, ::aObjects[nObject]:oGameObject:nTop, ::aObjects[nObject]:oGameObject:nLeft, .T.)
+    ::SpawnObject(cClassName, ::aObjects[nObject]:oGameObject:nTop / 2, ::aObjects[nObject]:oGameObject:nLeft / 2, .T.)
     ProcessMessage()
 Return
+
+/*{Protheus.doc} Method UpdateInspector(nObject) Class GameEditor
+Atualiza os dados do inspetor com os do objeto selecionado
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method UpdateInspector(nObject) Class GameEditor
+
+    Local oObject as object
+    
+    oObject := ::aObjects[nObject]
+
+    ::oSpinBoxTop:SetValue(oObject:oGameObject:nTop)
+    ::oSpinBoxLeft:SetValue(oObject:oGameObject:nLeft - ::nCameraOffset)
+    ::oSpinBoxHeight:SetValue(oObject:oGameObject:nHeight)
+    ::oSpinBoxWidth:SetValue(oObject:oGameObject:nWidth)
+
+Return
+
+/*{Protheus.doc} Method OpenContextMenu(cClassName, nObject) Class GameEditor
+Abre menu de contexto ao clicar com o botão direito em algum objeto no editor
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method OpenContextMenu(cClassName, nObject) Class GameEditor
+
+    Local oWindow as object
+    Local oObject as object
+    Local nTop as numeric
+    Local nLeft as numeric
+    Local aItems as array
+    
+    ::HideContextMenu()
+
+    oObject := ::aObjects[nObject]
+    oWindow := ::GetMainWindow()
+
+    nTop := oObject:oGameObject:nTop
+    nLeft := oObject:oGameObject:nLeft
+
+    aItems := {cValTochar(nObject) + '=' + cClassName, 'Duplicar','Excluir'}
+
+    ::oContextMenu := TListBox():New(nTop / 2,nLeft / 2,{|u| },aItems,50,50,;
+        {||oInstance:ExecuteContextOption(cClassName, nObject, ::oContextMenu:nAt)}, oWindow,,,,.T.)
+
+Return
+
+/*{Protheus.doc} Method HideContextMenu() Class GameEditor
+Esconde menu de contexto caso ele esteja aberto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method HideContextMenu() Class GameEditor
+
+    If !Empty(::oContextMenu)
+        ::oContextMenu:Hide()
+        FreeObj(::oContextMenu)
+    EndIf
+
+Return
+
+/*{Protheus.doc} Method ExecuteContextOption(cClassName, nObject, nOption) Class GameEditor
+Exxecuta opção selecionado no menu de contexto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method ExecuteContextOption(cClassName, nObject, nOption) Class GameEditor
+
+    Do Case
+        Case nOption == 2
+            ::DuplicateObject(cClassName, nObject)
+        Case nOption == 3
+            ::DeleteObject(nObject)
+    EndCase
+
+    If nOption != 1
+        ::HideContextMenu()
+    EndIf
+
+Return
+
+/*{Protheus.doc} Method DeleteObject(nObject) Class GameEditor
+Deleta um objeto da cena e reorganiza arrays de objetos
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method DeleteObject(nObject) Class GameEditor
+
+    Local oObject as object
+    Local nX as numeric
+    Local bLeftBlock as codeblock
+    Local bRightBlock as codeblock
+    Local cClassName as char
+
+    oObject := ::aObjects[nObject]
+
+    ::aCombo := {}
+
+    oObject:HideGameObject()
+
+    FreeObj(oObject)
+
+    ADel(::aObjects, nObject)
+
+    ASize(::aObjects, Len(::aObjects) - 1)
+
+    For nX := 1 To Len(::aObjects)
+
+        cClassName := Capital(GetClassName(::aObjects[nX]))
+        Aadd(::aCombo, cValTochar(nX) + '=' + cClassName)
+
+        bLeftBlock := &('{|| oInstance:SetSelectedObject('+cValToChar(nX)+')} ')
+        bRightBlock := &('{|| oInstance:OpenContextMenu("'+cClassName+'", '+ cValToChar(nX)+')} ')
+
+        ::aObjects[nX]:SetLeftClickAction(bLeftBlock)
+        ::aObjects[nX]:SetRightClickAction(bRightBlock)
+    Next
+
+    ::ClearInspector()
+
+    If Empty(::aCombo)
+        ::oComboObjects:aItems := {''}
+    Else
+        ::oComboObjects:aItems := AClone(::aCombo)
+        ::SetSelectedObject(1)
+    EndIf
+
+    ::oComboObjects:Refresh()
+
+Return
+
+/*{Protheus.doc} Method ClearInspector() Class GameEditor
+Limpa dados do inspetor de objetos
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method ClearInspector() Class GameEditor
+    ::oSpinBoxTop:SetValue(0)
+    ::oSpinBoxLeft:SetValue(0)
+    ::oSpinBoxHeight:SetValue(0)
+    ::oSpinBoxWidth:SetValue(0)
+
+    ::ClearSelectedObject()
+Return
+
+/*{Protheus.doc} Method ClearSelectedObject() Class GameEditor
+Limpa objeto selecionado
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method ClearSelectedObject() Class GameEditor
+
+    ::oSelectedObject := Nil
+    ::cComboObject := ''
+
+Return
+
+/*{Protheus.doc} Method SetObjectTop(nTop) Class GameEditor
+Altera coordenada nTop do objeto selecionado
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetObjectTop(nTop) Class GameEditor
+
+    Local oObject as object
+
+    oObject := ::GetSelectedObject()
+
+    If !Empty(oObject)
+        oObject:oGameObject:nTop := nTop
+    EndIf
+
+Return 
+
+/*{Protheus.doc} Method SetObjectLeft(nLeft) Class GameEditor
+Altera coordenada nLeft do objeto selecionado
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetObjectLeft(nLeft) Class GameEditor
+
+    Local oObject as object
+
+    oObject := ::GetSelectedObject()
+
+    If !Empty(oObject)
+        oObject:oGameObject:nLeft := nLeft
+    EndIf
+
+Return 
+
+/*{Protheus.doc} Method SetObjectHeight(nHeight) Class GameEditor
+Altera propriedade nHeight do objeto selecionado
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetObjectHeight(nHeight) Class GameEditor
+
+    Local oObject as object
+
+    oObject := ::GetSelectedObject()
+
+    If !Empty(oObject)
+        oObject:oGameObject:nHeight := nHeight
+    EndIf
+
+Return 
+
+/*{Protheus.doc} Method SetObjectWidth(nWidth) Class GameEditor
+Altera propriedade nWidth do objeto selecionado
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetObjectWidth(nWidth) Class GameEditor
+
+    Local oObject as object
+
+    oObject := ::GetSelectedObject()
+
+    If !Empty(oObject)
+        oObject:oGameObject:nWidth := nWidth
+    EndIf
+
+Return 

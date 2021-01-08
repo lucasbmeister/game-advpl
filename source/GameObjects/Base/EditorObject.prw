@@ -1,11 +1,13 @@
 #include "totvs.ch"
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Class EditorObject
+Classe para ser utilizada somente no editor e é utilizada para
+serializar e deserializar arquivos de configuração de cenas salvos
+em disco no formato JSON.
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Class EditorObject From LongNameClass
 
@@ -27,49 +29,54 @@ Class EditorObject From LongNameClass
     Method MoveObjectRight()
 
 EndClass
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method New(oObject)
+Instância classe EditorObject
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method New(oObject) Class EditorObject
     ::oObject := oObject
 Return Self
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method MoveObjectUp()
+Move objeto para cima
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method MoveObjectUp() Class EditorObject
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method MoveObjectLeft()
+Move objeto para esquerda
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method MoveObjectLeft() Class EditorObject
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method MoveObjectDown()
+Move objeto para baixo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method MoveObjectDown() Class EditorObject
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method MoveObjectRight()
+Move objeto para direita
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method MoveObjectRight() Class EditorObject
 Return

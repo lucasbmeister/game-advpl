@@ -8,13 +8,12 @@
 #DEFINE GRAVITY 1
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Class Player 
+Classe que contém a lógica do personagem controlado pelo usuário
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
-
 Class Player From BaseGameObject
 
     Data cDirection
@@ -44,12 +43,13 @@ Class Player From BaseGameObject
     Method IsBlocking()
 
 EndClass
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method New(oWindow, nTop, nLeft, nHeight, nWidth, cName )
+Instância classe PLayer
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method New(oWindow, nTop, nLeft, nHeight, nWidth, cName ) Class Player
 
@@ -81,12 +81,13 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth, cName ) Class Player
     ::oGameObject:SetCss(cStyle)
 
 Return Self
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method Update(oGameManager) 
+Executa a lógica de atualização por frame
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method Update(oGameManager) Class Player
 
@@ -193,42 +194,43 @@ Method Update(oGameManager) Class Player
     ::cLastState := ::cCurrentState
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method IsJumping() 
+Verifica se o jogador está pulando
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method IsJumping() Class Player
 Return ::lIsJumping
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method CheckKey(cKey, oKeys, aKeys, nPos)
+(depreciada) Verifica se tecla está pressionada
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method CheckKey(cKey, oKeys, aKeys, nPos) Class Player
 Return aKeys[nPos] == cKey .and. oKeys[cKey]
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method IsGrounded()
+Verifica se jogador está sobre piso
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method IsGrounded() Class Player
 Return ::lIsGrounded
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method Animate()
+Realiza a animação do personagem ed acordo com o frame corrente
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method Animate() Class Player
 
@@ -260,31 +262,34 @@ Method Animate() Class Player
     EndIf
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SetState(cState)
+Define qual o estado atual do personagem
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetState(cState) Class Player
     ::cCurrentState := cState
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetState() 
+Retorna o estado atual do personagem
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetState() Class Player
 Return ::cCurrentState
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetNextFrame(cState)
+Busca o caminho do próximo sprite de acordo com o frame atual
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetNextFrame(cState) Class Player
 
@@ -301,11 +306,11 @@ Method GetNextFrame(cState) Class Player
 Return ::oAnimations[cState][::cDirection][::nCurrentFrame]
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method HideGameObject()
+Destrói o objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method HideGameObject() Class Player
 
@@ -313,22 +318,23 @@ Method HideGameObject() Class Player
     FreeObj(::oGameObject)
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method IsOutOfBounds()
+Verifica se o personagem está abaixo do limite da área de jogo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method IsOutOfBounds() Class Player
 Return ::oGameObject:nTop > ::oWindow:nHeight
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SolveCollision(oObject, nXPos, nYPos)
+Realiza a detecção de colisão e retorna posição de acordo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SolveCollision(oObject, nXPos, nYPos) Class Player
 
@@ -416,11 +422,11 @@ Method SolveCollision(oObject, nXPos, nYPos) Class Player
 Return {nXPos, nYPos}
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Static Function MinArr(aValues)
+Retorna menor valor de um array
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Static Function MinArr(aValues)
 
@@ -439,39 +445,42 @@ Static Function MinArr(aValues)
 Return nMin
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SetDirection(cDirection)
+Define qual a direção atual do personagem
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetDirection(cDirection) Class Player
     ::cDirection := cDirection
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method IsAttacking()
+Verifica se o personagem está atacando
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method IsAttacking() Class Player
 Return 'attacking' $ ::GetState()
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method IsBlocking()
+Verifica se jogador está bloqueando
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method IsBlocking() Class Player
 Return ::GetState() == 'block'
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method IsLastFrame(cState)
+Verifica se o frame da animação é o último da sequência
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method IsLastFrame(cState) Class Player
 Return ::nCurrentFrame >= Len(::oAnimations[cState][::cDirection]) .and. ::cLastState == cState

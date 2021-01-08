@@ -7,11 +7,11 @@
 #DEFINE GRAVITY 1
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Class Enemy
+Classe que contém a lógica de inimigos
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 
 Class Enemy From BaseGameObject
@@ -41,12 +41,13 @@ Class Enemy From BaseGameObject
     Method IsLastFrame()
 
 EndClass
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method New(oWindow, nTop, nLeft, nHeight, nWidth, cName )
+Instância a classe de inimigos
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method New(oWindow, nTop, nLeft, nHeight, nWidth, cName ) Class Enemy
 
@@ -77,12 +78,13 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth, cName ) Class Enemy
     ::oGameObject:SetCss(cStyle)
 
 Return Self
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method Update(oGameManager)
+Executa a lógica de atualização por frame
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method Update(oGameManager) Class Enemy
 
@@ -160,22 +162,23 @@ Method Update(oGameManager) Class Enemy
     ::cLastState := ::cCurrentState
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method IsGrounded()
+Retorna se o personagem está sobre algum piso
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method IsGrounded() Class Enemy
 Return ::lIsGrounded
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method Animate()
+Realiza a animação do personagem ed acordo com o frame corrente
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method Animate() Class Enemy
 
@@ -200,31 +203,34 @@ Method Animate() Class Enemy
     EndIf
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SetState(cState)
+Define qual o estado atual do personagem
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetState(cState) Class Enemy
     ::cCurrentState := cState
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetState() 
+Retorna o estado atual do personagem
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetState() Class Enemy
 Return ::cCurrentState
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method GetNextFrame(cState)
+Busca o caminho do próximo sprite de acordo com o frame atual
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method GetNextFrame(cState) Class Enemy
 
@@ -241,11 +247,11 @@ Method GetNextFrame(cState) Class Enemy
 Return ::oAnimations[cState][::cDirection][::nCurrentFrame]
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method HideGameObject()
+Destrói o objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method HideGameObject() Class Enemy
 
@@ -254,22 +260,23 @@ Method HideGameObject() Class Enemy
     FreeObj(::oGameObject)
 
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method IsOutOfBounds()
+Verifica se o personagem está abaixo do limite da área de jogo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method IsOutOfBounds() Class Enemy
 Return ::oGameObject:nTop > ::oWindow:nHeight
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SolveCollision(oObject, nXPos, nYPos)
+Realiza a detecção de colisão e altera o estado do personagem de acordo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SolveCollision(oObject, nXPos, nYPos) Class Enemy
 
@@ -371,11 +378,11 @@ Method SolveCollision(oObject, nXPos, nYPos) Class Enemy
 Return {nXPos, nYPos, lIsGrounded}
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Static Function MinArr(aValues)
+Retorna menor valor de um array
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Static Function MinArr(aValues)
 
@@ -394,30 +401,32 @@ Static Function MinArr(aValues)
 Return nMin
 
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method SetDirection(cDirection)
+Define qual a direção atual do personagem
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method SetDirection(cDirection) Class Enemy
     ::cDirection := cDirection
 Return
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method IsAttacking()
+Verifica se o personagem está atacando
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method IsAttacking() Class Enemy
 Return 'attacking' $ ::GetState()
+
 /*
-{Protheus.doc} function
-description
-@author  author
-@since   date
-@version version
+{Protheus.doc} Method IsLastFrame(cState)
+Verifica se o frame da animação é o último da sequência
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
 */
 Method IsLastFrame(cState) Class Enemy
 Return ::nCurrentFrame >= Len(::oAnimations[cState][::cDirection]) .and. ::cLastState == cState
