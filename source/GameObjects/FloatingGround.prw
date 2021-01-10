@@ -49,6 +49,8 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth, nType) Class FloatingGround
     oInstance := Self
     cAsset := ::GetAssetsPath("environment\floating_ground_"+cValToChar(nType)+".png")
 
+    ::cTag := 'floating_ground'
+
     cStyle := "TPanel { border-image: url("+StrTran(cAsset,"\","/")+") 0 stretch}"
     //cStyle := "TPanel { border: 1 solid black }"
 
@@ -77,6 +79,7 @@ Destrói objeto
 Method HideGameObject() Class FloatingGround
 
    ::oGameObject:Hide()
+   ::HideEditorCollider()
     FreeObj(::oGameObject)
 
 Return

@@ -68,6 +68,8 @@ User Function LoadLevels(oLevels, oGame)
     aDimensions := oLevels:GetDimensions()
     oWindow := oLevels:GetSceneWindow()
 
+    U_LoadEditorScenes(oWindow, oGame, aDimensions)
+
     aScenes := {}
 
     nLine := 30

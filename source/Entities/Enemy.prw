@@ -256,6 +256,7 @@ Destrói o objeto
 Method HideGameObject() Class Enemy
 
     ::oGameObject:Hide()
+    ::HideEditorCollider()
     ::Destroy()
     FreeObj(::oGameObject)
 

@@ -23,6 +23,9 @@ Class Scene
     Data bLoadObjects
     Data cDescription
     Data nCameraPostion
+    Data lEditorScene
+    Data cSceneJson
+    Data oGameManager
 
     Method New() Constructor
     Method GetSceneID()
@@ -41,6 +44,11 @@ Class Scene
     Method GetDescription()
     Method UpdateCamera()
     Method IsGameObject()
+    Method SetEditorScene()
+    Method IsEditorScene()
+    Method SetSceneJson()
+    Method SetGameManager()
+    Method LoadFromEditor()
 
 EndClass
 
@@ -70,6 +78,7 @@ Method New(oWindow, cId, nTop, nLeft, nHeight, nWidth) Class Scene
     ::cId := cId
     ::cDescription := cId
     ::nCameraPostion := nil
+    ::lEditorScene := .F.
 
     ::aObjects := {}
 
@@ -139,7 +148,13 @@ Inicia a cena, chamandoo o bloco de código de construção
 Method Start() CLass Scene
     ::ClearScene()
     ::SetActive(.T.)
-    Eval(::bLoadObjects, Self)
+
+    If ::IsEditorScene()
+        ::LoadFromEditor()
+    Else
+        Eval(::bLoadObjects, Self)
+    EndIf
+
 Return
 
 /*
@@ -296,3 +311,82 @@ Verifica se objeto é um objeto de jogo
 */
 Method IsGameObject(oObject) Class Scene
 REturn AttIsMemberOf(oObject, 'oGameObject', .T.) .and. MethIsMemberOf(oObject, 'GetTag', .T.) .and. !Empty(oObject:oGameObject)
+
+/*
+{Protheus.doc} Method IsGameObject(oObject) Class Scene
+Verifica se objeto é um objeto de jogo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetEditorScene(lEditorScene) Class Scene
+    ::lEditorScene := lEditorScene
+Return
+
+/*
+{Protheus.doc} Method IsGameObject(oObject) Class Scene
+Verifica se objeto é um objeto de jogo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method IsEditorScene() Class Scene
+Return ::lEditorScene
+
+/*
+{Protheus.doc} Method SetObjects() Class Scene
+Define configurações dos objetos de jogos armazenadas no json do editor
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetSceneJson(cJsonFile) Class Scene
+    ::cSceneJson := cJsonFile
+Return
+
+/*
+{Protheus.doc} Method IsGameObject(oObject) Class Scene
+Verifica se objeto é um objeto de jogo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetGameManager(oGame) Class Scene
+    ::oGameManager := oGame
+Return
+
+/*
+{Protheus.doc} Method LoadFromEditor() Class Scene
+Carrega objetos com base nos objetos do editor
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method LoadFromEditor() Class Scene
+
+    Local nX as numeric
+    Local oObject as object
+    Local oJson as object
+    Local oWindow as object
+
+    oWindow := ::GetSceneWindow()
+    oScene := U_SceneFromJson(::cSceneJson)
+
+    For nX := 1 To Len(oScene['objects'])
+        oJson := oScene['objects'][nX]
+
+        oObject := &(oJson['className'] + '():New(oWindow, ' + cValToChar(oJson['top'])  + ','+ cValToChar(oJson['left']) +')')
+
+        oObject:oGameObject:nWidth := oJson['width']
+        oObject:oGameObject:nHeight := oJson['height']
+
+        If oJson['hasCollider']
+            oObject:SetColliderMargin(oJson['topMargin'], oJson['leftMargin'], oJson['bottomMargin'], oJson['rightMargin'])
+        EndIf
+
+        //oObject:SetTag(oJson['tag'])
+
+        AAdd(::aObjects, oObject)
+    Next
+
+Return

@@ -473,7 +473,16 @@ Retorna coordenada de limite inicial (esquerdo) da area de jogo
 @version 12.1.27
 */
 Method GetStartLimit() Class GameManager
-Return ::oStartLimit:oGameObject:nLeft
+
+    Local nLimit as numeric
+
+    If Empty(::oStartLimit)
+        nLimit := ::oWindow:nLeft
+    Else
+        nLimit := ::oStartLimit:oGameObject:nLeft
+    EndIf
+
+Return nLimit
 
 /*{Protheus.doc} Method GetEndLimit() Class GameManager
 Retorna coordenada de limite final (direita) da area de jogo
@@ -482,4 +491,13 @@ Retorna coordenada de limite final (direita) da area de jogo
 @version 12.1.27
 */
 Method GetEndLimit() Class GameManager
-Return ::oEndLimit:oGameObject:nLeft
+
+    Local nLimit as numeric
+
+    If Empty(::oStartLimit)
+        nLimit := ::oWindow:nWidth
+    Else
+        nLimit := ::oEndLimit:oGameObject:nLeft
+    EndIf
+
+Return nLimit

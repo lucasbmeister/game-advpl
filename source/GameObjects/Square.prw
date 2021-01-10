@@ -66,6 +66,7 @@ Method HideGameObject() Class Square
 
    ::oGameObject:Hide()
     FreeObj(::oGameObject)
+    ::HideEditorCollider()
 
 Return
 

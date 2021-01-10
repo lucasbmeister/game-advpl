@@ -188,7 +188,8 @@ Destrói objeto
 Method HideGameObject() Class Coin
 
     ::oGameObject:Hide()
+    ::HideEditorCollider()
     ::Destroy()
-    FreeObj(::oGameObject)
+    //FreeObj(::oGameObject)
 
 Return

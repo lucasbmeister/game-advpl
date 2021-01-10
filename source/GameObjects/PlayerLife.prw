@@ -83,6 +83,7 @@ Destrói objeto
 Method HideGameObject() Class PlayerLife
 
    ::oGameObject:Hide()
+   ::HideEditorCollider()
     FreeObj(::oGameObject)
 
 Return

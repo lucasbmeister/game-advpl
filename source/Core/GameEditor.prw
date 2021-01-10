@@ -1,8 +1,9 @@
 #include "totvs.ch"
 #include "gameadvpl.ch"
+#include "fileio.ch"
 
 /*
-{Protheus.doc} Class GameEditor 
+{Protheus.doc} Class GameEditor
 Classe responsável por montar a tela de edição de níveis
 @author  Lucas Briesemeister
 @since   01/2021
@@ -23,7 +24,7 @@ Class GameEditor From LongNameClass
     Data nMovementSpeed
     Data nScenePanSpeed
     Data nCameraOffset
-    Data oWindow 
+    Data oWindow
     Data oGame
     Data oSpinBoxTop
     Data oSpinBoxLeft
@@ -31,6 +32,14 @@ Class GameEditor From LongNameClass
     Data oSpinBoxWidth
     Data oCheckHasCollider
     Data oContextMenu
+    Data cSceneDescription
+    Data cSceneId
+    Data aUIObjects
+    Data oSpinBoxTopMargin
+    Data oSpinBoxLeftMargin
+    Data oSpinBoxBottomMargin
+    Data oSpinBoxRightMargin
+    Data lHasCollider    
 
     Method New() Constructor
     Method LoadObjects()
@@ -72,8 +81,22 @@ Class GameEditor From LongNameClass
     Method SetObjectLeft()
     Method SetObjectHeight()
     Method SetObjectWidth()
+    Method SetObjectTopMargin()
+    Method SetObjectLeftMargin()
+    Method SetObjectBottomMargin()
+    Method SetObjectRightMargin()
+    Method ToggleObjectCollision()
+    Method DisableMarginFields() 
+    Method EnableMarginFields()
+    Method SceneFromJson()
+    Method SceneToJson()
+    Method Save()
+    Method Load()
+    Method GoBack()
+    Method Hide()
 
 EndClass
+
 /*
 {Protheus.doc} Method New(oWindow, oGame) Class GameEditor
 Método que instância a classe GameEditor e constrói os componentes de tela
@@ -89,6 +112,11 @@ Method New(oWindow, oGame) Class GameEditor
     ::nMovementSpeed := 1
     ::nScenePanSpeed := 1
     ::nCameraOffset := 0
+    ::aUIObjects := {}
+    ::lHasCollider := .F.
+
+    ::cSceneId := Space(20)
+    ::cSceneDescription := Space(40)
 
     ::SetGameManager(oGame)
     ::SetMainWindow(oWindow)
@@ -100,6 +128,7 @@ Method New(oWindow, oGame) Class GameEditor
     ::SetupSceneNavigator()
 
 Return Self
+
 /*
 {Protheus.doc} Method LoadObjects(oListObjects) Class GameEditor
 Carrega a lista de opções de objetos e monta um botão para cada objeto
@@ -133,6 +162,7 @@ Method LoadObjects(oListObjects) Class GameEditor
     Next
 
 Return
+
 /*
 {Protheus.doc} Method SetupObjectList() Class GameEditor
 Monta área de scroll da lista de objetos
@@ -156,6 +186,8 @@ Method SetupObjectList() Class GameEditor
 
     ::oScrollObjects := TScrollArea():New(oWindow, 25, 00, 277, 80)
 
+    AAdd(::aUIObjects, ::oScrollObjects)
+
     nPanelHeight := ::GetObjectList(.T.) * 51
 
     oListObjects := TPanel():New(25, 00, , oInstance:oScrollObjects,,,,CLR_WHITE,CLR_BLACK, 70, nPanelHeight)
@@ -165,6 +197,7 @@ Method SetupObjectList() Class GameEditor
     ::LoadObjects(oListObjects)
 
 Return
+
 /*
 {Protheus.doc} Method SetupInspector() Class GameEditor
 Monta área de inspeção do objeto selecionado permitindo alterações de suas propriedades. Aqui
@@ -187,6 +220,8 @@ Method SetupInspector() Class GameEditor
 
     ::oInspector := TPanel():New(25, (oWindow:nWidth / 2) - 80, , oWindow,,,,/*CLR_WHITE*/,CLR_BLACK, 80, oWindow:nHeight / 2)
 
+    AAdd(::aUIObjects, ::oInspector)
+
     oInstance:cComboObject := ''
 
     ::oComboObjects := TComboBox():New(5,5,{|u|if(PCount()>0,oInstance:cComboObject:=u,oInstance:cComboObject) };
@@ -194,14 +229,14 @@ Method SetupInspector() Class GameEditor
 
 
     TSay():new(25, 5, {|| "Topo "}, ::oInspector, , , , , , .T., CLR_WHITE, , 70, 10)
-    
+
     ::oSpinBoxTop := TSpinBox():new(33, 5, ::oInspector, {|x| oInstance:SetObjectTop(x), oInstance:HideContextMenu()  }, 70, 13)
     ::oSpinBoxTop:SetRange(-9999, 9999)
     ::oSpinBoxTop:SetStep(1)
     ::oSpinBoxTop:SetValue(0)
 
     TSay():new(48, 5, {|| "Esquerda "}, ::oInspector, , , , , , .T., CLR_WHITE, , 70, 10)
-    
+
     ::oSpinBoxLeft := TSpinBox():new(56, 5, ::oInspector, {|x| oInstance:SetObjectLeft(x - oInstance:nCameraOffset), oInstance:HideContextMenu() }, 70, 13)
     ::oSpinBoxLeft:SetRange(-9999, 9999)
     ::oSpinBoxLeft:SetStep(1)
@@ -221,10 +256,40 @@ Method SetupInspector() Class GameEditor
     ::oSpinBoxWidth:SetStep(1)
     ::oSpinBoxWidth:SetValue(0)
 
-    ::oCheckHasCollider := TCheckBox():New(120,5,'Colisão?',{||.T. }, ::oInspector,70,10,,,,,CLR_WHITE,,,.T.,,,)
+    ::oCheckHasCollider := TCheckBox():New(120,5,'Colisão?',{|x| IIF(PCount()>0,oInstance:lHasCollider:=x,oInstance:lHasCollider) }, ::oInspector,70,10,,{|x| oInstance:ToggleObjectCollision(x)},,,CLR_WHITE,,,.T.,,,)
 
+    TSay():new(135, 5, {|| "Margem Superior"}, ::oInspector, , , , , , .T., CLR_WHITE, , 70, 10)
+
+    ::oSpinBoxTopMargin := TSpinBox():new(143, 5, ::oInspector, {|x|  oInstance:SetObjectTopMargin(x), oInstance:HideContextMenu() }, 70, 13)
+    ::oSpinBoxTopMargin:SetRange(-9999, 9999)
+    ::oSpinBoxTopMargin:SetStep(1)
+    ::oSpinBoxTopMargin:SetValue(0)
+
+    TSay():new(158, 5, {|| "Margem Esquerda "}, ::oInspector, , , , , , .T., CLR_WHITE, , 70, 10)
+
+    ::oSpinBoxLeftMargin := TSpinBox():new(166, 5, ::oInspector, {|x|  oInstance:SetObjectLeftMargin(x), oInstance:HideContextMenu() }, 70, 13)
+    ::oSpinBoxLeftMargin:SetRange(-9999, 9999)
+    ::oSpinBoxLeftMargin:SetStep(1)
+    ::oSpinBoxLeftMargin:SetValue(0)
+
+    TSay():new(181, 5, {|| "Margem Inferior "}, ::oInspector, , , , , , .T., CLR_WHITE, , 70, 10)
+
+    ::oSpinBoxBottomMargin := TSpinBox():new(189, 5, ::oInspector, {|x|  oInstance:SetObjectBottomMargin(x), oInstance:HideContextMenu() }, 70, 13)
+    ::oSpinBoxBottomMargin:SetRange(-9999, 9999)
+    ::oSpinBoxBottomMargin:SetStep(1)
+    ::oSpinBoxBottomMargin:SetValue(0)
+
+    TSay():new(204, 5, {|| "Margem Direita "}, ::oInspector, , , , , , .T., CLR_WHITE, , 70, 10)
+
+    ::oSpinBoxRightMargin := TSpinBox():new(212, 5, ::oInspector, {|x|  oInstance:SetObjectRightMargin(x), oInstance:HideContextMenu() }, 70, 13)
+    ::oSpinBoxRightMargin:SetRange(-9999, 9999)
+    ::oSpinBoxRightMargin:SetStep(1)
+    ::oSpinBoxRightMargin:SetValue(0)
+
+    ::DisableMarginFields()
 
 Return
+
 /*
 {Protheus.doc} Method GetObjectList(lOnlyLen) Class GameEditor
 Retorna uma array com os nomes das classes disponíveis para uso. Caso seja passado o parâmetro lOnlyLen
@@ -301,8 +366,8 @@ Method SpawnObject(cClassName, nTop, nLeft, lSetSelected) Class GameEditor
     EndIf
 
     ::HideContextMenu()
-    
-Return
+
+Return oObject
 
 /*{Protheus.doc} Method SetSelectedObject(nObject, lCombo) Class GameEditor
 Torna um objeto selecionado com base no array de objetos ativos
@@ -316,7 +381,7 @@ Method SetSelectedObject(nObject, lCombo) Class GameEditor
 
     If nObject > 0 .and. !Empty(::aObjects)
         ::oSelectedObject := ::aObjects[nObject]
-)
+
         If !lCombo
             ::cComboObject := cValToChar(nObject)
         EndIf
@@ -384,11 +449,23 @@ Method SetupTopBar() Class GameEditor
 
     ::oTopBar := TPanel():New(01,00, , oWindow,,,,CLR_WHITE,CLR_BLACK, oWindow:nWidth / 2, 25)
 
+    AAdd(::aUIObjects, ::oTopBar)
+
     TButton():New( 14, 01, "-",::oTopBar,{|o| oInstance:ToggleUIObject(oInstance:oScrollObjects, o)}, 10,10,,,.F.,.T.,.F.,,.F.,,,.F. )
     TSay():New(15,13,{||'Lista Objetos'},::oTopBar,,,,,,.T.,CLR_WHITE,CLR_BLACK,50,20)
 
     TButton():New( 14, (oWindow:nWidth / 2) - 12, "-",::oTopBar,{|o|oInstance:ToggleUIObject(oInstance:oInspector, o)}, 10,10,,,.F.,.T.,.F.,,.F.,,,.F. )
     TSay():New(15,(oWindow:nWidth / 2) - 35,{||'Inspetor'},::oTopBar,,,,,,.T.,CLR_WHITE,CLR_BLACK,30,20)
+
+    TButton():New( 02, (oWindow:nWidth / 2) - 92, "Voltar",::oTopBar,{|o|oInstance:GoBack()}, 30,10,,,.F.,.T.,.F.,,.F.,,,.F. )
+    TButton():New( 02, (oWindow:nWidth / 2) - 62, "Carregar",::oTopBar,{|o|oInstance:Load()}, 30,10,,,.F.,.T.,.F.,,.F.,,,.F. )
+    TButton():New( 02, (oWindow:nWidth / 2) - 32, "Salvar",::oTopBar,{|o|oInstance:Save()}, 30,10,,,.F.,.T.,.F.,,.F.,,,.F. )
+
+    TGet():New(01,250,{|u| If( PCount() == 0, oInstance:cSceneId, oInstance:cSceneId := u) },;
+        ::oTopBar,70,9,"@!",,0,,,.F.,,.T.,,.F.,,.F.,.F.,,.F.,.F.,,oInstance:cSceneId,,,,,,,'ID Cena',1,,CLR_WHITE )
+
+    TGet():New(01,321,{|u| If( PCount() == 0, oInstance:cSceneDescription, oInstance:cSceneDescription := u) },;
+        ::oTopBar,70,9,"@!",,0,,,.F.,,.T.,,.F.,,.F.,.F.,,.F.,.F.,,oInstance:cSceneDescription,,,,,,,'Desc. Cena',1,,CLR_WHITE  )
 
 Return
 
@@ -433,13 +510,15 @@ Method SetupObjectAxis() Class GameEditor
     ::oObjectAxis := TPanel():New((oWindow:nHeight / 2) - 080,(oWindow:nWidth / 2) - 150, , oWindow,,,,/*CLR_BLACK*/,/*CLR_BLACK*/, 65, 60)
     ::oObjectAxis:SetCss('TPanel { border-color: black; border-style: solid; border-width: 1px}')
 
+    AAdd(::aUIObjects, ::oObjectAxis)
+
     TSay():New(03,03,{||'Mov. Objeto'},::oObjectAxis,,,,,,.T.,CLR_BLACK,CLR_BLACK,50,20)
     oMovementSpeed := TSay():New(03,50,{||'1'},::oObjectAxis,,,,,,.T.,CLR_BLACK,CLR_BLACK,50,20)
 
-    TBtnBmp2():New(35,32,26,26,'PMSSETAUP',,,,{|| oInstance:MoveObjectUp(oInstance:GetSelectedObject())},::oObjectAxis,,,.T.) 
-    TBtnBmp2():New(61,06,26,26,'PMSSETAESQ',,,,{||oInstance:MoveObjectLeft(oInstance:GetSelectedObject())},::oObjectAxis,,,.T.) 
-    TBtnBmp2():New(87,32,26,26,'PMSSETADOWN',,,,{||oInstance:MoveObjectDown(oInstance:GetSelectedObject())},::oObjectAxis,,,.T.) 
-    TBtnBmp2():New(61,57,26,26,'PMSSETADIR',,,,{||oInstance:MoveObjectRight(oInstance:GetSelectedObject())},::oObjectAxis,,,.T.) 
+    TBtnBmp2():New(35,32,26,26,'PMSSETAUP',,,,{|| oInstance:MoveObjectUp(oInstance:GetSelectedObject())},::oObjectAxis,,,.T.)
+    TBtnBmp2():New(61,06,26,26,'PMSSETAESQ',,,,{||oInstance:MoveObjectLeft(oInstance:GetSelectedObject())},::oObjectAxis,,,.T.)
+    TBtnBmp2():New(87,32,26,26,'PMSSETADOWN',,,,{||oInstance:MoveObjectDown(oInstance:GetSelectedObject())},::oObjectAxis,,,.T.)
+    TBtnBmp2():New(61,57,26,26,'PMSSETADIR',,,,{||oInstance:MoveObjectRight(oInstance:GetSelectedObject())},::oObjectAxis,,,.T.)
 
     oSlider := TSlider():New(17,50,::oObjectAxis,{|x| oInstance:SetMovementSpeed(x), oMovementSpeed:SetText(cValToChar(x))},10,40,"Inc.",nil)
 
@@ -457,13 +536,14 @@ Move o objeto do parâmetro para cima
 @version 12.1.27
 */
 Method MoveObjectUp(oObject) Class GameEditor
-    
+
     Local nSpeed as numeric
 
     nSpeed := ::GetMovementSpeed()
 
     If !Empty(oObject)
         oObject:oGameObject:nTop -= nSpeed
+        oObject:UpdateEditorCollider()
         ::UpdateInspector(Val(::cComboObject))
     EndIf
 
@@ -479,9 +559,10 @@ Method MoveObjectLeft(oObject) Class GameEditor
     Local nSpeed as numeric
 
     nSpeed := ::GetMovementSpeed()
-    
+
     If !Empty(oObject)
         oObject:oGameObject:nLeft -= nSpeed
+        oObject:UpdateEditorCollider()
         ::UpdateInspector(Val(::cComboObject))
     EndIf
 
@@ -497,9 +578,10 @@ Method MoveObjectDown(oObject) Class GameEditor
     Local nSpeed as numeric
 
     nSpeed := ::GetMovementSpeed()
-    
+
     If !Empty(oObject)
         oObject:oGameObject:nTop += nSpeed
+        oObject:UpdateEditorCollider()
         ::UpdateInspector(Val(::cComboObject))
     EndIf
 
@@ -516,9 +598,10 @@ Method MoveObjectRight(oObject) Class GameEditor
     Local nSpeed as numeric
 
     nSpeed := ::GetMovementSpeed()
-    
+
     If !Empty(oObject)
         oObject:oGameObject:nLeft += nSpeed
+        oObject:UpdateEditorCollider()
         ::UpdateInspector(Val(::cComboObject))
     EndIf
 
@@ -566,11 +649,13 @@ Method SetupSceneNavigator() Class GameEditor
     ::oSceneNavigator := TPanel():New((oWindow:nHeight / 2) - 126,(oWindow:nWidth / 2) - 150, , oWindow,,,,/*CLR_BLACK*/,/*CLR_BLACK*/, 65, 45)
     ::oSceneNavigator:SetCss('TPanel { border-color: black; border-style: solid; border-width: 1px}')
 
+    AAdd(::aUIObjects, ::oSceneNavigator)
+
     TSay():New(03,03,{||'Mov. Cena'},::oSceneNavigator,,,,,,.T.,CLR_BLACK,CLR_BLACK,50,20)
     oScenePanSpeed := TSay():New(03,50,{||'1'},::oSceneNavigator,,,,,,.T.,CLR_BLACK,CLR_BLACK,50,20)
 
-    TBtnBmp2():New(25,06,26,26,'PMSSETAESQ',,,,{||oInstance:MoveSceneLeft()},::oSceneNavigator,,,.T.) 
-    TBtnBmp2():New(25,57,26,26,'PMSSETADIR',,,,{||oInstance:MoveSceneRight()},::oSceneNavigator,,,.T.) 
+    TBtnBmp2():New(25,06,26,26,'PMSSETAESQ',,,,{||oInstance:MoveSceneLeft()},::oSceneNavigator,,,.T.)
+    TBtnBmp2():New(25,57,26,26,'PMSSETADIR',,,,{||oInstance:MoveSceneRight()},::oSceneNavigator,,,.T.)
 
     oSlider := TSlider():New(30,03,::oSceneNavigator,{|x| oInstance:SetScenePanSpeed(x), oScenePanSpeed:SetText(cValToChar(x))},57,10,"Inc.",nil)
 
@@ -596,6 +681,7 @@ Method MoveSceneLeft() Class GameEditor
 
     For nX := 1 To Len(::aObjects)
         ::aObjects[nX]:oGameObject:nLeft += nSpeed
+        ::aObjects[nX]:UpdateEditorCollider()
     Next
 
     ::nCameraOffset -= nSpeed
@@ -618,6 +704,7 @@ Method MoveSceneRight() Class GameEditor
 
     For nX := 1 To Len(::aObjects)
         ::aObjects[nX]:oGameObject:nLeft -= nSpeed
+        ::aObjects[nX]:UpdateEditorCollider()
     Next
 
     ::nCameraOffset += nSpeed
@@ -716,13 +803,27 @@ Atualiza os dados do inspetor com os do objeto selecionado
 Method UpdateInspector(nObject) Class GameEditor
 
     Local oObject as object
-    
+
     oObject := ::aObjects[nObject]
 
     ::oSpinBoxTop:SetValue(oObject:oGameObject:nTop)
     ::oSpinBoxLeft:SetValue(oObject:oGameObject:nLeft - ::nCameraOffset)
     ::oSpinBoxHeight:SetValue(oObject:oGameObject:nHeight)
     ::oSpinBoxWidth:SetValue(oObject:oGameObject:nWidth)
+
+    If oObject:HasCollider()
+
+        ::lHasCollider := .T.
+        ::EnableMarginFields()
+
+        ::oSpinBoxTopMargin:SetValue(oObject:nTopMargin)
+        ::oSpinBoxLeftMargin:SetValue(oObject:nLeftMargin)
+        ::oSpinBoxBottomMargin:SetValue(oObject:nBottomMargin)
+        ::oSpinBoxRightMargin:SetValue(oObject:nRightMargin)
+    Else
+        ::lHasCollider := .F.
+        ::DisableMarginFields(.T.)
+    EndIf
 
 Return
 
@@ -739,7 +840,7 @@ Method OpenContextMenu(cClassName, nObject) Class GameEditor
     Local nTop as numeric
     Local nLeft as numeric
     Local aItems as array
-    
+
     ::HideContextMenu()
 
     oObject := ::aObjects[nObject]
@@ -876,17 +977,16 @@ Altera coordenada nTop do objeto selecionado
 @since   01/2021
 @version 12.1.27
 */
-Method SetObjectTop(nTop) Class GameEditor
+Method SetObjectTop(nTop, oObject) Class GameEditor
 
-    Local oObject as object
-
-    oObject := ::GetSelectedObject()
+    Default oObject := ::GetSelectedObject()
 
     If !Empty(oObject)
         oObject:oGameObject:nTop := nTop
+        oObject:UpdateEditorCollider()
     EndIf
 
-Return 
+Return
 
 /*{Protheus.doc} Method SetObjectLeft(nLeft) Class GameEditor
 Altera coordenada nLeft do objeto selecionado
@@ -894,17 +994,16 @@ Altera coordenada nLeft do objeto selecionado
 @since   01/2021
 @version 12.1.27
 */
-Method SetObjectLeft(nLeft) Class GameEditor
+Method SetObjectLeft(nLeft, oObject) Class GameEditor
 
-    Local oObject as object
-
-    oObject := ::GetSelectedObject()
+    Default oObject := ::GetSelectedObject()
 
     If !Empty(oObject)
         oObject:oGameObject:nLeft := nLeft
+        oObject:UpdateEditorCollider()
     EndIf
 
-Return 
+Return
 
 /*{Protheus.doc} Method SetObjectHeight(nHeight) Class GameEditor
 Altera propriedade nHeight do objeto selecionado
@@ -912,17 +1011,16 @@ Altera propriedade nHeight do objeto selecionado
 @since   01/2021
 @version 12.1.27
 */
-Method SetObjectHeight(nHeight) Class GameEditor
+Method SetObjectHeight(nHeight, oObject) Class GameEditor
 
-    Local oObject as object
-
-    oObject := ::GetSelectedObject()
+    Default oObject := ::GetSelectedObject()
 
     If !Empty(oObject)
         oObject:oGameObject:nHeight := nHeight
+        oObject:UpdateEditorCollider()
     EndIf
 
-Return 
+Return
 
 /*{Protheus.doc} Method SetObjectWidth(nWidth) Class GameEditor
 Altera propriedade nWidth do objeto selecionado
@@ -930,14 +1028,339 @@ Altera propriedade nWidth do objeto selecionado
 @since   01/2021
 @version 12.1.27
 */
-Method SetObjectWidth(nWidth) Class GameEditor
+Method SetObjectWidth(nWidth, oObject) Class GameEditor
 
-    Local oObject as object
-
-    oObject := ::GetSelectedObject()
+    Default oObject := ::GetSelectedObject()
 
     If !Empty(oObject)
         oObject:oGameObject:nWidth := nWidth
+        oObject:UpdateEditorCollider()
     EndIf
 
-Return 
+Return
+
+/*{Protheus.doc} Method SetObjectWidth(nWidth) Class GameEditor
+Instância cena no editor com base no JSON salvo.
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SceneFromJson(cFilePath) Class GameEditor
+
+    Local oScene as object
+    Local nHandle as numeric
+    Local cJson as char
+
+    nHandle := FT_FUse(cFilePath)
+
+    cJson := ''
+
+    FT_FGoTop()
+
+    While !FT_FEoF()
+        cJson += FT_FReadLn()
+        FT_FSkip()
+    EndDo
+
+    oScene := JsonObject():New()
+
+    oScene:FromJson(cJson)
+
+    FClose(nHandle)
+
+Return oScene
+
+/*{Protheus.doc} Method ToJson()
+Transofrma informaçõoes da cena em um json para ser salvo em disco
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SceneToJson() Class GameEditor
+
+    Local nX as numeric
+    Local oScene as object
+    Local oObject as object
+
+    oScene := JsonObject():New()
+
+    oScene['sceneId'] := AllTrim(::cSceneId)
+    oScene['sceneDescription'] := ::cSceneDescription
+
+    oScene['objects'] := {}
+
+    For nX := 1 To Len(::aObjects)
+        oObject := JsonObject():New()
+
+        oObject['className'] := Capital(GetClassName(::aObjects[nX]))
+        oObject['top'] := ::aObjects[nX]:oGameObject:nTop / 2
+        oObject['left'] := (::aObjects[nX]:oGameObject:nLeft - ::nCameraOffset) / 2
+        oObject['height'] := ::aObjects[nX]:oGameObject:nHeight
+        oObject['width'] := ::aObjects[nX]:oGameObject:nWidth
+
+        oObject['hasCollider'] := ::aObjects[nX]:HasCollider()
+
+        oObject['topMargin'] := ::aObjects[nX]:nTopMargin
+        oObject['leftMargin'] := ::aObjects[nX]:nLeftMargin
+        oObject['bottomMargin'] := ::aObjects[nX]:nBottomMargin
+        oObject['rightMargin'] := ::aObjects[nX]:nRightMargin
+
+        Aadd(oScene['objects'], oObject)
+    Next
+
+Return oScene:ToJson()
+
+/*{Protheus.doc} Method Save()
+Salva cena
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method Save() Class GameEditor
+
+    Local cJson as char
+    Local cTempDir as char
+    Local cFilePath as char
+    Local nHandle as numeric
+
+    cTempDir := GetTempPath()
+    cJson := ::SceneToJson()
+
+    cTempDir +=  'gameadvpl\levels'
+
+    cFilePath := cTempDir + '\' + AllTrim(::cSceneId) + '.json'
+
+    If !ExistDir(cTempDir)
+        MakeDir(cTempDir)
+    EndIf
+
+    If File(cFilePath)
+        FErase(cFilePath)
+    EndIf
+
+    nHandle := FCreate(cFilePath, FC_NORMAL)
+
+    FWrite(nHandle,cJson)
+
+    FClose(nHandle)
+
+    MsgInfo('Salvo!','Editor')
+
+Return
+
+/*{Protheus.doc} Method Load()
+Carrega cena salva
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method Load() Class GameEditor
+
+    Local cTempDir as char
+    Local cFilePath as char
+    Local oScene as object
+    Local nX as numeric
+    Local oCurrentObject as object
+    Local oObject as object
+    Local lDiscard as logical
+
+    cTempDir := GetTempPath() + 'gameadvpl\levels'
+
+    If !Empty(::aObjects)
+        lDiscard := MsgNoYes('Os dados não salvos serão perdidos. Deseja continuar?','Aviso')
+    Else
+        lDiscard := .T.
+    EndIf
+
+    If lDiscard
+        // não há cristo que faça essa função funcionar
+        //cFilePath := TFileDialog( "Arquivos JSON (*.json)", 'Selecao de Cena',, cTempDir, .F., 16 + 256 + 512)
+        cFilePath := cGetFile( '*.json|*.json' , 'Arquivos JSON (.json)', 1, cTempDir, .F., 16 + 256 + 512 ,.F., .T. )
+        If !Empty(cFilePath)
+            oScene := ::SceneFromJson(cFilePath)
+        Else
+            MsgAlert('Nada Selecionado', 'Aviso')
+        EndIf
+
+        If ValType(oScene) == 'J'
+            For nX := 1 To Len(oScene['objects'])
+                oCurrentObject := oScene['objects'][nX]
+                oObject := ::SpawnObject(oCurrentObject['className'], oCurrentObject['top'], oCurrentObject['left'])
+
+                ::SetObjectHeight(oCurrentObject['height'], oObject)
+                ::SetObjectWidth(oCurrentObject['width'], oObject)
+
+                If oCurrentObject['hasCollider']
+
+                    oObject:EnableEditorCollider()
+
+                    oObject:SetTopMargin(oCurrentObject['topMargin'])
+                    oObject:SetLeftMargin(oCurrentObject['leftMargin'])
+                    oObject:SetBottomMargin(oCurrentObject['bottomMargin'])
+                    oObject:SetRightMargin(oCurrentObject['rightMargin'])
+                EndIf
+
+            Next
+        EndIf
+
+    EndIf
+
+Return
+
+/*{Protheus.doc} Method GoBack()
+Volta para tela de níveis
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method GoBack() Class GameEditor
+
+    Local oGame as object
+
+    oGame := ::GetGameManager()
+
+    oGame:LoadScene('levels')
+
+Return
+
+/*{Protheus.doc} Method Hide()
+Destrói cena
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method Hide() Class GameEditor
+
+    Local nX as numeric
+
+    AEval(::aObjects,{|x| IIF(MethIsMemberOf(x, 'HideGameObject'),x:HideGameObject(), x:Hide()), FreeObj(x) })
+    ASize(::aObjects , 0)
+
+    For nX := Len(::aUIObjects) To 1 STEP -1
+        ::aUIObjects[nX]:Hide()
+        FreeObj(::aUIObjects[nX])
+        ADel(::aUIObjects, nX)
+        ASize(::aUIObjects, Len(::aUIObjects) - 1)
+    Next
+
+Return
+
+/*{Protheus.doc} Method SetObjectTopMargin() Class GameEditor
+Define margem superior do objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetObjectTopMargin(nTopMargin, oObject) Class GameEditor
+
+    Default oObject := ::GetSelectedObject()
+
+    If !Empty(oObject)
+        oObject:SetTopMargin(nTopMargin)
+    EndIf
+
+Return
+
+/*{Protheus.doc} Method SetObjectLeftMargin(nLeftMargin) Class GameEditor
+Define margem esquerda do objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetObjectLeftMargin(nLeftMargin, oObject) Class GameEditor
+
+    Default oObject := ::GetSelectedObject()
+
+    If !Empty(oObject)
+        oObject:SetLeftMargin(nLeftMargin)
+    EndIf
+
+Return
+
+/*{Protheus.doc} Method SetObjectBottomMargin(nBottomMargin) Class GameEditor
+Define margem inferior do objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetObjectBottomMargin(nBottomMargin, oObject) Class GameEditor
+
+    Default oObject := ::GetSelectedObject()
+
+    If !Empty(oObject)
+        oObject:SetBottomMargin(nBottomMargin)
+    EndIf
+
+Return
+
+/*{Protheus.doc} Method SetObjectRightMargin(nRightMargin) Class GameEditor
+Define margem direita do objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetObjectRightMargin(nRightMargin, oObject) Class GameEditor
+
+    Default oObject := ::GetSelectedObject()
+
+    If !Empty(oObject)
+        oObject:SetRightMargin(nRightMargin)
+    EndIf
+
+Return
+
+/*{Protheus.doc} Method ToggleObjectCollision() Class GameEditor
+HAbilita ou desabilitar colisão do objeto selecionado
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method ToggleObjectCollision(nEnable, oObject) Class GameEditor
+
+    Default oObject := ::GetSelectedObject()
+
+    If !Empty(oObject)
+        If ::lHasCollider .and. !oObject:HasCollider()
+            oObject:EnableEditorCollider()
+            ::EnableMarginFields()
+        ElseIF oObject:HasCollider()
+            oObject:DisableEditorCollider()
+            ::DisableMarginFields(.T.)
+        EndIf
+    EndIf
+
+Return
+
+/*{Protheus.doc} Method DisableMarginFields() Class GameEditor
+Desabilita campos de margem 
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method DisableMarginFields(lZero) Class GameEditor
+
+    ::oSpinBoxTopMargin:Disable()
+    ::oSpinBoxLeftMargin:Disable()
+    ::oSpinBoxBottomMargin:Disable()
+    ::oSpinBoxRightMargin:Disable()
+
+    If lZero
+        ::oSpinBoxTopMargin:SetValue(0)
+        ::oSpinBoxLeftMargin:SetValue(0)
+        ::oSpinBoxBottomMargin:SetValue(0)
+        ::oSpinBoxRightMargin:SetValue(0)
+    EndIf
+Return
+
+/*{Protheus.doc} Method DisableMarginFields() Class GameEditor
+Desabilita campos de margem 
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method EnableMarginFields() Class GameEditor
+    ::oSpinBoxTopMargin:Enable()
+    ::oSpinBoxLeftMargin:Enable()
+    ::oSpinBoxBottomMargin:Enable()
+    ::oSpinBoxRightMargin:Enable()
+Return

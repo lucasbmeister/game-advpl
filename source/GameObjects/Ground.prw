@@ -40,6 +40,8 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth) Class Ground
     oInstance := Self
     cAsset := ::GetAssetsPath("environment\ground.png")
 
+    ::cTag := 'ground'
+
     cStyle := "TPanel { border-image: url("+StrTran(cAsset,"\","/")+") 0 stretch}"
     //cStyle := "TPanel { border: 1 solid black }"
 
@@ -69,5 +71,6 @@ Method HideGameObject() Class Ground
 
    ::oGameObject:Hide()
     FreeObj(::oGameObject)
+    ::HideEditorCollider()
 
 Return

@@ -67,6 +67,7 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth, cName ) Class Player
     ::lIsGrounded := .F.
     ::cLastState := ::cCurrentState := "idle"
     ::cDirection := ::cLastDirection := "forward"
+    ::cTag := 'player'
 
     ::nCurrentFrame := 1
     ::nLastFrameTime := 0
@@ -315,6 +316,7 @@ Destrói o objeto
 Method HideGameObject() Class Player
 
     ::oGameObject:Hide()
+    ::HideEditorCollider()
     FreeObj(::oGameObject)
 
 Return

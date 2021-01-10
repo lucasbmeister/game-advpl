@@ -55,6 +55,7 @@ Destrói objeto
 Method HideGameObject() Class Sky
 
    ::oGameObject:Hide()
+   ::HideEditorCollider()
     FreeObj(::oGameObject)
 
 Return

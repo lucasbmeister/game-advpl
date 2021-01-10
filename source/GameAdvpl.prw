@@ -54,8 +54,105 @@ Main Function GameAdvpl()
     oGame:AddScene(oLevel1)
     oGame:AddScene(oLevel2)
 
+    U_LoadEditorScenes(oWindow, oGame, aDimensions)
+
     //inicia o jogo passando como parãmetro a ID da cena inicial
     oGame:Start(oMenu:GetSceneID())
     //oGame:Start("editor")
 
 Return
+
+/*
+{Protheus.doc} Static Function LoadEditorScenes(nLine, nCol)
+Carrega cenas do editor no GameManager
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+User Function LoadEditorScenes(oWindow, oGame, aDimensions)
+
+    Local nX as numeric
+    Local aFiles as array
+    Local oScene as object
+    Local oJson as object
+
+    aFiles := GetSceneFiles()
+
+    For nX := 1 To Len(aFiles)
+        oJson := U_SceneFromJson(aFiles[nX])
+        
+        If AScan(oGame:aScenes, {|x| x:GetSceneID() == oJson['sceneId']}) == 0
+            oScene := Scene():New(oWindow, oJson['sceneId'], aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
+            oScene:SetEditorScene(.T.)
+            oScene:SetSceneJson(aFiles[nX])
+            oScene:SetGameManager(oGame)
+            oScene:SetDescription(oJson['sceneDescription'])
+
+            oGame:AddScene(oScene)
+        EndIf
+    Next
+
+Return
+
+/*
+{Protheus.doc} Static Function SceneFromJson()
+Carrega objeto json da cena com base no caminho do parâmetro
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+User Function SceneFromJson(cFilePath)
+
+    Local oScene as object
+    Local nHandle as numeric
+    Local cJson as char
+
+    nHandle := FT_FUse(cFilePath)
+
+    cJson := ''
+
+    FT_FGoTop()
+
+    While !FT_FEoF()
+        cJson += FT_FReadLn()
+        FT_FSkip()
+    EndDo
+
+    oScene := JsonObject():New()
+
+    oScene:FromJson(cJson)
+
+    FClose(nHandle)
+
+Return oScene
+
+/*
+{Protheus.doc} Static Function GetSceneFiles()
+Retorna lista de cenas do editor existentes
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Static Function GetSceneFiles()
+
+    Local aFiles as array
+    Local aSizes as array
+    Local cPath as char
+    Local nX as numeric
+
+    cPath := GetTempPath() + 'gameadvpl\levels\'
+    
+    aFiles := {}
+    aSizes := {}
+
+    ADir(cPath + "*.json", @aFiles, @aSizes)
+
+    If Empty(aFiles)
+        aFiles := {}
+    EndIf
+
+    For nX := 1 To Len(aFiles)
+        aFiles[nX] := cPath + aFiles[nX]
+    Next
+
+Return aFiles

@@ -13,6 +13,7 @@ Class BaseGameObject From LongNameClass
     Data oWindow
     Data cTag
     Data oGameObject
+    Data oCollider
     Data cInternalId
     Data lDestroy
 
@@ -59,6 +60,14 @@ Class BaseGameObject From LongNameClass
     Method SetLeftClickAction()
     Method SetRightClickAction()
     Method ShouldDestroy()
+    Method SetTopMargin()
+    Method SetLeftMargin()
+    Method SetBottomMargin()
+    Method SetRightMargin()
+    Method EnableEditorCollider()
+    Method DisableEditorCollider()
+    Method UpdateEditorCollider()
+    Method HideEditorCollider() 
 
 EndClass
 
@@ -85,6 +94,11 @@ Method New(oWindow) Class BaseGameObject
     ::lDestroy := .F.
     ::nDY := 0
     ::nDX := 0
+
+    ::nTopMargin := 0
+    ::nLeftMargin := 0
+    ::nBottomMargin := 0
+    ::nRightMargin := 0
 
 Return Self
 
@@ -372,4 +386,157 @@ do mouse sobre o objeto
 Method SetRightClickAction(bBlock) Class BaseGameObject
     ::oGameObject:bRClicked := bBlock
 Return
+
+/*
+{Protheus.doc} Method SetTopMargin(nTopMargin) Class BaseGameObject
+Define margem superior do objeto
+do mouse sobre o objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetTopMargin(nTopMargin) Class BaseGameObject
+
+    ::oCollider:nTop -= ::nTopMargin
+    ::oCollider:nHeight += ::nTopMargin
+
+    ::oCollider:nTop += nTopMargin
+    ::oCollider:nHeight -= nTopMargin
+
+    ::nTopMargin := nTopMargin
+
+Return
+
+/*
+{Protheus.doc} Method SetLeftMargin(nLeftMargin) Class BaseGameObject
+Define margem esquerda do objeto
+do mouse sobre o objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetLeftMargin(nLeftMargin) Class BaseGameObject
+
+    ::oCollider:nLeft -= ::nLeftMargin
+    ::oCollider:nWidth += ::nLeftMargin
+
+    ::oCollider:nLeft += nLeftMargin
+    ::oCollider:nWidth -= nLeftMargin
+
+    ::nLeftMargin := nLeftMargin
+
+Return
+
+/*
+{Protheus.doc} Method SetObjectBottomMargin(nBottomMargin) Class GameEditor
+Define margem inferior do objeto
+do mouse sobre o objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetBottomMargin(nBottomMargin) Class BaseGameObject
+
+    ::oCollider:nHeight -= ::nBottomMargin
+
+    ::oCollider:nHeight += nBottomMargin
+
+    ::nBottomMargin := nBottomMargin
+
+Return
+
+/*
+{Protheus.doc} Method SetRightMargin(nRightMargin) Class BaseGameObject
+Define margem direita do objeto
+do mouse sobre o objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetRightMargin(nRightMargin) Class BaseGameObject
+
+    ::oCollider:nWidth -= ::nRightMargin
+
+    ::oCollider:nWidth += nRightMargin
+
+    ::nRightMargin := nRightMargin
+
+Return
+
+/*
+{Protheus.doc} Method EnableEditorCollider() Class BaseGameObject
+Habilita objeto de visualização de margem no editor de cenas
+do mouse sobre o objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method EnableEditorCollider() Class BaseGameObject
+
+    Local cStyle as char 
+
+    ::lHasCollider := .T.
+
+    cStyle := "TPanel { border: 1 solid black }"
+
+    ::oCollider := TPanel():New(::oGameObject:nTop / 2, ::oGameObject:nLeft / 2, 'Área Colisão', ::oWindow,,,,,, ::oGameObject:nWidth / 2, ::oGameObject:nHeight / 2)
+    ::oCollider:SetCss(cStyle)
+
+    ::oCollider:bLClicked := ::oGameObject:bLClicked
+    ::oCollider:bRClicked := ::oGameObject:bRClicked
+
+Return
+
+/*
+{Protheus.doc} Method DisableEditorCollider() Class BaseGameObject
+Desabilita objeto de visualização de margem no editor de cenas
+do mouse sobre o objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method DisableEditorCollider() Class BaseGameObject
+
+    ::lHasCollider := .F.
+
+    ::oCollider:Hide()
+    FreeObj(::oCollider)
+
+Return
+
+/*
+{Protheus.doc} Method EnableEditorCollider() Class BaseGameObject
+Habilita objeto de visualização de margem no editor de cenas
+do mouse sobre o objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method UpdateEditorCollider() Class BaseGameObject
+    
+    If ::HasCollider()
+        ::oCollider:nTop := ::oGameObject:nTop + ::nTopMargin 
+        ::oCollider:nLeft := ::oGameObject:nLeft + ::nLeftMargin 
+        ::oCollider:nHeight := ::oGameObject:nHeight + ::nBottomMargin 
+        ::oCollider:nWidth := ::oGameObject:nWidth + ::nRightMargin 
+    EndIf
+
+Return
+
+/*
+{Protheus.doc} Method HideEditorCollider() Class BaseGameObject
+Esconde coliso do editor
+do mouse sobre o objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method HideEditorCollider() Class BaseGameObject
+    If !Empty(::oCollider)
+        ::oCollider:Hide()
+        FreeObj(::oCollider)
+    EndIf
+Return
+
+
 
