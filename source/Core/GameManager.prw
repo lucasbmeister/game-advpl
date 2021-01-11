@@ -33,6 +33,10 @@ Class GameManager From LongNameClass
     Data oStartLimit
     Data oEndLimit
 
+    Data IsPaused
+
+    Data oPauseMenu
+
     Method New() Constructor
     Method AddScene()
     Method SetActiveScene()
@@ -60,6 +64,11 @@ Class GameManager From LongNameClass
     Method SetCameraLimits()
     Method GetStartLimit()
     Method GetEndLimit()
+    Method IsPaused()
+    Method SetPaused()
+    Method ShowPauseMenu()
+    Method HidePauseMenu()
+    Method CheckPause()
 
 EndClass
 
@@ -92,7 +101,7 @@ Method New(cGameName, nTop, nLeft, nHeight, nWidth) Class GameManager
         
     ::cGameName := cGameName
     ::aScenes := {}
-    ::oKeys := {}
+    ::oKeys := JsonObject():New()
 
     ::lCameraUpdate := .F.
     ::cCameraDirection := ''
@@ -239,13 +248,18 @@ Method Update(oWebChannel, codeType, codeContent) Class GameManager
 
     oKeys:FromJson(Lower(codeContent))
 
+    ::CheckPause()
+
     oActiveScene := ::GetActiveScene()
 
     ::SetPressedKeys(oKeys)
     ::nDeltaTime := TimeCounter() - ::nDeltaTime
-    oActiveScene:Update(Self)
 
-    If ::ShouldUpdateCamera()
+    If !::IsPaused()
+        oActiveScene:Update(Self)
+    EndIf
+    
+    If ::ShouldUpdateCamera() 
         //basicamente move todos os objetos na direção contrário do player (incluindo o player)
         oActiveScene:UpdateCamera(Self, ::cCameraDirection, ::nCameraSpeed)
         ::SetCameraUpdate(.F.)
@@ -501,3 +515,66 @@ Method GetEndLimit() Class GameManager
     EndIf
 
 Return nLimit
+
+/*{Protheus.doc} Method IsPaused() Class GameManager
+Retorna se jogo está pausado
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method IsPaused() Class GameManager
+Return ::IsPaused
+
+/*{Protheus.doc} Method SetPaused(lPause) Class GameManager
+Define se jogo está pausado ou não
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetPaused(lPause) Class GameManager
+    ::IsPaused := lPause
+Return
+
+/*{Protheus.doc} Method ShowPauseMenu() Class GameManager
+Mostra menu de pausa
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method ShowPauseMenu() Class GameManager
+    ::oPauseMenu := PausePanel():New(::oWindow, Self)
+Return
+
+/*{Protheus.doc} Method HidePauseMenu() Class GameManager
+Esconde menu de pausa
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method HidePauseMenu() Class GameManager
+    ::oPauseMenu:HideGameObject()
+    FreeObj(::oPauseMenu)
+Return
+
+/*{Protheus.doc} Method CheckPause() Class GameManager
+Verifica se tecla de pause foi pressionada
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method CheckPause() Class GameManager
+
+    Local oKeys as char
+    Local oActiveScene as object
+
+    oKeys := ::GetPressedKeys()
+    oActiveScene := ::GetActiveScene()
+
+    If !(oActiveScene:GetSceneID() $ 'editor;menu;levels')
+        If oKeys['p'] .and. !::IsPaused()
+            ::SetPaused(.T.)
+            ::ShowPauseMenu()
+        EndIf
+    EndIf
+
+Return
