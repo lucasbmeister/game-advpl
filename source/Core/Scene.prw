@@ -115,7 +115,7 @@ Method Update(oGameManager) Class Scene
                 ::aObjects[nX]:Update(oGameManager)
             EndIf
             //If ::aObjects[nX]:ShouldDestroy()
-            If MethIsMemberOf(::aObjects[nX], 'ShouldDestroy') .and. ::aObjects[nX]:ShouldDestroy()
+            If !Empty(::aObjects) .and. MethIsMemberOf(::aObjects[nX], 'ShouldDestroy') .and. ::aObjects[nX]:ShouldDestroy()
                 FreeObj(::aObjects[nX])
                 ADel(::aObjects, nX)
                 ASize(::aObjects, Len(::aObjects) - 1)

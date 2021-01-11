@@ -6,6 +6,13 @@
     <script src="jquery.min.js"></script>
     <script type="text/javascript">
 
+
+
+    </script>
+</head>
+
+<body id="body" style="font-size:10px;">
+    <script>
         var pressedKeys = {};
         var lastUpdateIsProcessed = true;
 
@@ -15,8 +22,7 @@
             twebchannel.connect(function () {
                 // Signal que recebe o codigo vindo do AdvPL para injecao
                 twebchannel.advplToJs = advplToJs;
-
-                twebchannel.jsToAdvpl("start", "Pagina Inicializada");
+                twebchannel.jsToAdvpl("load_assets", "Carregar assets");
             });
 
         }, false);
@@ -27,27 +33,19 @@
                 start();
             } else if (codeType === "processed") {
                 lastUpdateIsProcessed = true;
+            } else if (codeType === "play_sound") {
+                window[codeContent].play()
+            } else if (codeType === "stop_sound") {
+                window[codeContent].stop()
+            }  else if (codeType === "assets") {    
+                loadSounds(codeContent)
+                twebchannel.jsToAdvpl("start", "Pagina Inicializada");
             }
         }
 
         function start() {
             setInterval(update, 33);
         }
-        // não funciona. O objeto TWebEngine precisa estar em primeiro plano
-        // function mouseUpDownEvent(e) {
-        //     e = e || event;
-        //     pressedKeys['mouseDown'] = e.type == 'mousedown';
-        // }
-
-        // function mouseMoveEvent(e) {
-        //     e = e || event;
-        //     pressedKeys['mousePositionX'] = e.x;
-        //     pressedKeys['mousePositionY'] = e.y;
-        // }
-
-        // window.addEventListener('mousedown', mouseUpDownEvent)
-        // window.addEventListener('mouseup', mouseUpDownEvent)
-        // window.addEventListener('mousemove', mouseMoveEvent)
 
         function update() {
             if (lastUpdateIsProcessed) {
@@ -61,11 +59,35 @@
             pressedKeys[e.key] = e.type == 'keydown';
         }
 
+        function Sound(src) {
+
+            this.sound = document.createElement("audio");
+            this.sound.src = src;
+            this.sound.setAttribute("preload", "auto");
+            this.sound.setAttribute("controls", "none");
+            this.sound.style.display = "none";
+
+            document.body.appendChild(this.sound);
+
+            this.play = function () {
+                this.sound.play();
+            }
+            this.stop = function () {
+                this.sound.pause();
+            }
+        }
+
+        function loadSounds(codeContent) {
+            const content = JSON.parse(codeContent)
+            const soundList = content['sounds']
+
+            soundList.forEach(element => {
+                window[element.file] = new Sound(element.path)
+            });
+                
+        }
 
     </script>
-</head>
-
-<body style="font-size:10px;">
     Clique aqui caso os controles não estejam funcionando
 </body>
 

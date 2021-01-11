@@ -40,6 +40,7 @@ Class GameEditor From LongNameClass
     Data oSpinBoxBottomMargin
     Data oSpinBoxRightMargin
     Data lHasCollider    
+    Data lIsEditing
 
     Method New() Constructor
     Method LoadObjects()
@@ -94,6 +95,10 @@ Class GameEditor From LongNameClass
     Method Load()
     Method GoBack()
     Method Hide()
+    Method IsEditing()
+    Method SetEditing()
+    Method NewScene()
+    Method UnloadCurrentScene()
 
 EndClass
 
@@ -114,6 +119,7 @@ Method New(oWindow, oGame) Class GameEditor
     ::nCameraOffset := 0
     ::aUIObjects := {}
     ::lHasCollider := .F.
+    ::lIsEditing := .F.
 
     ::cSceneId := Space(20)
     ::cSceneDescription := Space(40)
@@ -457,12 +463,16 @@ Method SetupTopBar() Class GameEditor
     TButton():New( 14, (oWindow:nWidth / 2) - 12, "-",::oTopBar,{|o|oInstance:ToggleUIObject(oInstance:oInspector, o)}, 10,10,,,.F.,.T.,.F.,,.F.,,,.F. )
     TSay():New(15,(oWindow:nWidth / 2) - 35,{||'Inspetor'},::oTopBar,,,,,,.T.,CLR_WHITE,CLR_BLACK,30,20)
 
+    TButton():New( 02, 01, "Novo",::oTopBar,{|o|oInstance:NewScene()}, 30,10,,,.F.,.T.,.F.,,.F.,,,.F. )
+    TButton():New( 02, 31, "Importar",::oTopBar,{|o|oInstance:Import()}, 30,10,,,.F.,.T.,.F.,,.F.,,,.F. )
+    TButton():New( 02, 61, "Exportar",::oTopBar,{|o|oInstance:Export()}, 30,10,,,.F.,.T.,.F.,,.F.,,,.F. )
+
     TButton():New( 02, (oWindow:nWidth / 2) - 92, "Voltar",::oTopBar,{|o|oInstance:GoBack()}, 30,10,,,.F.,.T.,.F.,,.F.,,,.F. )
     TButton():New( 02, (oWindow:nWidth / 2) - 62, "Carregar",::oTopBar,{|o|oInstance:Load()}, 30,10,,,.F.,.T.,.F.,,.F.,,,.F. )
     TButton():New( 02, (oWindow:nWidth / 2) - 32, "Salvar",::oTopBar,{|o|oInstance:Save()}, 30,10,,,.F.,.T.,.F.,,.F.,,,.F. )
 
     TGet():New(01,250,{|u| If( PCount() == 0, oInstance:cSceneId, oInstance:cSceneId := u) },;
-        ::oTopBar,70,9,"@!",,0,,,.F.,,.T.,,.F.,,.F.,.F.,,.F.,.F.,,oInstance:cSceneId,,,,,,,'ID Cena',1,,CLR_WHITE )
+        ::oTopBar,70,9,"@!",,0,,,.F.,,.T.,,.F.,{|| !oInstance:IsEditing()},.F.,.F.,,.F.,.F.,,oInstance:cSceneId,,,,,,,'ID Cena',1,,CLR_WHITE )
 
     TGet():New(01,321,{|u| If( PCount() == 0, oInstance:cSceneDescription, oInstance:cSceneDescription := u) },;
         ::oTopBar,70,9,"@!",,0,,,.F.,,.T.,,.F.,,.F.,.F.,,.F.,.F.,,oInstance:cSceneDescription,,,,,,,'Desc. Cena',1,,CLR_WHITE  )
@@ -949,13 +959,32 @@ Limpa dados do inspetor de objetos
 @since   01/2021
 @version 12.1.27
 */
-Method ClearInspector() Class GameEditor
+Method ClearInspector(lNewScene) Class GameEditor
+
+    Default lNewScene := .F.
+
     ::oSpinBoxTop:SetValue(0)
     ::oSpinBoxLeft:SetValue(0)
     ::oSpinBoxHeight:SetValue(0)
     ::oSpinBoxWidth:SetValue(0)
 
+    ::oSpinBoxTopMargin:SetValue(0)
+    ::oSpinBoxLeftMargin:SetValue(0)
+    ::oSpinBoxBottomMargin:SetValue(0)
+    ::oSpinBoxRightMargin:SetValue(0)
+
+    ::lHasCollider := .F.
+
+    ::DisableMarginFields()
+
+    If lNewScene
+        ::oComboObjects:aItems := {''}
+        ::cComboObject := ''
+        ::aCombo := {}
+    EndIf
+
     ::ClearSelectedObject()
+
 Return
 
 /*{Protheus.doc} Method ClearSelectedObject() Class GameEditor
@@ -1123,6 +1152,16 @@ Method Save() Class GameEditor
     Local cFilePath as char
     Local nHandle as numeric
 
+    If Empty(::cSceneId) .or. Empty(::cSceneDescription)
+        MsgAlert('Preencher os campos de ID e descrição da cena.', 'Editor')
+        Return
+    EndIf 
+
+    If Empty(::aObjects)
+        MsgAlert('Nenhum objeto em cena. Nada será salvo.', 'Editor')
+        Return
+    EndIf
+
     cTempDir := GetTempPath()
     cJson := ::SceneToJson()
 
@@ -1134,7 +1173,9 @@ Method Save() Class GameEditor
         MakeDir(cTempDir)
     EndIf
 
-    If File(cFilePath)
+    If File(cFilePath) .and. !::IsEditing() .and. !MsgNoYes('Já existe uma cena com este ID. Por favor, deseja substituir?','Aviso')
+        Return
+    ElseIf File(cFilePath) .and. ::IsEditing()
         FErase(cFilePath)
     EndIf
 
@@ -1173,6 +1214,7 @@ Method Load() Class GameEditor
     EndIf
 
     If lDiscard
+        ::UnloadCurrentScene()
         // não há cristo que faça essa função funcionar
         //cFilePath := TFileDialog( "Arquivos JSON (*.json)", 'Selecao de Cena',, cTempDir, .F., 16 + 256 + 512)
         cFilePath := cGetFile( '*.json|*.json' , 'Arquivos JSON (.json)', 1, cTempDir, .F., 16 + 256 + 512 ,.F., .T. )
@@ -1183,6 +1225,12 @@ Method Load() Class GameEditor
         EndIf
 
         If ValType(oScene) == 'J'
+
+            ::cSceneID := oScene['sceneId']
+            ::cSceneDescription := oScene['sceneDescription']
+
+            ::SetEditing(.T.)
+
             For nX := 1 To Len(oScene['objects'])
                 oCurrentObject := oScene['objects'][nX]
                 oObject := ::SpawnObject(oCurrentObject['className'], oCurrentObject['top'], oCurrentObject['left'])
@@ -1233,8 +1281,7 @@ Method Hide() Class GameEditor
 
     Local nX as numeric
 
-    AEval(::aObjects,{|x| IIF(MethIsMemberOf(x, 'HideGameObject'),x:HideGameObject(), x:Hide()), FreeObj(x) })
-    ASize(::aObjects , 0)
+    ::UnloadCurrentScene()
 
     For nX := Len(::aUIObjects) To 1 STEP -1
         ::aUIObjects[nX]:Hide()
@@ -1363,4 +1410,57 @@ Method EnableMarginFields() Class GameEditor
     ::oSpinBoxLeftMargin:Enable()
     ::oSpinBoxBottomMargin:Enable()
     ::oSpinBoxRightMargin:Enable()
+Return
+
+/*{Protheus.doc} Method IsEditing() Class GameEditor
+Retorna se está editando um cena
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method IsEditing() Class GameEditor
+Return ::lIsEditing
+
+/*{Protheus.doc} Method SetEditing(lEditing) Class GameEditor
+Define se o editor está em edição de cena salva
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetEditing(lEditing) Class GameEditor
+    ::lIsEditing := lEditing
+Return
+
+/*{Protheus.doc} Method SetEditing(lEditing) Class GameEditor
+Define se o editor está em edição de cena salva
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method NewScene() Class GameEditor
+
+    If !Empty(::aObjects) .and. MsgNoYes('Os dados não salvos serão perdidos. Deseja continuar?','Aviso')
+        ::SetEditing(.F.)
+        ::UnloadCurrentScene()
+    EndIf
+
+Return
+
+/*{Protheus.doc} Method UnloadCurrentScene() Class GameEditor
+Descarrega cena atual
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method UnloadCurrentScene() Class GameEditor
+
+    AEval(::aObjects,{|x| IIF(MethIsMemberOf(x, 'HideGameObject'),x:HideGameObject(), x:Hide()), FreeObj(x) })
+    ASize(::aObjects , 0)
+
+    ::cSceneDescription := ''
+    ::cSceneID := ''
+
+    ::ClearInspector(.T.)
+    ::ClearSelectedObject()
+
 Return

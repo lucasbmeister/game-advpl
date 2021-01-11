@@ -15,7 +15,7 @@ Class GameManager From LongNameClass
     Data oActiveScene
     Data nDeltaTime
     Data aScenes
-    Data oWindow 
+    Data oWindow
     Data cGameName
     Data oWebChannel
     Data oWebEngine
@@ -24,7 +24,7 @@ Class GameManager From LongNameClass
     Data nHeight
     Data nWidth
     Data nPlayerScore
-    Data nPlayerLife 
+    Data nPlayerLife
 
     Data lCameraUpdate
     Data cCameraDirection
@@ -69,6 +69,8 @@ Class GameManager From LongNameClass
     Method ShowPauseMenu()
     Method HidePauseMenu()
     Method CheckPause()
+    Method PlaySound()
+    Method GetSoundList()
 
 EndClass
 
@@ -98,7 +100,7 @@ Method New(cGameName, nTop, nLeft, nHeight, nWidth) Class GameManager
 
     ::oStartLimit := nil
     ::oEndLimit := nil
-        
+
     ::cGameName := cGameName
     ::aScenes := {}
     ::oKeys := JsonObject():New()
@@ -155,7 +157,7 @@ Method Start(cFirstScene) Class GameManager
     nPos := AScan(::aScenes,{|x| x:GetSceneID() == cFirstScene })
 
     ::SetActiveScene(::aScenes[nPos])
-    
+
     ::oWindow:bStart := {||::aScenes[nPos]:Start(),  oInstance:StartEngine() }
     ::oWindow:Activate()
 
@@ -174,22 +176,22 @@ Method StartEngine() Class GameManager
     Local cLink as char
 
     oInstance := Self
-    
+
     cLink := GetTempPath() + "gameadvpl\gameadvpl.html"
 
     ::oWebChannel := TWebChannel():New()
     ::oWebChannel:Connect()
 
     If !::oWebChannel:lConnected
-    	UserException("Erro na conexao com o WebSocket")
-    	Return
+        UserException("Erro na conexao com o WebSocket")
+        Return
     EndIf
 
-    ::oWebChannel:bJsToAdvpl := {|self,codeType,codeContent| oInstance:HandleEvent(self, codeType, codeContent)} 
+    ::oWebChannel:bJsToAdvpl := {|self,codeType,codeContent| oInstance:HandleEvent(self, codeType, codeContent)}
 
-    //::oWebEngine := TWebEngine():New(oInstance:oWindow, 0, 0, ::nWidth, 10,,::oWebChannel:nPort)	
-    ::oWebEngine := TWebEngine():New(oInstance:oWindow, 0, 0, ::nWidth, 10,,::oWebChannel:nPort)	
-	::oWebEngine:Navigate(cLink)
+    //::oWebEngine := TWebEngine():New(oInstance:oWindow, 0, 0, ::nWidth, 10,,::oWebChannel:nPort)
+    ::oWebEngine := TWebEngine():New(oInstance:oWindow, 0, 0, ::nWidth, 10,,::oWebChannel:nPort)
+    ::oWebEngine:Navigate(cLink)
 
 Return
 
@@ -206,7 +208,9 @@ Method HandleEvent(oWebChannel, codeType, codeContent) Class GameManager
         ::oWebChannel:advplToJs("started", "true")
     ElseIf codeType == "update"
         ::Update(oWebChannel, codeType, Upper(codeContent))
-    EndIf 
+    ElseIf codeType == "load_assets"
+        ::oWebChannel:advplToJs("assets", ::GetSoundList())
+    EndIf
 
 Return
 
@@ -258,8 +262,8 @@ Method Update(oWebChannel, codeType, codeContent) Class GameManager
     If !::IsPaused()
         oActiveScene:Update(Self)
     EndIf
-    
-    If ::ShouldUpdateCamera() 
+
+    If ::ShouldUpdateCamera()
         //basicamente move todos os objetos na direção contrário do player (incluindo o player)
         oActiveScene:UpdateCamera(Self, ::cCameraDirection, ::nCameraSpeed)
         ::SetCameraUpdate(.F.)
@@ -306,16 +310,16 @@ Method ExportAssets() Class GameManager
     cFile := "gameadvpl.app"
 
     If !Resource2File(cFile,  cTempPath + cFile)
-    	UserException("Nao foi possivel copiar o arquivo "+cFile+" para o diretorio temporario")
-		Return
+        UserException("Nao foi possivel copiar o arquivo "+cFile+" para o diretorio temporario")
+        Return
     EndIf
 
     If !ExistDir(cTempPath + "gameadvpl\" )
-		If MakeDir(cTempPath + "gameadvpl\" ) != 0
-			UserException("Nao foi criar o diretorio" + cTempPath + "gameadvpl\")
-			Return
-		EndIf
-	EndIf
+        If MakeDir(cTempPath + "gameadvpl\" ) != 0
+            UserException("Nao foi criar o diretorio" + cTempPath + "gameadvpl\")
+            Return
+        EndIf
+    EndIf
 
     FUnzip(cTempPath + cFile, cTempPath + "gameadvpl\")
 
@@ -344,24 +348,27 @@ Return ::oActiveScene
 
 /*
 {Protheus.doc} Method LoadScene(cSceneID) Class GameManager
-Carrega uma cena no jogo. Caso exista uma cena aberta, ela é encerrada antes de 
+Carrega uma cena no jogo. Caso exista uma cena aberta, ela é encerrada antes de
 ser aberta a nova
 @author  Lucas Briesemeister
 @since   01/2021
 @version 12.1.27
 */
 Method LoadScene(cSceneID) Class GameManager
-    
+
     Local nPos as numeric
 
     nPos := AScan(::aScenes,{|x| x:GetSceneID() == cSceneID })
-    
+
     If !Empty(::oActiveScene)
         ::oActiveScene:EndScene()
     EndIf
 
     ::SetActiveScene(::aScenes[nPos])
     ::oActiveScene:Start()
+
+    ::PlaySound('menu_loop')
+
     ::oWebEngine:SetFocus()
     ProcessMessage()
 
@@ -383,7 +390,7 @@ Return ::GetActiveScene():GetObjectsWithColliders()
 @version 12.1.27
 */
 Method GameOver() Class GameManager
-    
+
     Local oSay as object
     Local cText as char
 
@@ -449,7 +456,7 @@ Method SetCameraUpdate(lUpdate, cDirection, nSpeed) Class GameManager
     ::lCameraUpdate := lUpdate
     ::cCameraDirection := cDirection
     ::nCameraSpeed := nSpeed
-Return 
+Return
 
 /*{Protheus.doc} Method ShouldUpdateCamera() Class GameManager
 Retorna se câmera deve ser atualizada
@@ -578,3 +585,55 @@ Method CheckPause() Class GameManager
     EndIf
 
 Return
+
+/*{Protheus.doc} Method PlaySound(cSound) Class GameManager
+Manda comando para JS executar um som
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method PlaySound(cSound) Class GameManager
+
+    ::oWebChannel:advplToJs("play_sound", cSound)
+
+Return
+
+/*{Protheus.doc} Method GetSoundList() Class GameManager
+Retora lista de sons disponiveis
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method GetSoundList() Class GameManager
+
+    Local oList as object
+    Local aFiles as array
+    Local aSizes as array
+    Local cPath as char
+    Local oSound as object
+    Local nX as numeric
+
+    cPath := GetTempPath() + 'gameadvpl\assets\sounds\'
+
+    aFiles := {}
+    aSizes := {}
+
+    ADir(cPath + "*.mp3", @aFiles, @aSizes)
+
+    If Empty(aFiles)
+        aFiles := {}
+    EndIf
+
+    For nX := 1 To Len(aFiles)
+        oSound := JsonObject():New()
+        oSound['file'] := Lower(SubStr(aFiles[nX],1,At('.',aFiles[nX]) - 1))
+        oSound['path'] := 'assets/sounds/' + aFiles[nX]
+
+        aFiles[nX] := oSound
+    Next
+
+    oList := JsonObject():New()
+
+    oList['sounds'] := aFiles
+
+Return oList:ToJson()

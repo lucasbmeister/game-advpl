@@ -14,7 +14,7 @@ Main Function GameAdvpl()
     Local oMenu as object
     Local oLevels as object
     Local oLevel1 as object
-    Local oLevel2 as object
+    Local oInteraction as object
     Local oWindow as object
     Local aDimensions as array
 
@@ -39,25 +39,24 @@ Main Function GameAdvpl()
     oLevel1:SetInitCodeBlock({|oLevel| U_LoadLvl1(oLevel, oGame)})
     oLevel1:SetDescription('Nível 1')
 
-    oLevel2 := Scene():New(oWindow, "level_2", aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
-    oLevel2:SetInitCodeBlock({|oLevel| U_LoadLvl2(oLevel, oGame)})
-    oLevel2:SetDescription('Nível 2')
-
     oEditor := Scene():New(oWindow, "editor", aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
     oEditor:SetInitCodeBlock({|oLevel| U_EditorLevel(oLevel, oGame)})
     oEditor:SetDescription('Editor')
 
+    oInteraction := Scene():New(oWindow, "interaction", aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
+    oInteraction:SetInitCodeBlock({|oLevel| U_LoadInteracion(oLevel, oGame)})
+
     // adiciona cena ao jogo
+    oGame:AddScene(oInteraction)
     oGame:AddScene(oMenu)
     oGame:AddScene(oLevels)
     oGame:AddScene(oEditor)
     oGame:AddScene(oLevel1)
-    oGame:AddScene(oLevel2)
 
     U_LoadEditorScenes(oWindow, oGame, aDimensions)
 
     //inicia o jogo passando como parãmetro a ID da cena inicial
-    oGame:Start(oMenu:GetSceneID())
+    oGame:Start(oInteraction:GetSceneID())
     //oGame:Start("editor")
 
 Return
