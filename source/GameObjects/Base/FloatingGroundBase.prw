@@ -31,14 +31,16 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth, nType) Class FloatingGroundBas
 
     Default nTop := 100
     Default nLeft := 150
-    Default nHeight := 42
 
     If nType == 1
-        Default nWidth := 110
+        Default nWidth := 85
+        Default nHeight := 35
     ElseIf nType == 2
-        Default nHeight := 42
+        Default nWidth := 70
+        Default nHeight := 40
     ElseIf nType == 3
-        Default nHeight := 42
+        Default nWidth := 25
+        Default nHeight := 34
     EndIf
 
 

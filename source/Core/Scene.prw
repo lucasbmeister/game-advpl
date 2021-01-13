@@ -230,7 +230,7 @@ Limpa a cena, eliminando todos os objetos
 */
 Method ClearScene() Class Scene
     //AEval(::aObjects,{|x| x:HideGameObject(), FreeObj(x) })
-    AEval(::aObjects,{|x| IIF(MethIsMemberOf(x, 'HideGameObject'),x:HideGameObject(), x:Hide()), FreeObj(x) })
+    AEval(::aObjects,{|x| IIF(MethIsMemberOf(x, 'HideGameObject', .T.),x:HideGameObject(), x:Hide()), FreeObj(x) })
     ASize(::aObjects , 0)
 Return
 

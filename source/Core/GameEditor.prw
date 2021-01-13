@@ -101,6 +101,7 @@ Class GameEditor From LongNameClass
     Method UnloadCurrentScene()
     Method Import()
     Method Export()
+    Method GetObjectsCategories()
 
 EndClass
 
@@ -147,12 +148,15 @@ Carrega a lista de opções de objetos e monta um botão para cada objeto
 Method LoadObjects(oListObjects) Class GameEditor
 
     Local nX as numeric
+    Local nY as numeric
     Local aObjects as array
+    Local aCategories as array
     Local oFont as object
     Local nLine as numeric
     Local nCol as numeric
     Local oButton as object
     Local cName as char
+    Local bText as codeblock
 
     Static oInstance as object
 
@@ -162,21 +166,30 @@ Method LoadObjects(oListObjects) Class GameEditor
     nLine := 01
     nCol := 01
 
-    aObjects := ::GetObjectList()
+    aCategories := ::GetObjectsCategories()
 
-    For nX := 1 To Len(aObjects)
+    For nY := 1 To Len(aCategories)
 
-        cName := aObjects[nX][1]
+        aObjects := ::GetObjectList(aCategories[nY][2])
+        bText := &('{|| "' + aCategories[nY][1] + '" }')
 
-        If !Empty(aObjects[nX][2])
-            cName := ''
-        EndIf
+        TSay():New(nLine, nCol,bText,oListObjects,,,,,,.T.,CLR_WHITE,CLR_BLACK,50,20)
 
-        oButton := TButton():New(nLine, nCol, cName, oListObjects, {|o| oInstance:SpawnObject(o:cName) },70,50,,oFont,,.T.) 
-        oButton:SetCSS(U_GetButtonCSS(aObjects[nX][2], .F., .F.))
+        nLine += 12
 
-        oButton:cName := aObjects[nX][1]
-        nLine += 51
+        For nX := 1 To Len(aObjects)
+            cName := aObjects[nX][1]
+
+            If !Empty(aObjects[nX][2])
+                cName := ''
+            EndIf
+
+            oButton := TButton():New(nLine, nCol, cName, oListObjects, {|o| oInstance:SpawnObject(o:cName) },70,50,,oFont,,.T.) 
+            oButton:SetCSS(U_GetButtonCSS(aObjects[nX][2], .F., .F.))
+
+            oButton:cName := aObjects[nX][1]
+            nLine += 51
+        Next
     Next
 
 Return
@@ -206,7 +219,7 @@ Method SetupObjectList() Class GameEditor
 
     AAdd(::aUIObjects, ::oScrollObjects)
 
-    nPanelHeight := ::GetObjectList(.T.) * 51
+    nPanelHeight := ::GetObjectList('all', .T.) * 51  + ::GetObjectsCategories(.T.) * 10
 
     oListObjects := TPanel():New(25, 00, , oInstance:oScrollObjects,,,,CLR_WHITE,CLR_BLACK, 70, nPanelHeight)
 
@@ -316,28 +329,68 @@ como .T., será retornado somente a quantidade de objetos.
 @since   01/2021
 @version 12.1.27
 */
-Method GetObjectList(lOnlyLen) Class GameEditor
+Method GetObjectList(cCategory, lOnlyLen) Class GameEditor
 
     Local aObjects as array
+    Local aReturn as array
+    Local nX as numeric
 
     Default lOnlyLen := .F.
+    Default cCategory := 'all'
 
     aObjects := {}
+    aReturn := {}
 
     // por enquanto uma lista simples com os nomes das classes
-    Aadd(aObjects, {'Ground', 'environment/ground.png'})
-    Aadd(aObjects, {'Coin', 'collectables/coin_1/animation/idle/forward/coin_1_1.png'})
-    Aadd(aObjects, {'Player', 'player/animation/idle/forward/HeroKnight_Idle_0.png'})
-    Aadd(aObjects, {'FloatingGround1', 'environment/floating_ground_1.png'})
-    Aadd(aObjects, {'FloatingGround2', 'environment/floating_ground_2.png'})
-    Aadd(aObjects, {'FloatingGround3', 'environment/floating_ground_3.png'})
-    Aadd(aObjects, {'Enemy', 'player/animation/idle/backward/HeroKnight_Idle_0.png'})
-    Aadd(aObjects, {'Square', ''})
+    // 1 = nome da classe; 2 = asset para ser apresentado no botão; 3 = categoria do asset
+    Aadd(aObjects, {'Ground'         , 'environment/ground.png'                                 , 'environment'})
+    Aadd(aObjects, {'Coin'           , 'collectables/coin_1/animation/idle/forward/coin_1_1.png', 'collectables'})
+    Aadd(aObjects, {'Player'         , 'player/animation/idle/forward/HeroKnight_Idle_0.png'    , 'characters'})
+    Aadd(aObjects, {'FloatingGround1', 'environment/floating_ground_1.png'                      , 'environment'})
+    Aadd(aObjects, {'FloatingGround2', 'environment/floating_ground_2.png'                      , 'environment'})
+    Aadd(aObjects, {'FloatingGround3', 'environment/floating_ground_3.png'                      , 'environment'})
+    Aadd(aObjects, {'Enemy'          , 'player/animation/idle/backward/HeroKnight_Idle_0.png'   , 'characters'})
+    Aadd(aObjects, {'Square'         , ''                                                       , 'generics'})
     // deverá ser adicionado automaticamente nas cenas
     //Aadd(aObjects, 'PlayerLife')
     //Aadd(aObjects, 'PlayerScore')
 
-Return IIF(lOnlyLen, Len(aObjects), aObjects)
+    If cCategory == 'all'
+        aReturn := aObjects
+    Else    
+        For nX := 1 To Len(aObjects)
+            If aObjects[nX][3] == cCategory
+                Aadd(aReturn, aObjects[nX])
+            EndIf
+        Next
+    EndIf
+
+Return IIF(lOnlyLen, Len(aReturn), aReturn)
+
+/*
+{Protheus.doc} Method GetObjectsCategories(lOnlyLen) Class GameEditor
+Retorna uma array com os nomes das categorias disponíveis para uso. Caso seja passado o parâmetro lOnlyLen
+como .T., será retornado somente a quantidade de categorias.
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method GetObjectsCategories(lOnlyLen) Class GameEditor
+
+    Local aCategories as array
+
+    Default lOnlyLen := .F.
+
+    aCategories := {}
+
+    // 1 = titulo da categoria; 2 = id da categoria
+    Aadd(aCategories, {'Personagens'   , 'characters'})
+    Aadd(aCategories, {'Cenário'       , 'environment'})
+    Aadd(aCategories, {'Coletáveis'    , 'collectables'})
+    Aadd(aCategories, {'Plano de Fundo', 'backgrounds'})
+    Aadd(aCategories, {'Genéricos'     , 'generics'})
+
+Return IIF(lOnlyLen, Len(aCategories), aCategories)
 
 /*{Protheus.doc} Method SpawnObject(cClassName, nTop, nLeft, lSetSelected) Class GameEditor
 Realizada a instanciação de um objeto na área do editor e atribui funções a serem executadas quando algum
@@ -486,10 +539,10 @@ Method SetupTopBar() Class GameEditor
     TButton():New( 02, (oWindow:nWidth / 2) - 32, "Salvar",::oTopBar,{|o|oInstance:Save()}, 30,10,,,.F.,.T.,.F.,,.F.,,,.F. )
 
     TGet():New(02,95,{|u| If( PCount() == 0, oInstance:cSceneId, oInstance:cSceneId := u) },;
-        ::oTopBar,70,9,"@!",,0,,,.F.,,.T.,,.F.,{|| !oInstance:IsEditing()},.F.,.F.,,.F.,.F.,,oInstance:cSceneId,,,,,,,'ID Cena',1,,CLR_WHITE )
+        ::oTopBar,70,9,"",,0,,,.F.,,.T.,,.F.,{|| !oInstance:IsEditing()},.F.,.F.,,.F.,.F.,,oInstance:cSceneId,,,,,,,'ID Cena',1,,CLR_WHITE )
 
     TGet():New(02,166,{|u| If( PCount() == 0, oInstance:cSceneDescription, oInstance:cSceneDescription := u) },;
-        ::oTopBar,70,9,"@!",,0,,,.F.,,.T.,,.F.,,.F.,.F.,,.F.,.F.,,oInstance:cSceneDescription,,,,,,,'Desc. Cena',1,,CLR_WHITE  )
+        ::oTopBar,70,9,"",,0,,,.F.,,.T.,,.F.,,.F.,.F.,,.F.,.F.,,oInstance:cSceneDescription,,,,,,,'Desc. Cena',1,,CLR_WHITE  )
 
 Return
 
@@ -1099,7 +1152,7 @@ Method SceneFromJson(cFilePath) Class GameEditor
 
     oScene:FromJson(cJson)
 
-    FClose(nHandle)
+    FT_FUse()
 
 Return oScene
 
@@ -1185,11 +1238,13 @@ Method Save() Class GameEditor
 
     nHandle := FCreate(cFilePath, FC_NORMAL)
 
-    FWrite(nHandle,cJson)
-
-    FClose(nHandle)
-
-    MsgInfo('Salvo!','Editor')
+    If nHandle == -1
+        MsgInfo('Problema ao Salvar!','Editor')
+    Else
+        FWrite(nHandle,cJson)
+        FClose(nHandle)
+        MsgInfo('Salvo!','Editor')
+    EndIf
 
 Return
 
@@ -1459,7 +1514,7 @@ Descarrega cena atual
 */
 Method UnloadCurrentScene() Class GameEditor
 
-    AEval(::aObjects,{|x| IIF(MethIsMemberOf(x, 'HideGameObject'),x:HideGameObject(), x:Hide()), FreeObj(x) })
+    AEval(::aObjects,{|x| IIF(MethIsMemberOf(x, 'HideGameObject', .T.),x:HideGameObject(), x:Hide()), FreeObj(x) })
     ASize(::aObjects , 0)
 
     ::cSceneDescription := ''

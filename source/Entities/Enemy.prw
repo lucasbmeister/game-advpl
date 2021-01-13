@@ -68,6 +68,7 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth, cName ) Class Enemy
     ::nCurrentFrame := 1
     ::nLastFrameTime := 0
     ::nLastAttackTime := 0
+    ::cTag := 'enemy'
     ::LoadFrames("player")
 
     cStyle := "TPanel { border-image: url("+::oAnimations[::cCurrentState][::cDirection][::nCurrentFrame]+") 0 stretch; }"

@@ -393,7 +393,7 @@ Method SolveCollision(oObject, nXPos, nYPos) Class Player
             nYPos := ::oGameObject:nTop /*+ ::nTopMargin*/
 
             //player is already colliding with left or right side of object
-        ElseIf ::oGameObject:nLeft + nWidth/* + ::nLeftMargin*/ == nObjLeft .or. ::oGameObject:nLeft /*+ ::nRightMargin*/ == nObjRight  .and. cTag != 'floating_ground'
+        ElseIf ::oGameObject:nLeft + nWidth/* + ::nLeftMargin*/ == nObjLeft .or. ::oGameObject:nLeft /*+ ::nRightMargin*/ == nObjRight
             nXPos := ::oGameObject:nLeft /* + ::nLeftMargin   */
 
         ElseIf nPlayerRight > nObjLeft .and. nPlayerLeft < nObjRight .and. nPlayerBottom > nObjTop .and. nPlayerTop < nObjBottom
@@ -404,11 +404,11 @@ Method SolveCollision(oObject, nXPos, nYPos) Class Player
 
             If nSide == aSides[TOP] //first check top, than left
                 nYPos := nObjTop - nHeight /*+ ::nTopMargin*/
-            ElseIf nSide == aSides[LEFT] .and. cTag != 'floating_ground'
+            ElseIf nSide == aSides[LEFT] 
                 nXPos := nObjLeft - nWidth + ::nLeftMargin
-            ElseIf nSide == aSides[BOTTOM] .and. cTag != 'floating_ground'//first check bottom, than right
+            ElseIf nSide == aSides[BOTTOM] //first check bottom, than right
                 nYPos := nObjBottom
-            ElseIf nSide == aSides[RIGHT] .and. cTag != 'floating_ground'
+            ElseIf nSide == aSides[RIGHT] 
                 nXPos := nObjRight + ::nRightMargin
             EndIf
             ::lIsJumping := .F.
