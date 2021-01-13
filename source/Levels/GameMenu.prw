@@ -22,19 +22,19 @@ User Function LoadMenu(oMenu, oGame)
     aDimensions := oMenu:GetDimensions()
     oWindow := oMenu:GetSceneWindow()
 
-    oSky := Sky():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
+    oSky := Background():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
 
     oGameTitle := TPanel():New(-20, 80, , oWindow,,,,,, 500, 150)
     oGameTitle:SetCSS(GetTitleCSS())
 
     oPlay := TButton():New(120,270,"Iniciar", oWindow,{|| oGame:LoadScene('level_1') },120,40,,oFont48,,.T.)
-    oPlay:SetCss(GetButtonCSS('start'))
+    oPlay:SetCss(U_GetButtonCSS())
 
     oLevels := TButton():New(180,270,"Níveis", oWindow,{|| oGame:LoadScene('levels') },120,40,,oFont48,,.T.)
-    oLevels:SetCss(GetButtonCSS('levels'))
+    oLevels:SetCss(U_GetButtonCSS())
 
     oQuit := TButton():New(240,270,"Sair", oWindow,{|| Final("Saiu do Jogo") },120,40,,oFont48,,.T.)
-    oQuit:SetCss(GetButtonCSS('exit'))
+    oQuit:SetCss(U_GetButtonCSS())
 
     oMenu:AddObject(oSky)
     oMenu:AddObject(oGameTitle)
@@ -79,7 +79,7 @@ User Function LoadLevels(oLevels, oGame)
     nLine := 30
     nCol := 65
 
-    oSky := Sky():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
+    oSky := Background():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
 
     oLevels:AddObject(oSky)
 
@@ -87,7 +87,7 @@ User Function LoadLevels(oLevels, oGame)
 
     For nX := 1 To Len(aScenes)
         oButton := TButton():New(nLine, nCol, AllTrim(aScenes[nX]:GetDescription()), oWindow, {|| oGame:LoadScene(GetScnId(::oCtlFocus, aScenes)) },120,50,,oFont32,,.T.)
-        oButton:SetCss(GetButtonCSS(aScenes[nX]:GetSceneID(), .F.) )
+        oButton:SetCss(U_GetButtonCSS(, .F.) )
         oButton:cName := aScenes[nX]:GetSceneID()
 
         oLevels:AddObject(oButton)
@@ -101,10 +101,10 @@ User Function LoadLevels(oLevels, oGame)
     Next nX
 
     oBack := TButton():New(240, 30, 'Voltar' , oWindow, {|| oGame:LoadScene('menu') },120,50,,oFont48,,.T.)
-    oBack:SetCss(GetButtonCSS('back'))
+    oBack:SetCss(U_GetButtonCSS())
 
     oEditor := TButton():New(240, 490, 'Editor' , oWindow, {|| oGame:LoadScene('editor') },120,50,,oFont48,,.T.)
-    oEditor:SetCss(GetButtonCSS('editor'))
+    oEditor:SetCss(U_GetButtonCSS())
 
     oLevels:AddObject(oBack)
     oLevels:AddObject(oEditor)
@@ -112,21 +112,35 @@ User Function LoadLevels(oLevels, oGame)
 Return
 
 /*
-{Protheus.doc} Static Function GetButtonCSS(cButton, lTransparent)
-Retorna CSS para botões de níveis. Assets são carregados de acordo com o parâmetro cButton
+{Protheus.doc} User Function GetButtonCSS(cAsset, lTransparent)
+Retorna CSS para botões de níveis. Assets são carregados de acordo com o parâmetro cAsset
 @author  Lucas Briesemeister
 @since   01/2021
 @version 12.1.27
 */
-Static Function GetButtonCSS(cButton, lTransparent)
+User Function GetButtonCSS(cAsset, lTransparent, lStretch)
 
     Local cCss as char    
     Local cBorderNormal as char
     Local cBorderHover as char
+    Local cAssetCSS as char
+    Local cPath as char
 
     Default lTransparent := .T.
+    Default lStretch := .T.
 
     cBorderHover := ''
+
+    cAssetCSS := ''
+
+    If !Empty(cAsset)
+        cPath := StrTran(GetTempPath(),"\","/") + 'gameadvpl/assets/' + cAsset
+        If lStretch
+            cAssetCSS := 'border-image: url('+cPath+') 0 0 0 0 stretch;'
+        Else
+            cAssetCSS := 'background-image: url('+cPath+');'
+        EndIf
+    EndIf
 
     If lTransparent
         cBorderNormal := 'background-color: rgba(255, 255, 255, 0.6);'
@@ -134,7 +148,7 @@ Static Function GetButtonCSS(cButton, lTransparent)
     Else
         BeginContent var cBorderNormal  
             background-color: white;
-            border: 2px dashed black
+            border: 2px dashed black;
         EndContent
     EndIf
 
@@ -144,8 +158,9 @@ Static Function GetButtonCSS(cButton, lTransparent)
             background-size: contain;
             background-repeat: no-repeat no-repeat;
             background-position: center; 
-            border-radius: 3px;
             %Exp:cBorderNormal%
+            border-radius: 3px;
+            %Exp:cAssetCSS%
         }
 
         TButton:hover {

@@ -64,6 +64,14 @@ Class BaseGameObject From LongNameClass
     Method SetLeftMargin()
     Method SetBottomMargin()
     Method SetRightMargin()
+    Method SetTop()
+    Method SetLeft()
+    Method SetHeight()
+    Method SetWidth()
+    Method MoveUp()
+    Method MoveLeft()
+    Method MoveDown()
+    Method MoveRight()
     Method EnableEditorCollider()
     Method DisableEditorCollider()
     Method UpdateEditorCollider()
@@ -512,13 +520,24 @@ do mouse sobre o objeto
 @since   01/2021
 @version 12.1.27
 */
-Method UpdateEditorCollider() Class BaseGameObject
+Method UpdateEditorCollider(lHeightWidth) Class BaseGameObject
     
     If ::HasCollider()
-        ::oCollider:nTop := ::oGameObject:nTop + ::nTopMargin 
-        ::oCollider:nLeft := ::oGameObject:nLeft + ::nLeftMargin 
-        ::oCollider:nHeight := ::oGameObject:nHeight + ::nBottomMargin 
-        ::oCollider:nWidth := ::oGameObject:nWidth + ::nRightMargin 
+
+        // top margin
+        ::oCollider:nTop := ::oGameObject:nTop + ::nTopMargin
+        ::oCollider:nHeight := ::oGameObject:nHeight - ::nTopMargin
+
+        // left margin
+        ::oCollider:nLeft := ::oGameObject:nLeft + ::nLeftMargin
+        ::oCollider:nWidth := ::oGameObject:nWidth - ::nLeftMargin
+
+        // bottom margin
+        ::oCollider:nHeight += ::nBottomMargin
+
+        //right margin
+        ::oCollider:nWidth += ::nRightMargin
+
     EndIf
 
 Return
@@ -536,6 +555,102 @@ Method HideEditorCollider() Class BaseGameObject
         ::oCollider:Hide()
         FreeObj(::oCollider)
     EndIf
+Return
+
+/*
+{Protheus.doc} Method SetTop(nTop) Class BaseGameObject
+Define posição top do objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetTop(nTop) Class BaseGameObject
+    ::oGameObject:nTop := nTop
+    ::UpdateEditorCollider()
+Return
+
+/*
+{Protheus.doc} Method SetLeft(nLeft) Class BaseGameObject
+Define posição left do objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetLeft(nLeft) Class BaseGameObject
+    ::oGameObject:nLeft := nLeft
+    ::UpdateEditorCollider()
+Return
+
+/*
+{Protheus.doc} Method SetHeight(nHeight) Class BaseGameObject
+Define altura do objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetHeight(nHeight) Class BaseGameObject
+    ::oGameObject:nHeight := nHeight
+    ::UpdateEditorCollider(.T.)
+Return
+
+/*
+{Protheus.doc} Method SetWidth(nWidth) Class BaseGameObject
+Define largura do objeto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method SetWidth(nWidth) Class BaseGameObject
+    ::oGameObject:nWidth := nWidth
+    ::UpdateEditorCollider(.T.)
+Return
+
+/*
+{Protheus.doc} Method MoveUp(nSpeed) Class BaseGameObject
+Move objeto para cima
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method MoveUp(nSpeed) Class BaseGameObject
+    ::oGameObject:nTop -= nSpeed
+    ::UpdateEditorCollider()
+Return
+
+/*
+{Protheus.doc} Method MoveLeft(nSpeed) Class BaseGameObject
+Move objeto para esquerda
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method MoveLeft(nSpeed) Class BaseGameObject
+    ::oGameObject:nLeft -= nSpeed
+    ::UpdateEditorCollider()
+Return
+
+/*
+{Protheus.doc} Method MoveDown(nSpeed) Class BaseGameObject
+Move objeto para baixo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method MoveDown(nSpeed) Class BaseGameObject
+    ::oGameObject:nTop += nSpeed
+    ::UpdateEditorCollider()
+Return
+
+/*
+{Protheus.doc} Method MoveRight(nSpeed) Class BaseGameObject
+Move objeto para direita
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method MoveRight(nSpeed) Class BaseGameObject
+    ::oGameObject:nLeft += nSpeed
+    ::UpdateEditorCollider()
 Return
 
 

@@ -99,6 +99,8 @@ Class GameEditor From LongNameClass
     Method SetEditing()
     Method NewScene()
     Method UnloadCurrentScene()
+    Method Import()
+    Method Export()
 
 EndClass
 
@@ -150,6 +152,7 @@ Method LoadObjects(oListObjects) Class GameEditor
     Local nLine as numeric
     Local nCol as numeric
     Local oButton as object
+    Local cName as char
 
     Static oInstance as object
 
@@ -162,8 +165,17 @@ Method LoadObjects(oListObjects) Class GameEditor
     aObjects := ::GetObjectList()
 
     For nX := 1 To Len(aObjects)
-        oButton := TButton():New(nLine, nCol, aObjects[nX], oListObjects, {|o| oInstance:SpawnObject(o:cName) },70,50,,oFont,,.T.)
-        oButton:cName := aObjects[nX]
+
+        cName := aObjects[nX][1]
+
+        If !Empty(aObjects[nX][2])
+            cName := ''
+        EndIf
+
+        oButton := TButton():New(nLine, nCol, cName, oListObjects, {|o| oInstance:SpawnObject(o:cName) },70,50,,oFont,,.T.) 
+        oButton:SetCSS(U_GetButtonCSS(aObjects[nX][2], .F., .F.))
+
+        oButton:cName := aObjects[nX][1]
         nLine += 51
     Next
 
@@ -313,12 +325,14 @@ Method GetObjectList(lOnlyLen) Class GameEditor
     aObjects := {}
 
     // por enquanto uma lista simples com os nomes das classes
-    Aadd(aObjects, 'Ground')
-    Aadd(aObjects, 'Coin')
-    Aadd(aObjects, 'Player')
-    Aadd(aObjects, 'FloatingGround')
-    Aadd(aObjects, 'Enemy')
-    Aadd(aObjects, 'Square')
+    Aadd(aObjects, {'Ground', 'environment/ground.png'})
+    Aadd(aObjects, {'Coin', 'collectables/coin_1/animation/idle/forward/coin_1_1.png'})
+    Aadd(aObjects, {'Player', 'player/animation/idle/forward/HeroKnight_Idle_0.png'})
+    Aadd(aObjects, {'FloatingGround1', 'environment/floating_ground_1.png'})
+    Aadd(aObjects, {'FloatingGround2', 'environment/floating_ground_2.png'})
+    Aadd(aObjects, {'FloatingGround3', 'environment/floating_ground_3.png'})
+    Aadd(aObjects, {'Enemy', 'player/animation/idle/backward/HeroKnight_Idle_0.png'})
+    Aadd(aObjects, {'Square', ''})
     // deverá ser adicionado automaticamente nas cenas
     //Aadd(aObjects, 'PlayerLife')
     //Aadd(aObjects, 'PlayerScore')
@@ -471,10 +485,10 @@ Method SetupTopBar() Class GameEditor
     TButton():New( 02, (oWindow:nWidth / 2) - 62, "Carregar",::oTopBar,{|o|oInstance:Load()}, 30,10,,,.F.,.T.,.F.,,.F.,,,.F. )
     TButton():New( 02, (oWindow:nWidth / 2) - 32, "Salvar",::oTopBar,{|o|oInstance:Save()}, 30,10,,,.F.,.T.,.F.,,.F.,,,.F. )
 
-    TGet():New(01,250,{|u| If( PCount() == 0, oInstance:cSceneId, oInstance:cSceneId := u) },;
+    TGet():New(02,95,{|u| If( PCount() == 0, oInstance:cSceneId, oInstance:cSceneId := u) },;
         ::oTopBar,70,9,"@!",,0,,,.F.,,.T.,,.F.,{|| !oInstance:IsEditing()},.F.,.F.,,.F.,.F.,,oInstance:cSceneId,,,,,,,'ID Cena',1,,CLR_WHITE )
 
-    TGet():New(01,321,{|u| If( PCount() == 0, oInstance:cSceneDescription, oInstance:cSceneDescription := u) },;
+    TGet():New(02,166,{|u| If( PCount() == 0, oInstance:cSceneDescription, oInstance:cSceneDescription := u) },;
         ::oTopBar,70,9,"@!",,0,,,.F.,,.T.,,.F.,,.F.,.F.,,.F.,.F.,,oInstance:cSceneDescription,,,,,,,'Desc. Cena',1,,CLR_WHITE  )
 
 Return
@@ -552,8 +566,7 @@ Method MoveObjectUp(oObject) Class GameEditor
     nSpeed := ::GetMovementSpeed()
 
     If !Empty(oObject)
-        oObject:oGameObject:nTop -= nSpeed
-        oObject:UpdateEditorCollider()
+        oObject:MoveUp(nSpeed)
         ::UpdateInspector(Val(::cComboObject))
     EndIf
 
@@ -571,8 +584,7 @@ Method MoveObjectLeft(oObject) Class GameEditor
     nSpeed := ::GetMovementSpeed()
 
     If !Empty(oObject)
-        oObject:oGameObject:nLeft -= nSpeed
-        oObject:UpdateEditorCollider()
+        oObject:MoveLeft(nSpeed)
         ::UpdateInspector(Val(::cComboObject))
     EndIf
 
@@ -590,8 +602,7 @@ Method MoveObjectDown(oObject) Class GameEditor
     nSpeed := ::GetMovementSpeed()
 
     If !Empty(oObject)
-        oObject:oGameObject:nTop += nSpeed
-        oObject:UpdateEditorCollider()
+        oObject:MoveDown(nSpeed)
         ::UpdateInspector(Val(::cComboObject))
     EndIf
 
@@ -610,8 +621,7 @@ Method MoveObjectRight(oObject) Class GameEditor
     nSpeed := ::GetMovementSpeed()
 
     If !Empty(oObject)
-        oObject:oGameObject:nLeft += nSpeed
-        oObject:UpdateEditorCollider()
+        oObject:MoveRight(nSpeed)
         ::UpdateInspector(Val(::cComboObject))
     EndIf
 
@@ -690,8 +700,7 @@ Method MoveSceneLeft() Class GameEditor
     nSpeed := ::GetScenePanSpeed()
 
     For nX := 1 To Len(::aObjects)
-        ::aObjects[nX]:oGameObject:nLeft += nSpeed
-        ::aObjects[nX]:UpdateEditorCollider()
+        ::aObjects[nX]:MoveRight(nSpeed)
     Next
 
     ::nCameraOffset -= nSpeed
@@ -713,8 +722,7 @@ Method MoveSceneRight() Class GameEditor
     nSpeed := ::GetScenePanSpeed()
 
     For nX := 1 To Len(::aObjects)
-        ::aObjects[nX]:oGameObject:nLeft -= nSpeed
-        ::aObjects[nX]:UpdateEditorCollider()
+        ::aObjects[nX]:MoveLeft(nSpeed)
     Next
 
     ::nCameraOffset += nSpeed
@@ -1011,8 +1019,7 @@ Method SetObjectTop(nTop, oObject) Class GameEditor
     Default oObject := ::GetSelectedObject()
 
     If !Empty(oObject)
-        oObject:oGameObject:nTop := nTop
-        oObject:UpdateEditorCollider()
+        oObject:SetTop(nTop)
     EndIf
 
 Return
@@ -1028,8 +1035,7 @@ Method SetObjectLeft(nLeft, oObject) Class GameEditor
     Default oObject := ::GetSelectedObject()
 
     If !Empty(oObject)
-        oObject:oGameObject:nLeft := nLeft
-        oObject:UpdateEditorCollider()
+        oObject:SetLeft(nLeft)
     EndIf
 
 Return
@@ -1045,8 +1051,7 @@ Method SetObjectHeight(nHeight, oObject) Class GameEditor
     Default oObject := ::GetSelectedObject()
 
     If !Empty(oObject)
-        oObject:oGameObject:nHeight := nHeight
-        oObject:UpdateEditorCollider()
+        oObject:SetHeight(nHeight)
     EndIf
 
 Return
@@ -1062,8 +1067,7 @@ Method SetObjectWidth(nWidth, oObject) Class GameEditor
     Default oObject := ::GetSelectedObject()
 
     If !Empty(oObject)
-        oObject:oGameObject:nWidth := nWidth
-        oObject:UpdateEditorCollider()
+        oObject:SetWidth(nWidth)
     EndIf
 
 Return
@@ -1370,6 +1374,7 @@ Method ToggleObjectCollision(nEnable, oObject) Class GameEditor
         If ::lHasCollider .and. !oObject:HasCollider()
             oObject:EnableEditorCollider()
             ::EnableMarginFields()
+            ::MoveUIToTop()
         ElseIF oObject:HasCollider()
             oObject:DisableEditorCollider()
             ::DisableMarginFields(.T.)
@@ -1463,4 +1468,22 @@ Method UnloadCurrentScene() Class GameEditor
     ::ClearInspector(.T.)
     ::ClearSelectedObject()
 
+Return
+
+/*{Protheus.doc} Method Import() Class GameEditor
+Importa cena no formato .level (.zip renomeado)
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method Import() Class GameEditor
+Return
+
+/*{Protheus.doc} Method Export() Class GameEditor
+Exporta cena no formato .level (.zip renomeado)
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method Export() Class GameEditor
 Return

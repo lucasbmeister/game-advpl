@@ -45,6 +45,7 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth, cName ) Class Coin
     ::nCurrentFrame := 1
     ::nLastFrameTime := 0
     ::LoadFrames("collectables\coin_1")
+    ::cTag := 'coin'
 
     cStyle := "TPanel { border-image: url("+::oAnimations['idle']['forward'][::nCurrentFrame]+") 0 stretch; }"
 

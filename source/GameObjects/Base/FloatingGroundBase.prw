@@ -7,7 +7,7 @@ Classe para objetos de piso flutuantes
 @since   01/2021
 @version 12.1.27
 */
-Class FloatingGround From BaseGameObject
+Class FloatingGroundBase From BaseGameObject
 
     Method New() Constructor
     Method Update()
@@ -16,13 +16,13 @@ Class FloatingGround From BaseGameObject
 EndClass
 
 /*
-{Protheus.doc} Method New(oWindow, nTop, nLeft, nHeight, nWidth, nType)
+{Protheus.doc} Method New(oWindow, nTop, nLeft, nHeight, nWidth, nType) Class FloatingGroundBase
 Instância classe FloatinGround
 @author  Lucas Briesemeister
 @since   01/2021
 @version 12.1.27
 */
-Method New(oWindow, nTop, nLeft, nHeight, nWidth, nType) Class FloatingGround
+Method New(oWindow, nTop, nLeft, nHeight, nWidth, nType) Class FloatingGroundBase
     
     Local cStyle as char 
     Local cAsset as char
@@ -60,23 +60,23 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth, nType) Class FloatingGround
 Return
 
 /*
-{Protheus.doc} Method Update()
+{Protheus.doc} Method Update() Class FloatingGroundBase
 Método update (sem uso por enquanto)
 @author  Lucas Briesemeister
 @since   01/2021
 @version 12.1.27
 */
-Method Update() Class FloatingGround
+Method Update() Class FloatingGroundBase
 Return
 
 /*
-{Protheus.doc} Method HideGameObject()
+{Protheus.doc} Method HideGameObject() Class FloatingGroundBase
 Destrói objeto
 @author  Lucas Briesemeister
 @since   01/2021
 @version 12.1.27
 */
-Method HideGameObject() Class FloatingGround
+Method HideGameObject() Class FloatingGroundBase
 
    ::oGameObject:Hide()
    ::HideEditorCollider()

@@ -115,7 +115,7 @@ Method Update(oGameManager) Class Scene
                 ::aObjects[nX]:Update(oGameManager)
             EndIf
             //If ::aObjects[nX]:ShouldDestroy()
-            If !Empty(::aObjects) .and. MethIsMemberOf(::aObjects[nX], 'ShouldDestroy') .and. ::aObjects[nX]:ShouldDestroy()
+            If !Empty(::aObjects) .and. MethIsMemberOf(::aObjects[nX], 'ShouldDestroy', .T.) .and. ::aObjects[nX]:ShouldDestroy()
                 FreeObj(::aObjects[nX])
                 ADel(::aObjects, nX)
                 ASize(::aObjects, Len(::aObjects) - 1)
@@ -368,7 +368,11 @@ Method LoadFromEditor() Class Scene
     Local oObject as object
     Local oJson as object
     Local oWindow as object
-
+    Local oPlayerLife as object
+    Local oPlayerScore as object
+    Local aDimensions as array
+    
+    aDimensions := ::GetDimensions()
     oWindow := ::GetSceneWindow()
     oScene := U_SceneFromJson(::cSceneJson)
 
@@ -388,5 +392,18 @@ Method LoadFromEditor() Class Scene
 
         AAdd(::aObjects, oObject)
     Next
+
+    oPlayerLife := PlayerLife():New(oWindow, 5, 5, 30, 60)
+    oPlayerLife:SetTag('background')
+
+    oPlayerScore := PlayerScore():New(oWindow, 5, (aDimensions[WIDTH] / 2) - 85, 30, 60, ::oGameManager)
+    oPlayerScore:SetTag('background')
+
+    ::oGameManager:UpdateLife(100)
+    ::oGameManager:UpdateScore(0)
+
+    AAdd(::aObjects, oPlayerLife)
+    AAdd(::aObjects, oPlayerScore)
+
 
 Return

@@ -6,9 +6,10 @@
 #DEFINE JUMP_SPEED 8
 #DEFINE ANIMATION_DELAY 80 //ms
 #DEFINE GRAVITY 1
+#DEFINE FOOTSTEP_DELAY 500
 
 /*
-{Protheus.doc} Class Player 
+{Protheus.doc} Class Player
 Classe que contém a lógica do personagem controlado pelo usuário
 @author  Lucas Briesemeister
 @since   01/2021
@@ -24,6 +25,8 @@ Class Player From BaseGameObject
     Data nCurrentFrame
     Data nLastFrameTime
     Data cLastState
+    Data nLastFootstep
+    Data nLastFootstepTime
 
     Method New() Constructor
     Method Update()
@@ -41,6 +44,7 @@ Class Player From BaseGameObject
     Method IsAttacking()
     Method IsLastFrame()
     Method IsBlocking()
+    Method PlaySound()
 
 EndClass
 
@@ -70,7 +74,9 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth, cName ) Class Player
     ::cTag := 'player'
 
     ::nCurrentFrame := 1
+    ::nLastFootstep := 0
     ::nLastFrameTime := 0
+    ::nLastFootstepTime := 0
     ::LoadFrames("player")
 
     cStyle := "TPanel { border-image: url("+::oAnimations[::cCurrentState][::cDirection][::nCurrentFrame]+") 0 stretch; }"
@@ -84,7 +90,7 @@ Method New(oWindow, nTop, nLeft, nHeight, nWidth, cName ) Class Player
 Return Self
 
 /*
-{Protheus.doc} Method Update(oGameManager) 
+{Protheus.doc} Method Update(oGameManager)
 Executa a lógica de atualização por frame
 @author  Lucas Briesemeister
 @since   01/2021
@@ -183,21 +189,21 @@ Method Update(oGameManager) Class Player
 
     If (::oGameObject:nLeft - oGameManager:GetStartLimit() >= oGameManager:GetMidScreen() .or.;
             oGameManager:GetEndLimit() - ::oGameObject:nLeft <= oGameManager:GetMidScreen()) .and. nXOri != ::oGameObject:nLeft
-        oGameManager:SetCameraUpdate(.T., ::cDirection, SPEED) 
+        oGameManager:SetCameraUpdate(.T., ::cDirection, SPEED)
     EndIF
 
     If nXOri == ::oGameObject:nLeft .and. nYOri == ::oGameObject:nTop .and. !::IsAttacking() .and. !::IsBlocking()
         ::SetState("idle")
     EndIf
 
-    ::Animate()
+    ::Animate(oGameManager)
     ::cLastDirection := ::cDirection
     ::cLastState := ::cCurrentState
 
 Return
 
 /*
-{Protheus.doc} Method IsJumping() 
+{Protheus.doc} Method IsJumping()
 Verifica se o jogador está pulando
 @author  Lucas Briesemeister
 @since   01/2021
@@ -233,7 +239,7 @@ Realiza a animação do personagem ed acordo com o frame corrente
 @since   01/2021
 @version 12.1.27
 */
-Method Animate() Class Player
+Method Animate(oGameManager) Class Player
 
     Local cState as char
     Local cStyle as char
@@ -262,6 +268,8 @@ Method Animate() Class Player
         ::nLastFrameTime := nTime
     EndIf
 
+    ::PlaySound(cState, nTime, oGameManager)
+
 Return
 
 /*
@@ -276,7 +284,7 @@ Method SetState(cState) Class Player
 Return
 
 /*
-{Protheus.doc} Method GetState() 
+{Protheus.doc} Method GetState()
 Retorna o estado atual do personagem
 @author  Lucas Briesemeister
 @since   01/2021
@@ -486,3 +494,24 @@ Verifica se o frame da animação é o último da sequência
 */
 Method IsLastFrame(cState) Class Player
 Return ::nCurrentFrame >= Len(::oAnimations[cState][::cDirection]) .and. ::cLastState == cState
+
+/*
+{Protheus.doc} Method PlaySound(cState, nTime, oGameManager) Class Player
+Executa som de acordo com o estado
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method PlaySound(cState, nTime, oGameManager) Class Player
+
+    If cState == 'running' .and. nTime - ::nLastFootstepTime >= FOOTSTEP_DELAY .and. !::IsJumping()
+        If ::nLastFootstep == 2
+            ::nLastFootstep := 1
+        Else
+            ::nLastFootstep := 2
+        EndIf
+        oGameManager:PlaySound('footstep_' + cValToChar(::nLastFootstep))
+        ::nLastFootstepTime := nTime
+    EndIf
+
+Return

@@ -36,7 +36,7 @@ User Function LoadLvl1(oLevel, oGame)
     aDimensions := oLevel:GetDimensions()
     oWindow := oLevel:GetSceneWindow()
 
-    oSky := Sky():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
+    oSky := Background():New(oWindow, aDimensions[TOP], aDimensions[LEFT], aDimensions[HEIGHT], aDimensions[WIDTH])
     oSky:SetTag('background')
 
     oGround1 := Ground():New(oWindow, 260, 0, 42, 110)
@@ -105,15 +105,7 @@ User Function LoadLvl1(oLevel, oGame)
     oEndWall:SetInvisible(.T.)
     oEndWall:SetColliderMargin(0, 0, 0, 0)
 
-    oPlayerLife := PlayerLife():New(oWindow, 5, 5, 30, 60)
-    oPlayerLife:SetTag('background')
-    oPlayerScore := PlayerScore():New(oWindow, 5, (aDimensions[WIDTH] / 2) - 85, 30, 60)
-    oPlayerScore:SetTag('background')
-
     oGame:SetCameraLimits(oStartWall, oEndWall)
-
-    oGame:UpdateLife(100)
-    oGame:UpdateScore(0)
     // adiciona objetos a uma cena, mesmo sem adicionar ele será apresentado, entretanto não será gerenciado
     oLevel:AddObject(oSky)
     oLevel:AddObject(oPlayer)
@@ -133,6 +125,17 @@ User Function LoadLvl1(oLevel, oGame)
     oLevel:AddObject(oFGround3)
     oLevel:AddObject(oStartWall)
     oLevel:AddObject(oEndWall)
+
+    // sempre adicionar após os objetos po
+    oPlayerLife := PlayerLife():New(oWindow, 5, 5, 30, 60)
+    oPlayerLife:SetTag('background')
+
+    oPlayerScore := PlayerScore():New(oWindow, 5, (aDimensions[WIDTH] / 2) - 85, 30, 60, oGame)
+    oPlayerScore:SetTag('background')
+
+    oGame:UpdateLife(100)
+    oGame:UpdateScore(0)
+
     oLevel:AddObject(oPlayerLife)
     oLevel:AddObject(oPlayerScore)
 

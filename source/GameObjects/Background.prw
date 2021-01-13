@@ -7,7 +7,7 @@ Classe para objeto de background
 @since   01/2021
 @version 12.1.27
 */
-Class Sky From BaseGameObject
+Class Background From BaseGameObject
 
     Method New() Constructor
     Method Update()
@@ -22,14 +22,14 @@ Instância classe Sky
 @since   01/2021
 @version 12.1.27
 */
-Method New(oWindow, nTop, nLeft, nHieght, nWidth) Class Sky
+Method New(oWindow, nTop, nLeft, nHieght, nWidth) Class Background
     Local cStyle as char 
     Static oInstance as object
 
     _Super:New(oWindow)
 
     oInstance := Self
-    cStyle := "TPanel { border-image: url("+StrTran(::GetAssetsPath("environment\background.png"),"\","/")+") 0 0 0 0 stretch stretch }"
+    cStyle := "TPanel { border-image: url("+StrTran(::GetAssetsPath("environment\background_green.png"),"\","/")+") 0 0 0 0 stretch stretch }"
 
     ::oGameObject := TPanel():New(0, 0, , oInstance:oWindow,,,,,, 650, 350)
     ::oGameObject:SetCss(cStyle)
@@ -42,7 +42,7 @@ Método update (sem uso por enquanto)
 @since   01/2021
 @version 12.1.27
 */
-Method Update() Class Sky
+Method Update() Class Background
 Return
 
 /*
@@ -52,7 +52,7 @@ Destrói objeto
 @since   01/2021
 @version 12.1.27
 */
-Method HideGameObject() Class Sky
+Method HideGameObject() Class Background
 
    ::oGameObject:Hide()
    ::HideEditorCollider()
