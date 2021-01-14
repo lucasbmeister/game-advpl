@@ -219,7 +219,7 @@ Method SetupObjectList() Class GameEditor
 
     AAdd(::aUIObjects, ::oScrollObjects)
 
-    nPanelHeight := ::GetObjectList('all', .T.) * 51  + ::GetObjectsCategories(.T.) * 10
+    nPanelHeight := ::GetObjectList('all', .T.) * 51  + ::GetObjectsCategories(.T.) * 15
 
     oListObjects := TPanel():New(25, 00, , oInstance:oScrollObjects,,,,CLR_WHITE,CLR_BLACK, 70, nPanelHeight)
 
@@ -343,14 +343,18 @@ Method GetObjectList(cCategory, lOnlyLen) Class GameEditor
 
     // por enquanto uma lista simples com os nomes das classes
     // 1 = nome da classe; 2 = asset para ser apresentado no botão; 3 = categoria do asset
-    Aadd(aObjects, {'Ground'         , 'environment/ground.png'                                 , 'environment'})
     Aadd(aObjects, {'Coin'           , 'collectables/coin_1/animation/idle/forward/coin_1_1.png', 'collectables'})
+    
     Aadd(aObjects, {'Player'         , 'player/animation/idle/forward/HeroKnight_Idle_0.png'    , 'characters'})
+    Aadd(aObjects, {'Enemy'          , 'player/animation/idle/backward/HeroKnight_Idle_0.png'   , 'characters'})
+    
+    Aadd(aObjects, {'Ground'         , 'environment/ground.png'                                 , 'environment'})
     Aadd(aObjects, {'FloatingGround1', 'environment/floating_ground_1.png'                      , 'environment'})
     Aadd(aObjects, {'FloatingGround2', 'environment/floating_ground_2.png'                      , 'environment'})
     Aadd(aObjects, {'FloatingGround3', 'environment/floating_ground_3.png'                      , 'environment'})
-    Aadd(aObjects, {'Enemy'          , 'player/animation/idle/backward/HeroKnight_Idle_0.png'   , 'characters'})
+
     Aadd(aObjects, {'Square'         , ''                                                       , 'generics'})
+    Aadd(aObjects, {'Background'     , 'environment/background_green.png'                       , 'backgrounds'})
     // deverá ser adicionado automaticamente nas cenas
     //Aadd(aObjects, 'PlayerLife')
     //Aadd(aObjects, 'PlayerScore')
@@ -427,7 +431,7 @@ Method SpawnObject(cClassName, nTop, nLeft, lSetSelected) Class GameEditor
     AAdd(::aObjects, oObject)
 
     bLeftBlock := &('{|| oInstance:SetSelectedObject('+cValToChar(Len(::aObjects))+')} ')
-    bRightBlock := &('{|| oInstance:OpenContextMenu("'+cClassName+'", '+ cValToChar(Len(::aObjects))+')} ')
+    bRightBlock := &('{|o,x,y| oInstance:OpenContextMenu("'+cClassName+'", '+ cValToChar(Len(::aObjects))+',x,y)} ')
 
     oObject:SetLeftClickAction(bLeftBlock)
     oObject:SetRightClickAction(bRightBlock)
@@ -436,6 +440,10 @@ Method SpawnObject(cClassName, nTop, nLeft, lSetSelected) Class GameEditor
 
     If lSetSelected
         ::SetSelectedObject(Len(::aObjects))
+    EndIf
+
+    If oObject:GetTag() == 'background'
+        oObject:oGameObject:MoveToBottom()
     EndIf
 
     ::HideContextMenu()
@@ -904,13 +912,16 @@ Abre menu de contexto ao clicar com o botão direito em algum objeto no editor
 @since   01/2021
 @version 12.1.27
 */
-Method OpenContextMenu(cClassName, nObject) Class GameEditor
+Method OpenContextMenu(cClassName, nObject, nX, nY) Class GameEditor
 
     Local oWindow as object
     Local oObject as object
     Local nTop as numeric
     Local nLeft as numeric
     Local aItems as array
+
+    Default nY := 0
+    Default nX := 0
 
     ::HideContextMenu()
 
@@ -922,7 +933,7 @@ Method OpenContextMenu(cClassName, nObject) Class GameEditor
 
     aItems := {cValTochar(nObject) + '=' + cClassName, 'Duplicar','Excluir'}
 
-    ::oContextMenu := TListBox():New(nTop / 2,nLeft / 2,{|u| },aItems,50,50,;
+    ::oContextMenu := TListBox():New((nTop + nY) / 2, (nLeft + nX) / 2,{|u| },aItems,50,50,;
         {||oInstance:ExecuteContextOption(cClassName, nObject, ::oContextMenu:nAt)}, oWindow,,,,.T.)
 
 Return
@@ -995,7 +1006,7 @@ Method DeleteObject(nObject) Class GameEditor
         Aadd(::aCombo, cValTochar(nX) + '=' + cClassName)
 
         bLeftBlock := &('{|| oInstance:SetSelectedObject('+cValToChar(nX)+')} ')
-        bRightBlock := &('{|| oInstance:OpenContextMenu("'+cClassName+'", '+ cValToChar(nX)+')} ')
+        bRightBlock := &('{|o,x,y| oInstance:OpenContextMenu("'+cClassName+'", '+ cValToChar(nX)+',x,y)} ')
 
         ::aObjects[nX]:SetLeftClickAction(bLeftBlock)
         ::aObjects[nX]:SetRightClickAction(bRightBlock)
@@ -1180,7 +1191,7 @@ Method SceneToJson() Class GameEditor
 
         oObject['className'] := Capital(GetClassName(::aObjects[nX]))
         oObject['top'] := ::aObjects[nX]:oGameObject:nTop / 2
-        oObject['left'] := (::aObjects[nX]:oGameObject:nLeft - ::nCameraOffset) / 2
+        oObject['left'] := (::aObjects[nX]:oGameObject:nLeft) / 2
         oObject['height'] := ::aObjects[nX]:oGameObject:nHeight
         oObject['width'] := ::aObjects[nX]:oGameObject:nWidth
 
@@ -1519,6 +1530,7 @@ Method UnloadCurrentScene() Class GameEditor
 
     ::cSceneDescription := ''
     ::cSceneID := ''
+    ::nCameraOffset := 0
 
     ::ClearInspector(.T.)
     ::ClearSelectedObject()
@@ -1532,6 +1544,7 @@ Importa cena no formato .level (.zip renomeado)
 @version 12.1.27
 */
 Method Import() Class GameEditor
+    MsgInfo('Ainda não implementado!', 'Editor')
 Return
 
 /*{Protheus.doc} Method Export() Class GameEditor
@@ -1541,4 +1554,5 @@ Exporta cena no formato .level (.zip renomeado)
 @version 12.1.27
 */
 Method Export() Class GameEditor
+    MsgInfo('Ainda não implementado!', 'Editor')
 Return

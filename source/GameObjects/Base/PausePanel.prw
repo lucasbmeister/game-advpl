@@ -43,10 +43,10 @@ Method New(oWindow, oGame) Class PausePanel
 
     oInstance := Self
     cStyle := "TPanel { background-color: black }"
-    nTop := ((oInstance:oWindow:nHeight / 2) / 2) - (nHeight / 2)
-    nLeft := ((oInstance:oWindow:nWidth / 2) / 2) - (nWidth / 2)
+    nTop := ((oInstance:oWindow:nHeight / 2) / 2) - (nHeight / 2) - 30
+    nLeft := ((oInstance:oWindow:nWidth / 2) / 2) - (nWidth / 2) - 40
 
-    ::oGameObject := TPanel():New(nTop, nLeft,'Pausado', oInstance:oWindow,,,,,, 50, 30)
+    ::oGameObject := TPanel():New(nTop, nLeft,'Pausado', oInstance:oWindow,,,,,, 130, 95)
     ::oGameObject:SetCss(cStyle)
 
     ::SetupMenu()
@@ -87,8 +87,17 @@ Monta botões do menu de pausa
 */
 Method SetupMenu() Class PausePanel
 
-    TButton():New( 05, 05, "Continuar",::oGameObject,{|o|oInstance:Continue()}, 40,10,,,.F.,.T.,.F.,,.F.,,,.F. )
-    TButton():New( 16, 05, "Voltar ao Menu",::oGameObject,{|o|oInstance:GoToMenu()}, 40,10,,,.F.,.T.,.F.,,.F.,,,.F. )
+    Local oFont32 as object
+    Local oContinue as object
+    Local oBack as object
+
+    oFont32 := TFont():New('Impact',, -32,.T.)
+
+    oContinue := TButton():New(05,05,"Continuar", ::oGameObject,{|| oInstance:Continue() },120,40,,oFont32,,.T.)
+    oContinue:SetCss(U_GetButtonCSS(,.F.))
+
+    oBack := TButton():New(50,05,"Voltar ao Menu", ::oGameObject,{|| oInstance:GoToMenu() },120,40,,oFont32,,.T.)
+    oBack:SetCss(U_GetButtonCSS(,.F.))
 
 Return
 

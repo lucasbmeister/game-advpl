@@ -27,6 +27,7 @@ Class Player From BaseGameObject
     Data cLastState
     Data nLastFootstep
     Data nLastFootstepTime
+    Data oEnemyCollided
 
     Method New() Constructor
     Method Update()
@@ -45,6 +46,10 @@ Class Player From BaseGameObject
     Method IsLastFrame()
     Method IsBlocking()
     Method PlaySound()
+    Method IsMidFrame()
+    Method Attack()
+    Method IsDead()
+    Method UpdateLife() 
 
 EndClass
 
@@ -106,6 +111,21 @@ Method Update(oGameManager) Class Player
     Local nXOri as numeric
     Local nYOri as numeric
     Local aNewXY as array
+
+    If oGameManager:GetLife() <= 0
+        ::SetState('death')
+    EndIf
+
+    If ::IsDead()
+        ::cLastState := ::cCurrentState
+        If !::IsLastFrame('death')
+            ::Animate()
+            Return
+        Else
+            oGameManager:GameOver()
+            Return
+        EndIf
+    EndIf
 
     oKeys := oGameManager:GetPressedKeys()
 
@@ -199,6 +219,7 @@ Method Update(oGameManager) Class Player
     ::Animate(oGameManager)
     ::cLastDirection := ::cDirection
     ::cLastState := ::cCurrentState
+    ::oEnemyCollided := nil
 
 Return
 
@@ -263,6 +284,11 @@ Method Animate(oGameManager) Class Player
             //cStyle := "QFrame{ image: url("+::GetNextFrame(cState)+")}"
             //cStyle := "QFrame{ background-image: url("+::GetNextFrame(cState)+"); background-repeat: no-repeat, no-repeat; background-size: 100% 100%; background-position: center; height: 100%; width: 100%;}"
             ::oGameObject:SetCss(cStyle)
+            
+            If 'attacking' $ cState .and. ::IsMidFrame() .and. !Empty(::oEnemyCollided)
+                ::Attack(::oEnemyCollided)
+                ::oEnemyCollided := nil
+            EndIf
 
         EndIf
         ::nLastFrameTime := nTime
@@ -393,8 +419,12 @@ Method SolveCollision(oObject, nXPos, nYPos) Class Player
             nYPos := ::oGameObject:nTop /*+ ::nTopMargin*/
 
             //player is already colliding with left or right side of object
-        ElseIf ::oGameObject:nLeft + nWidth/* + ::nLeftMargin*/ == nObjLeft .or. ::oGameObject:nLeft /*+ ::nRightMargin*/ == nObjRight
+        ElseIf ::oGameObject:nLeft + nWidth + ::nRightMargin == nObjLeft .or. ::oGameObject:nLeft /*+ ::nRightMargin*/ == nObjRight
             nXPos := ::oGameObject:nLeft /* + ::nLeftMargin   */
+
+            If 'enemy' $ cTag 
+                ::oEnemyCollided := oObject
+            EndIf
 
         ElseIf nPlayerRight > nObjLeft .and. nPlayerLeft < nObjRight .and. nPlayerBottom > nObjTop .and. nPlayerTop < nObjBottom
             //check on which side the player collides with the object
@@ -406,10 +436,19 @@ Method SolveCollision(oObject, nXPos, nYPos) Class Player
                 nYPos := nObjTop - nHeight /*+ ::nTopMargin*/
             ElseIf nSide == aSides[LEFT] 
                 nXPos := nObjLeft - nWidth + ::nLeftMargin
+
+                If 'enemy' $ cTag 
+                    ::oEnemyCollided := oObject
+                EndIf
+
             ElseIf nSide == aSides[BOTTOM] //first check bottom, than right
                 nYPos := nObjBottom
             ElseIf nSide == aSides[RIGHT] 
                 nXPos := nObjRight + ::nRightMargin
+
+                If 'enemy' $ cTag 
+                    ::oEnemyCollided := oObject
+                EndIf
             EndIf
             ::lIsJumping := .F.
 
@@ -512,6 +551,80 @@ Method PlaySound(cState, nTime, oGameManager) Class Player
         EndIf
         oGameManager:PlaySound('footstep_' + cValToChar(::nLastFootstep))
         ::nLastFootstepTime := nTime
+    EndIf
+
+Return
+
+/*
+{Protheus.doc} Method IsMidFrame() Class Player
+Retorna se está no meio da animação
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method IsMidFrame() Class Player
+
+    Local cState as char
+    Local nTotalFrames as numeric
+
+    cState := ::GetState()
+    nTotalFrames := Len(::oAnimations[cState][::cDirection])
+
+Return Int(nTotalFrames / 2) == ::nCurrentFrame
+
+/*
+{Protheus.doc} Method Attack(oObjectAttacked) Class Player
+Realiza o ataque no inimigo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method Attack(oObjectAttacked) Class Player
+
+    Local nAttack as numeric
+    Local cState as char
+
+    cState := ::GetState()
+
+    Do Case
+        Case cState == 'attacking_1'
+            nAttack := -10
+        Case cState == 'attacking_2'
+            nAttack := -20
+        Case cState == 'attacking_3'
+            nAttack := -30           
+    EndCase
+    oObjectAttacked:UpdateLife(nAttack)
+Return
+
+/*
+{Protheus.doc} Method IsDead() Class Player
+Retorna se player está morto
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method IsDead() Class Player
+Return ::GetState() == 'death'
+
+/*
+{Protheus.doc} Method SetupHealthBar() Class Player
+Monta barra de saúde do inimigo
+@author  Lucas Briesemeister
+@since   01/2021
+@version 12.1.27
+*/
+Method UpdateLife(nValue, oGame) Class Player
+
+    Local nLife as numeric
+
+    nValue := nValue - IIF(::GetState() == 'block', 5, 0)
+
+    nLife := oGame:UpdateLife(nValue)
+
+    If nLife <= 0
+        ::SetState('death')
+        ::lHasCollider := .F.
     EndIf
 
 Return

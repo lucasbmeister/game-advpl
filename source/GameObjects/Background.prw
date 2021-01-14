@@ -28,6 +28,8 @@ Method New(oWindow, nTop, nLeft, nHieght, nWidth) Class Background
 
     _Super:New(oWindow)
 
+    ::cTag := 'background'
+
     oInstance := Self
     cStyle := "TPanel { border-image: url("+StrTran(::GetAssetsPath("environment\background_green.png"),"\","/")+") 0 0 0 0 stretch stretch }"
 

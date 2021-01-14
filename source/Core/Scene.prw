@@ -392,15 +392,17 @@ Method LoadFromEditor() Class Scene
 
         AAdd(::aObjects, oObject)
     Next
+    
+    AEval(::aObjects,{|x| IIF(x:GetTag() == 'background', x:oGameObject:MoveToBottom(), nil)},/*nStart*/,/*nCount*/)
 
-    oPlayerLife := PlayerLife():New(oWindow, 5, 5, 30, 60)
+    oPlayerLife := PlayerLife():New(oWindow, 12, 5, 30, 60)
     oPlayerLife:SetTag('background')
 
-    oPlayerScore := PlayerScore():New(oWindow, 5, (aDimensions[WIDTH] / 2) - 85, 30, 60, ::oGameManager)
+    oPlayerScore := PlayerScore():New(oWindow, 12, (aDimensions[WIDTH] / 2) - 85, 30, 60, ::oGameManager)
     oPlayerScore:SetTag('background')
 
-    ::oGameManager:UpdateLife(100)
-    ::oGameManager:UpdateScore(0)
+    ::oGameManager:UpdateLife(100, .T.)
+    ::oGameManager:UpdateScore(0, .T.)
 
     AAdd(::aObjects, oPlayerLife)
     AAdd(::aObjects, oPlayerScore)

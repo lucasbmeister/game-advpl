@@ -393,16 +393,26 @@ Method GameOver() Class GameManager
 
     Local oSay as object
     Local cText as char
+    Local oFont32 as object
 
-    cText := "<h1>GAME OVER</h1>"
+    oFont32 := TFont():New('Impact',, -32,.T.)
 
-    oSay := TSay():New(1, 1,{||cText}, ::oWindow,,,,,,.T.,,,100,100,,,,,,.T.)
-    oSay:SetCSS('QLabel { backgound-color: white }')
+    cText := "GAME OVER"
 
-    Sleep(1000)
+    oSay := TSay():New(130, ::GetMidScreen() - 370,{||cText}, ::oWindow,,oFont32,,,,.T.,CLR_WHITE,CLR_BLACK,100,50,,,,,,.T.)
+    oSay:SetTextAlign(2,2)
+    oSay:MoveToTop()
+
+    ProcessMessage()
+    oSay:Refresh()
+
+    Sleep(4000)
 
     oSay:Hide()
     FreeObj(oSay)
+
+    ::UpdateLife(100, .T.)
+    ::UpdateScore(0, .T.)
 
     ::LoadScene(::GetActiveScene():GetSceneID())
 
@@ -414,8 +424,16 @@ Atualiza váriavel com pontuação do player
 @since   01/2021
 @version 12.1.27
 */
-Method UpdateScore(nValue) Class GameManager
-    ::nPlayerScore += nValue
+Method UpdateScore(nValue, lSet) Class GameManager
+    
+    Default lSet := .F.
+
+    If !lSet
+        ::nPlayerScore += nValue
+    Else
+        ::nPlayerScore := nValue
+    EndIF
+
 Return ::nPlayerScore
 
 /*{Protheus.doc} Method GetScore() Class GameManager
@@ -433,8 +451,16 @@ Atualiza váriavel com vida do player
 @since   01/2021
 @version 12.1.27
 */
-Method UpdateLife(nLife) Class GameManager
-    ::nPlayerLife += nLife
+Method UpdateLife(nLife, lSet) Class GameManager
+
+    Default lSet := .F.
+
+    If !lSet
+        ::nPlayerLife += nLife
+    Else
+        ::nPlayerLife := nLife
+    EndIf
+
 Return ::nPlayerLife
 
 /*{Protheus.doc} Method GetLife() Class GameManager
